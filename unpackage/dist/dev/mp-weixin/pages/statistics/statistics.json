@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "uv-navbar": "../../uni_modules/uv-navbar/components/uv-navbar/uv-navbar",
+    "uv-load-more": "../../uni_modules/uv-load-more/components/uv-load-more/uv-load-more",
+    "filter-drawer": "./components/my-filter-drawer",
+    "item": "./components/item"
+  }
+}

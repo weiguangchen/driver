@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "login-drawer": "./login-drawer",
+    "nickname-modal": "./nickname-modal"
+  }
+}

@@ -1,0 +1,106 @@
+page,view {
+	box-sizing: border-box;
+	/* 主色 */
+	--main-color: #31CE57;
+	--light-main: #E7F9E9;
+	--dark-main: #02B72E;
+	--deep-main: #00751C;
+	/* 警告色 */
+	--red-color: #F15948;
+	--light-red: #FFF0EE;
+	/* 灰度 */
+	--title-color: #1A1B1C;
+	--content-color: #4E5356;
+	--sub-color: #73838E;
+	--intr-color: #A0AFBA;
+	--divider: #E3E9EF;
+	--page-bg: #F2F4F7;
+}
+
+page {
+	background-color: var(--page-bg);
+}
+
+.page-bg {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: -1;
+	height: 500rpx;
+	width: 100%;
+	background: linear-gradient(to bottom, transparent 168px, #F2F4F7), linear-gradient(270deg, #31CE57 0%, #07B130 100%);
+}
+
+.my-flex {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* 边框 */
+.my-border-bottom,
+.my-border-top,
+.my-border-left,
+.my-border-right {
+	border-color: #e3e9ef !important;
+}
+.my-border-bottom {
+	border-bottom-width: 1rpx !important;
+	border-bottom-style: solid;
+}
+.my-border-top {
+	border-top-width: 1px !important;
+	border-top-style: solid;
+}
+.my-border-left {
+	border-left-width: 1px !important;
+	border-left-style: solid;
+}
+.my-border-right {
+	border-right-width: 1px !important;
+	border-right-style: solid;
+}
+.page-footer {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	z-index: 2000;
+	background-color: #fff;
+	padding: 16rpx 24rpx calc(var(--safe-area-inset-bottom) + 24rpx);
+	.btns {
+		display: flex;
+		.left {
+			flex:none;
+			width: 262rpx;
+			margin-right: 20rpx;
+		}
+		.right {
+			flex:1;
+		}
+	}
+}
+
+// 抽屉选项样式
+.my-dropdown-items {
+	padding: 24rpx;
+	.my-dropdown-item {
+		display: flex;
+		align-items: center;
+		padding: 32rpx;
+		line-height: 48rpx;
+		font-size: 28rpx;
+		color: var(--title-color);
+		border-radius: 16rpx;
+		background-color: #FFFFFF;
+
+		&:not(:last-child) {
+			margin-bottom: 16rpx;
+		}
+
+		&.active {
+			color: var(--main-color);
+			font-weight: 600;
+		}
+	}
+}

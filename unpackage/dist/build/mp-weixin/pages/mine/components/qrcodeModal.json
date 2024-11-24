@@ -1,0 +1,8 @@
+{
+  "component": true,
+  "usingComponents": {
+    "uv-image": "../../../uni_modules/uv-image/components/uv-image/uv-image",
+    "uv-qrcode": "../../../uni_modules/uv-qrcode/components/uv-qrcode/uv-qrcode",
+    "my-popup": "../../../components/my-popup/my-popup"
+  }
+}

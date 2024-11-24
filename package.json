@@ -1,0 +1,52 @@
+{
+  "name": "driver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weiguangchen/driver.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/weiguangchen/driver/issues"
+  },
+  "homepage": "https://github.com/weiguangchen/driver#readme",
+  "uni-app": {
+    "scripts": {
+      "mp-weixin-dev": {
+        "title": "司机端:开发环境",
+        "env": {
+          "UNI_PLATFORM": "mp-weixin",
+          "BASE_URL": "http://118.195.244.32:28012",
+          "TOKEN_KEY": "test-driver-token"
+        }
+      },
+      "mp-weixin-test": {
+        "title": "司机端:测试环境",
+        "env": {
+          "UNI_PLATFORM": "mp-weixin",
+          "BASE_URL": "http://118.195.244.32:28012",
+          "TOKEN_KEY": "test-driver-token"
+        }
+      },
+      "mp-weixin-prod": {
+        "title": "司机端:生产环境",
+        "env": {
+          "UNI_PLATFORM": "mp-weixin",
+          "BASE_URL": "https://wxpro2.tjhuatong.com:28011",
+          "TOKEN_KEY": "driver-token"
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "big.js": "^6.2.2",
+    "dayjs": "^1.11.11"
+  }
+}

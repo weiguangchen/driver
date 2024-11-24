@@ -1,0 +1,13 @@
+{
+  "component": true,
+  "usingComponents": {
+    "uv-overlay": "../../uni_modules/uv-overlay/components/uv-overlay/uv-overlay",
+    "uv-status-bar": "../../uni_modules/uv-status-bar/components/uv-status-bar/uv-status-bar",
+    "uv-image": "../../uni_modules/uv-image/components/uv-image/uv-image",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
+    "uv-checkbox": "../../uni_modules/uv-checkbox/components/uv-checkbox/uv-checkbox",
+    "uv-checkbox-group": "../../uni_modules/uv-checkbox/components/uv-checkbox-group/uv-checkbox-group",
+    "uv-safe-bottom": "../../uni_modules/uv-safe-bottom/components/uv-safe-bottom/uv-safe-bottom",
+    "uv-transition": "../../uni_modules/uv-transition/components/uv-transition/uv-transition"
+  }
+}

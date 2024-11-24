@@ -1,0 +1,1 @@
+<view class="result-wrapper"><uv-image wx:if="{{a}}" u-i="4ef992c1-0" bind:__l="__l" u-p="{{a}}"/><view class="title">反馈提交成功</view><view class="sub">我们会尽快处理，感谢您的反馈</view></view><uv-button wx:if="{{b}}" u-i="4ef992c1-1" bind:__l="__l" u-p="{{b}}"></uv-button>

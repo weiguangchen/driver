@@ -1,0 +1,1 @@
+"use strict";var t,e;const r=require("../../../../common/vendor.js"),n={props:{span:{type:[String,Number],default:12},offset:{type:[String,Number],default:0},justify:{type:String,default:"start"},align:{type:String,default:"stretch"},textAlign:{type:String,default:"left"},...null==(e=null==(t=r.index.$uv)?void 0:t.props)?void 0:e.col}};exports.props=n;

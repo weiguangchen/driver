@@ -1,0 +1,1 @@
+<login-drawer class="r" u-r="loginRef" bindsuccess="{{b}}" u-i="c0405062-0" bind:__l="__l"/><nickname-modal class="r" u-r="nicknameRef" bindsuccess="{{d}}" u-i="c0405062-1" bind:__l="__l"/>

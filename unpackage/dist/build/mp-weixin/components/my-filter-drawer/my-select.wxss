@@ -1,0 +1,1 @@
+.select-box{display:flex;align-items:center;justify-content:space-between;padding:0 32rpx;height:72rpx;background:#fff;border-radius:36rpx;border:2rpx solid var(--divider);font-size:26rpx;color:var(--title-color);line-height:48rpx}.select-box--active{opacity:.45}

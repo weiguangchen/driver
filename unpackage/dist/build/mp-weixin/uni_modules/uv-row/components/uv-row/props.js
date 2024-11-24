@@ -1,0 +1,1 @@
+"use strict";var t,r;const e=require("../../../../common/vendor.js"),n={props:{gutter:{type:[String,Number],default:0},justify:{type:String,default:"start"},align:{type:String,default:"center"},...null==(r=null==(t=e.index.$uv)?void 0:t.props)?void 0:r.row}};exports.props=n;

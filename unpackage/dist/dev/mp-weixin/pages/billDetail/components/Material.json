@@ -1,0 +1,11 @@
+{
+  "component": true,
+  "usingComponents": {
+    "uv-button": "../../../uni_modules/uv-button/components/uv-button/uv-button",
+    "uv-switch": "../../../uni_modules/uv-switch/components/uv-switch/uv-switch",
+    "uv-form-item": "../../../uni_modules/uv-form/components/uv-form-item/uv-form-item",
+    "my-number-box": "../../../components/my-number-box/my-number-box",
+    "uv-form": "../../../uni_modules/uv-form/components/uv-form/uv-form",
+    "my-drawer": "../../../components/my-drawer/my-drawer"
+  }
+}

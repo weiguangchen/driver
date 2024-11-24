@@ -1,0 +1,1 @@
+page{padding:24rpx}.item-group{border-radius:24rpx;background:#fff}.item-group .item{margin-bottom:0!important}.item{background:#fff;border-radius:24rpx;padding:32rpx 28rpx;display:flex;align-items:center;justify-content:space-between;font-size:30rpx;line-height:48rpx;margin-bottom:20rpx}.item .label{color:var(--title-color)}

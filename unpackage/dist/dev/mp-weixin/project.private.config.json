@@ -1,0 +1,83 @@
+{
+  "description": "项目私有配置文件。此文件中的内容将覆盖 project.config.json 中的相同字段。项目的改动优先同步到此文件中。详见文档：https://developers.weixin.qq.com/miniprogram/dev/devtools/projectconfig.html",
+  "projectname": "driver",
+  "setting": {
+    "compileHotReLoad": true
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/waybill/waybill",
+          "pathName": "pages/waybill/waybill",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/billDetail/billDetail",
+          "pathName": "pages/billDetail/billDetail",
+          "query": "assignId=608182483543916485",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/waybill/waybill",
+          "pathName": "pages/waybill/waybill",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/statistics/statistics",
+          "pathName": "pages/statistics/statistics",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/mine/mine",
+          "pathName": "pages/mine/mine",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/mine/mine",
+          "pathName": "pages/mine/mine",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/carList/carList",
+          "pathName": "pages/carList/carList",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/waybill/waybill",
+          "pathName": "pages/waybill/waybill",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/addCar/addCar",
+          "pathName": "pages/addCar/addCar",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/carList/carList",
+          "pathName": "pages/carList/carList",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
+  }
+}

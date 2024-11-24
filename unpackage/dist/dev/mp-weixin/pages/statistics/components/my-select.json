@@ -1,0 +1,8 @@
+{
+  "component": true,
+  "usingComponents": {
+    "uv-icon": "../../../uni_modules/uv-icon/components/uv-icon/uv-icon",
+    "uv-image": "../../../uni_modules/uv-image/components/uv-image/uv-image",
+    "my-drawer": "../../../components/my-drawer/my-drawer"
+  }
+}

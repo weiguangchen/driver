@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "",
+  "usingComponents": {
+    "uv-form-item": "../../uni_modules/uv-form/components/uv-form-item/uv-form-item",
+    "uv-form": "../../uni_modules/uv-form/components/uv-form/uv-form",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
+    "my-confirm": "../../components/my-confirm/my-confirm",
+    "select-color": "./components/SelectColor",
+    "select-car-type": "./components/SelectCarType",
+    "car-number": "./components/CarNumber"
+  }
+}

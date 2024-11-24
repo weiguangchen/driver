@@ -1,0 +1,53 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.qrcode-modal.data-v-811b4f34 {
+  width: 646rpx;
+  background: url(data:image/png;base64,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) right top 52rpx/260rpx 192rpx no-repeat, linear-gradient(360deg, #F2F4F7 50%, #D4FFDF 100%);
+  border-radius: 48rpx;
+  padding: 48rpx;
+}
+.qrcode-modal .person.data-v-811b4f34 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 28rpx;
+}
+.qrcode-modal .person .user .name.data-v-811b4f34 {
+  font-weight: bold;
+  font-size: 40rpx;
+  color: var(--title-color);
+  line-height: 40rpx;
+  margin-bottom: 16rpx;
+}
+.qrcode-modal .person .user .phone.data-v-811b4f34 {
+  font-size: 26rpx;
+  color: var(--content-color);
+  line-height: 36rpx;
+}
+.qrcode-modal .qrcode-wrapper.data-v-811b4f34 {
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 60rpx;
+}

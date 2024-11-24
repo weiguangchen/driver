@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "问题反馈",
+  "usingComponents": {
+    "uv-image": "../../uni_modules/uv-image/components/uv-image/uv-image",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button"
+  }
+}

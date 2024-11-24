@@ -1,0 +1,1 @@
+<view class="my-empty" style="{{'height:' + f + ';' + ('background:' + g)}}"><uv-image wx:if="{{a}}" u-i="be278b3e-0" bind:__l="__l" u-p="{{a}}"/><view class="text">{{b}}</view><uv-button wx:if="{{c}}" bindclick="{{d}}" u-i="be278b3e-1" bind:__l="__l" u-p="{{e}}"/></view>

@@ -1,0 +1,14 @@
+{
+  "navigationBarTitleText": "",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "uv-search": "../../uni_modules/uv-search/components/uv-search/uv-search",
+    "my-filter-drawer": "../../components/my-filter-drawer/my-filter-drawer",
+    "uv-navbar": "../../uni_modules/uv-navbar/components/uv-navbar/uv-navbar",
+    "uv-tabs": "../../uni_modules/uv-tabs/components/uv-tabs/uv-tabs",
+    "my-empty": "../../components/my-empty/my-empty",
+    "my-login-drawer": "../../components/my-login-drawer/my-login-drawer",
+    "my-tabbar": "../../components/my-tabbar/my-tabbar",
+    "item": "./components/item"
+  }
+}

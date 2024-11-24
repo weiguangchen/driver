@@ -1,0 +1,1 @@
+"use strict";const e=require("../common/vendor.js"),n="test-driver-token";exports.getToken=function(){return e.index.getStorageSync(n)},exports.removeToken=function(){return e.index.removeStorageSync(n)},exports.setToken=function(t){return e.index.setStorageSync(n,t)};

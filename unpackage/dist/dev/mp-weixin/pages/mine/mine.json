@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "uv-navbar": "../../uni_modules/uv-navbar/components/uv-navbar/uv-navbar",
+    "uv-image": "../../uni_modules/uv-image/components/uv-image/uv-image",
+    "my-login-drawer": "../../components/my-login-drawer/my-login-drawer",
+    "my-tabbar": "../../components/my-tabbar/my-tabbar",
+    "qrcode-modal": "./components/qrcodeModal"
+  }
+}

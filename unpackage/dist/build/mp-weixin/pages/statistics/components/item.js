@@ -1,0 +1,1 @@
+"use strict";const r=require("../../../common/vendor.js"),e={};if(!Array){r.resolveComponent("uv-line")()}Math;const o=r._export_sfc(e,[["render",function(e,o){return{a:r.p({direction:"col",color:"var(--divider)",length:"56rpx"}),b:r.p({direction:"col",color:"var(--divider)",length:"56rpx"})}}],["__scopeId","data-v-c4670343"]]);wx.createComponent(o);
