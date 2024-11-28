@@ -42,7 +42,15 @@
           "BASE_URL": "https://wxpro2.tjhuatong.com:28011",
           "TOKEN_KEY": "driver-token"
         }
-      }
+      },
+	  "mp-weixin-prod:wanning": {
+	    "title": "万宁司机端:生产环境",
+	    "env": {
+	      "UNI_PLATFORM": "mp-weixin",
+	      "BASE_URL": "https://www.wnlsjc.com:8023",
+	      "TOKEN_KEY": "driver-token:wanning"
+	    }
+	  }
     }
   },
   "dependencies": {

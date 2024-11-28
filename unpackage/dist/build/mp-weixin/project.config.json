@@ -11,6 +11,7 @@
     "minified": false,
     "newFeature": true,
     "bigPackageSizeSupport": true,
+    "packNpmRelationList": [],
     "babelSetting": {
       "ignore": [],
       "disablePlugins": [],
@@ -19,7 +20,7 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.5.3",
-  "appid": "wx97e2e01a79056802",
+  "appid": "wxac1b929403717b84",
   "projectname": "driver",
   "condition": {},
   "editorSetting": {
