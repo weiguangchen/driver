@@ -1,1 +1,0 @@
-"use strict";const e=require("../../common/vendor.js"),o={__name:"webview",setup(o){const n=e.ref();return e.onLoad((e=>{console.log("src",decodeURIComponent(e.src)),n.value=decodeURIComponent(e.src)})),(e,o)=>({a:n.value})}};wx.createPage(o);

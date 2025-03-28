@@ -1,8 +1,0 @@
-{
-  "navigationBarTitleText": "操作指南",
-  "navigationBarBackgroundColor": "#ffffff",
-  "usingComponents": {
-    "uv-tabs": "../../uni_modules/uv-tabs/components/uv-tabs/uv-tabs",
-    "uv-image": "../../uni_modules/uv-image/components/uv-image/uv-image"
-  }
-}

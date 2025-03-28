@@ -1,1 +1,0 @@
-page{padding:24rpx}.title{font-weight:500;font-size:30rpx;color:var(--title-color);line-height:48rpx;margin-bottom:16rpx}.form-wrapper{margin-bottom:32rpx;padding:24rpx;background:#fff;border-radius:24rpx}.form-wrapper .uv-form-item__body{padding:0!important}.form-wrapper .uv-form-item__body .uv-textarea{padding:0 0 9px!important}

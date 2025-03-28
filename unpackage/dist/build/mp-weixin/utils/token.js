@@ -1,1 +1,0 @@
-"use strict";const e=require("../common/vendor.js"),t="test-driver-token";exports.getToken=function(){return e.index.getStorageSync(t)},exports.removeToken=function(){return e.index.removeStorageSync(t)},exports.setToken=async function(n){try{await e.index.setStorageSync(t,n)}catch(o){console.log("setToken error",o)}};

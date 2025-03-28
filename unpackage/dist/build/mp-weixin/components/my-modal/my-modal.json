@@ -1,7 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "uv-loading-icon": "../../uni_modules/uv-loading-icon/components/uv-loading-icon/uv-loading-icon",
-    "uv-popup": "../../uni_modules/uv-popup/components/uv-popup/uv-popup"
-  }
-}

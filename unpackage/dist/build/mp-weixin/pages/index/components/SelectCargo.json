@@ -1,7 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "uv-image": "../../../uni_modules/uv-image/components/uv-image/uv-image",
-    "my-drawer": "../../../components/my-drawer/my-drawer"
-  }
-}

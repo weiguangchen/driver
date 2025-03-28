@@ -1,1 +1,0 @@
-<my-modal wx:if="{{e}}" class="r" u-s="{{['d']}}" u-r="modal" bindconfirm="{{d}}" u-i="054d9225-0" bind:__l="__l" u-p="{{e}}"><view class="nickname"><view class="content">希望货主或其他司机怎么称呼您?</view><uv-input wx:if="{{b}}" u-i="054d9225-1,054d9225-0" bind:__l="__l" bindupdateModelValue="{{a}}" u-p="{{b}}"/></view></my-modal>

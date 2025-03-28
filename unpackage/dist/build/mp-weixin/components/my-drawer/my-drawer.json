@@ -1,7 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
-    "uv-popup": "../../uni_modules/uv-popup/components/uv-popup/uv-popup"
-  }
-}

@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "",
-  "usingComponents": {
-    "uv-parse": "../../uni_modules/uv-parse/components/uv-parse/uv-parse"
-  }
-}
