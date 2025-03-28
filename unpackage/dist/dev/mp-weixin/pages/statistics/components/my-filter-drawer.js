@@ -75,10 +75,10 @@ const _sfc_main = {
       label: "全部装货厂家",
       value: "all"
     }, {
-      label: "河南洛阳腾圃代理有限公司",
+      label: "选项",
       value: "1"
     }, {
-      label: "河南洛阳腾圃代理有限公司",
+      label: "选项",
       value: "2"
     }]);
     const mfrs = common_vendor.ref("all");
@@ -86,10 +86,10 @@ const _sfc_main = {
       label: "全部物料",
       value: "all"
     }, {
-      label: "河南洛阳腾圃代理有限公司",
+      label: "选项",
       value: "1"
     }, {
-      label: "河南洛阳腾圃代理有限公司",
+      label: "选项",
       value: "2"
     }]);
     const material = common_vendor.ref("all");
@@ -97,10 +97,10 @@ const _sfc_main = {
       label: "全部卸货地",
       value: "all"
     }, {
-      label: "河南洛阳腾圃代理有限公司",
+      label: "选项",
       value: "1"
     }, {
-      label: "河南洛阳腾圃代理有限公司",
+      label: "选项",
       value: "2"
     }]);
     const discharge = common_vendor.ref("all");
@@ -108,10 +108,10 @@ const _sfc_main = {
       label: "全部货主",
       value: "all"
     }, {
-      label: "河南洛阳腾圃代理有限公司",
+      label: "选项",
       value: "1"
     }, {
-      label: "河南洛阳腾圃代理有限公司",
+      label: "选项",
       value: "2"
     }]);
     common_vendor.ref("all");

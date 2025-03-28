@@ -15,6 +15,27 @@
           "scene": null
         },
         {
+          "name": "pages/setting/setting",
+          "pathName": "pages/setting/setting",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/wayBillDetail/wayBillDetail",
+          "pathName": "pages/wayBillDetail/wayBillDetail",
+          "query": "onwayId=643359741824729029",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/waybill/waybill",
+          "pathName": "pages/waybill/waybill",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "pages/billDetail/billDetail",
           "pathName": "pages/billDetail/billDetail",
           "query": "assignId=608182483543916485",

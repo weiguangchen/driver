@@ -3,19 +3,20 @@
 		<view class="left">
 			<view class="name">{{ record.MaterialName }}</view>
 			<view class="info">
-				<template v-if="record.Limittype === '1'">可接 {{ record.EstimateWeight }} 吨</template>
-				<template v-if="record.Limittype === '2'">可接 {{ record.EstimateTimes }} 车次</template>
+				<template v-if="record.ReceiveAble === '0'">暂无可接量</template>
+				<template v-else-if="record.Limittype === '1'">可接 {{ record.LeftWeight }} 吨</template>
+				<template v-else-if="record.Limittype === '2'">可接 {{ record.Lefttimes }} 车次</template>
 				<template v-if="record.Realheight">，当前库高 {{ record.Realheight }} 米</template>
 			</view>
 		</view>
 		<view class="right">
 			<view class="btn">
-				<uv-button :disabled="disabled" shape="circle" :color="disabled ? '#B0BECC' : 'linear-gradient( 270deg, #31CE57 0%, #07B130 100%)'" text="接单" :custom-style="{ height: '68rpx' }" @click="openDrawer"></uv-button>
+				<uv-button :disabled="disabled" shape="circle" :color="disabled ? '#B0BECC' : 'linear-gradient( 270deg, #31CE57 0%, #07B130 100%)'" :text="disabled ? '不可接' : '接单'" :custom-style="{ height: '68rpx' }" @click="openDrawer"></uv-button>
 			</view>
 		</view>
 	</view>
 
-	<my-drawer title="设置预计装运量" ref="drawer" showConfirmButton confirmText="确认订单" bgColor="#FFFFFF" asyncClose @confirm="confirm">
+	<my-drawer title="设置预计装运量" ref="drawer" showConfirmButton confirmText="确认接单" bgColor="#FFFFFF" asyncClose @confirm="confirm">
 		<view class="form-wrapper">
 			<uv-form labelPosition="left" :model="model" :rules="rules" ref="form">
 				<uv-form-item prop="FullLoad" :customStyle="{ padding: '28rpx 0' }" v-if="bill.ConfigEnt.fullLoad === '1'">
@@ -27,13 +28,13 @@
 						<uv-switch v-model="model.FullLoad" active-color="var(--main-color)" @change="changeIsFull" activeValue="1" inactiveValue="0"/> 
 					</view>
 				</uv-form-item>
-				<uv-form-item prop="Load" :customStyle="{ padding: '28rpx 0' }" v-if="model.FullLoad === '0'">
+				<uv-form-item labelPosition="top" prop="Load" :customStyle="{ padding: '28rpx 0' }" v-if="model.FullLoad === '0'">
 					<template #label>
 						<view class="main-title">预装总重（毛重）</view>
 						<view class="sub-title">限 {{ bill.ConfigEnt ? bill.ConfigEnt.fullLoadMin ? bill.ConfigEnt.fullLoadMin : 0 : 0 }} ~ {{ bill.ConfigEnt ? bill.ConfigEnt.fullLoadMax ? bill.ConfigEnt.fullLoadMax : '' : '' }} 吨</view>
 					</template>
-					<view style="display: flex;justify-content: flex-end;">
-						<my-number-box v-model="model.Load" :min="bill.ConfigEnt ? bill.ConfigEnt.fullLoadMin ? bill.ConfigEnt.fullLoadMin : 0 : 0" :max="bill.ConfigEnt ? bill.ConfigEnt.fullLoadMax ? bill.ConfigEnt.fullLoadMax : undefined : undefined"/>
+					<view style="display: flex;justify-content: center;padding-top:32rpx;">
+						<my-number-box v-model="model.Load" decimal-length="2" :min="bill.ConfigEnt ? bill.ConfigEnt.fullLoadMin ? bill.ConfigEnt.fullLoadMin : 0 : 0" :min-limit-msg="min => `重量最少为${min}吨`" :max="bill.ConfigEnt ? bill.ConfigEnt.fullLoadMax ? bill.ConfigEnt.fullLoadMax : undefined : undefined" :max-limit-msg="max => `重量最多为${max}吨`"/>
 					</view>
 				</uv-form-item>
 			</uv-form>
@@ -74,12 +75,12 @@
 	})
 	// 按钮禁用
 	const disabled = computed(() => {
-		return props.bill.EntryAuthened === '0' || (props.bill.EntryAuthened === '1' && props.record.ReceiveAble === '0')
+		return ['0','2'].includes(props.bill.EntryAuthened) || (props.bill.EntryAuthened === '1' && props.record.ReceiveAble === '0')
 	})
 	
 	const emits = defineEmits(['confirm'])
 	const model = reactive({
-		FullLoad: false,
+		FullLoad: "0",
 		Load: 0
 	})
 	const rules = reactive({
@@ -106,8 +107,8 @@
 		const carType = props.bill?.CarEnt?.CarType ?? '';
 		const carTare = map?.[carType] ?? 0;
 		const carWeight = props.bill?.ConfigEnt?.[carTare] ?? 0;
-		if(model.FullLoad) {
-			return Big(props.bill?.ConfigEnt?.FullLoadGross || 0).minus(carWeight).toFixed(2)
+		if(model.FullLoad === '1') {
+			return Big(props.bill?.ConfigEnt?.fullLoadGross || 0).minus(carWeight).toFixed(2)
 		}else {
 			return Big(model.Load || 0).minus(carWeight).toFixed(2)
 		}
@@ -123,6 +124,8 @@
 	}
 	
 	async function confirm() {
+		await uni.hideKeyboard();
+		await sleep(200);
 		try {
 			// console.log('model',model)
 			const tokenData = getToken();
@@ -134,7 +137,7 @@
 				Material: props.record.Material,
 				MatName: props.record.MaterialName,
 				FullLoad: model.FullLoad,
-				Load: model.FullLoad ? props?.bill?.ConfigEnt?.fullLoadGross : model.Load,
+				Load: model.FullLoad === "1" ? props?.bill?.ConfigEnt?.fullLoadGross : model.Load,
 				Suttle: Suttle.value
 			}
 			console.log('接单参数',params)
@@ -146,9 +149,10 @@
 			emits('confirm')
 			drawer.value.popup.close();
 		}
-		catch {
+		catch (err){
+			console.log(err)
 			uni.showToast({
-				title: '接单失败',
+				title: err?.data,
 				icon: 'none'
 			})
 			drawer.value.closeLoading();

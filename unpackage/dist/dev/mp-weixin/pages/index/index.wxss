@@ -107,6 +107,8 @@ page {
   justify-content: space-between;
 }
 .kingkong .car-wrapper .menus .menu {
+  background-color: transparent;
+  padding: 0;
   flex: 1;
   display: flex;
   align-items: center;
@@ -115,6 +117,9 @@ page {
   font-size: 26rpx;
   color: var(--title-color);
   line-height: 36rpx;
+}
+.kingkong .car-wrapper .menus .menu::after {
+  display: none;
 }
 .banner {
   margin: 0 24rpx;

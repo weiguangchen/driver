@@ -18,6 +18,10 @@ const _sfc_main = {
     modelValue: {
       default: () => [],
       type: Array
+    },
+    disabled: {
+      default: false,
+      type: Boolean
     }
   },
   emits: ["update:modelValue", "change"],
@@ -28,35 +32,38 @@ const _sfc_main = {
     const endDate = common_vendor.ref();
     const dateType = common_vendor.ref("start");
     const datetimePicker = common_vendor.ref();
-    const minDate = common_vendor.ref();
-    const maxDate = common_vendor.ref();
-    const min = common_vendor.dayjs();
-    const max = common_vendor.dayjs().add(1, "year").valueOf();
+    const minDate = common_vendor.ref("2000-01-01");
+    const maxDate = common_vendor.ref("2049-12-31");
+    common_vendor.dayjs();
+    common_vendor.dayjs().add(1, "year").valueOf();
     const dateTime = common_vendor.ref();
     common_vendor.watchEffect(() => {
+      console.log("modelValue", props.modelValue);
       const [start, end] = props.modelValue;
       startDate.value = start;
       endDate.value = end;
     });
-    const getMinDate = common_vendor.computed(() => {
-      if (!startDate.value)
-        return common_vendor.dayjs(min).valueOf();
-      return common_vendor.dayjs(startDate.value).isAfter(min) ? common_vendor.dayjs(startDate.value).valueOf() : common_vendor.dayjs(min).valueOf();
-    });
-    const getMaxDate = common_vendor.computed(() => {
-      if (!endDate.value)
-        return common_vendor.dayjs(max).valueOf();
-      return common_vendor.dayjs(endDate.value).isBefore(max) ? common_vendor.dayjs(endDate.value).valueOf() : common_vendor.dayjs(max).valueOf();
-    });
+    function formatter(type, value) {
+      if (type === "year") {
+        return `${value}年`;
+      }
+      if (type === "month") {
+        return `${value}月`;
+      }
+      if (type === "day") {
+        return `${value}日`;
+      }
+      return value;
+    }
     function selectDate(type) {
+      if (props.disabled)
+        return;
       dateType.value = type;
       if (type === "start") {
-        minDate.value = min.valueOf();
-        maxDate.value = getMaxDate.value;
+        dateTime.value = startDate.value || common_vendor.dayjs().format("YYYY-MM-DD");
       }
       if (type === "end") {
-        minDate.value = getMinDate.value;
-        maxDate.value = max.valueOf();
+        dateTime.value = endDate.value || common_vendor.dayjs().format("YYYY-MM-DD");
       }
       datetimePicker.value.open();
     }
@@ -65,49 +72,77 @@ const _sfc_main = {
     }) {
       const val = common_vendor.dayjs(value).format("YYYY-MM-DD");
       if (dateType.value === "start") {
-        startDate.value = val;
+        if (endDate.value) {
+          if (common_vendor.dayjs(val).isAfter(endDate.value)) {
+            startDate.value = endDate.value;
+            endDate.value = val;
+          } else {
+            startDate.value = val;
+          }
+        } else {
+          startDate.value = val;
+        }
       }
       if (dateType.value === "end") {
-        endDate.value = val;
+        if (startDate.value) {
+          if (common_vendor.dayjs(val).isBefore(startDate.value)) {
+            endDate.value = startDate.value;
+            startDate.value = val;
+          } else {
+            endDate.value = val;
+          }
+        } else {
+          endDate.value = val;
+        }
       }
       const date = [(startDate == null ? void 0 : startDate.value) ?? "", (endDate == null ? void 0 : endDate.value) ?? ""];
+      console.log("confirmDateTime", date);
       emits("update:modelValue", date);
       emits("change", date);
     }
     return (_ctx, _cache) => {
-      return {
+      return common_vendor.e({
         a: common_vendor.t(startDate.value || "开始时间"),
-        b: common_vendor.p({
+        b: !__props.disabled
+      }, !__props.disabled ? {
+        c: common_vendor.p({
           name: "arrow-down",
           size: "8",
           color: "#B0BECC"
-        }),
-        c: common_vendor.o(($event) => selectDate("start")),
-        d: common_vendor.p({
+        })
+      } : {}, {
+        d: startDate.value ? 1 : "",
+        e: common_vendor.o(($event) => selectDate("start")),
+        f: common_vendor.p({
           color: "#C8D4DF",
           length: "20rpx",
           margin: "0 20rpx"
         }),
-        e: common_vendor.t(endDate.value || "结束时间"),
-        f: common_vendor.p({
+        g: common_vendor.t(endDate.value || "结束时间"),
+        h: !__props.disabled
+      }, !__props.disabled ? {
+        i: common_vendor.p({
           name: "arrow-down",
           size: "8",
           color: "#B0BECC"
-        }),
-        g: common_vendor.o(($event) => selectDate("end")),
-        h: common_vendor.sr(datetimePicker, "53d1aaa0-3", {
+        })
+      } : {}, {
+        j: endDate.value ? 1 : "",
+        k: common_vendor.o(($event) => selectDate("end")),
+        l: common_vendor.sr(datetimePicker, "53d1aaa0-3", {
           "k": "datetimePicker"
         }),
-        i: common_vendor.o(confirmDateTime),
-        j: common_vendor.o(($event) => dateTime.value = $event),
-        k: common_vendor.p({
+        m: common_vendor.o(confirmDateTime),
+        n: common_vendor.o(($event) => dateTime.value = $event),
+        o: common_vendor.p({
           mode: "date",
           confirmColor: "var(--main-color)",
           ["min-date"]: minDate.value,
           ["max-date"]: maxDate.value,
+          formatter,
           modelValue: dateTime.value
         })
-      };
+      });
     };
   }
 };

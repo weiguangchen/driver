@@ -5,6 +5,7 @@
     "my-plate": "../../../components/my-plate/my-plate",
     "uv-line": "../../../uni_modules/uv-line/components/uv-line/uv-line",
     "uv-button": "../../../uni_modules/uv-button/components/uv-button/uv-button",
-    "my-confirm": "../../../components/my-confirm/my-confirm"
+    "my-confirm": "../../../components/my-confirm/my-confirm",
+    "unload-modal": "./UnloadModal"
   }
 }

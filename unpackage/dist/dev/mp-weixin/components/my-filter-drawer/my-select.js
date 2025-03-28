@@ -2,13 +2,15 @@
 const common_vendor = require("../../common/vendor.js");
 if (!Array) {
   const _easycom_uv_icon2 = common_vendor.resolveComponent("uv-icon");
+  const _easycom_uv_image2 = common_vendor.resolveComponent("uv-image");
   const _easycom_my_drawer2 = common_vendor.resolveComponent("my-drawer");
-  (_easycom_uv_icon2 + _easycom_my_drawer2)();
+  (_easycom_uv_icon2 + _easycom_uv_image2 + _easycom_my_drawer2)();
 }
 const _easycom_uv_icon = () => "../../uni_modules/uv-icon/components/uv-icon/uv-icon.js";
+const _easycom_uv_image = () => "../../uni_modules/uv-image/components/uv-image/uv-image.js";
 const _easycom_my_drawer = () => "../my-drawer/my-drawer.js";
 if (!Math) {
-  (_easycom_uv_icon + _easycom_my_drawer)();
+  (_easycom_uv_icon + _easycom_uv_image + _easycom_my_drawer)();
 }
 const _sfc_main = {
   __name: "my-select",
@@ -23,28 +25,44 @@ const _sfc_main = {
     options: {
       default: () => [],
       type: Array
+    },
+    allowEmpty: {
+      type: Boolean,
+      default: true
+    },
+    placeholder: {
+      default: "全部",
+      type: String
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
-  emits: ["update:modelValue", "change"],
+  emits: ["update:modelValue", "change", "disabled-click"],
   setup(__props, { emit: __emit }) {
     const props = __props;
     const emits = __emit;
     const drawer = common_vendor.ref();
+    const innerOptions = common_vendor.computed(() => {
+      if (props.allowEmpty) {
+        return [{
+          value: "",
+          label: props.placeholder
+        }, ...props.options];
+      }
+      return props.options;
+    });
     const record = common_vendor.ref(null);
     common_vendor.watchEffect(() => {
-      var _a;
-      if (props.options.length === 0)
-        return;
-      const find = props.options.find((m) => m.value === props.modelValue);
-      if (find) {
-        record.value = find;
-      } else {
-        const defaultItem = (_a = props.options) == null ? void 0 : _a[0];
-        record.value = defaultItem;
-        emits("update:modelValue", defaultItem.value);
-      }
+      const find = innerOptions.value.find((m) => m.value === props.modelValue);
+      record.value = find ?? null;
     });
     function openDrawer() {
+      if (props.disabled) {
+        emits("disabled-click");
+        return;
+      }
       drawer.value.popup.open();
     }
     function selectType(item) {
@@ -53,31 +71,39 @@ const _sfc_main = {
       drawer.value.popup.close();
     }
     return (_ctx, _cache) => {
-      return common_vendor.e({
-        a: record.value
-      }, record.value ? {
-        b: common_vendor.t(record.value.label)
-      } : {}, {
-        c: common_vendor.p({
+      return {
+        a: common_vendor.t(record.value ? record.value.label : __props.placeholder),
+        b: common_vendor.p({
           name: "arrow-down",
           size: "8",
           color: "#B0BECC"
         }),
-        d: common_vendor.o(openDrawer),
-        e: common_vendor.f(__props.options, (item, k0, i0) => {
-          return {
+        c: common_vendor.o(openDrawer),
+        d: common_vendor.f(innerOptions.value, (item, k0, i0) => {
+          return common_vendor.e({
             a: common_vendor.t(item.label),
-            b: item.value === __props.modelValue ? 1 : "",
-            c: common_vendor.o(($event) => selectType(item))
-          };
+            b: item.value === __props.modelValue
+          }, item.value === __props.modelValue ? {
+            c: "3941def1-2-" + i0 + ",3941def1-1",
+            d: common_vendor.p({
+              src: "/static/images/check.png",
+              duration: 0,
+              width: "32rpx",
+              height: "32rpx"
+            })
+          } : {}, {
+            e: item.value === __props.modelValue ? 1 : "",
+            f: common_vendor.o(($event) => selectType(item), item.value),
+            g: item.value
+          });
         }),
-        f: common_vendor.sr(drawer, "3941def1-1", {
+        e: common_vendor.sr(drawer, "3941def1-1", {
           "k": "drawer"
         }),
-        g: common_vendor.p({
+        f: common_vendor.p({
           title: __props.title
         })
-      });
+      };
     };
   }
 };

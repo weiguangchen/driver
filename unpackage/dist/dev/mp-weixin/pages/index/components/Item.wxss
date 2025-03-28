@@ -41,8 +41,10 @@
   font-size: 32rpx;
 }
 .bill-wrapper .mfrs .date {
+  flex: none;
   font-size: 26rpx;
   color: var(--sub-color);
+  margin-left: 10rpx;
 }
 .bill-wrapper .cate {
   font-size: 26rpx;

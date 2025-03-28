@@ -1,11 +1,29 @@
 "use strict";
+const common_vendor = require("../../common/vendor.js");
 const uni_modules_uvUiTools_libs_mixin_mpMixin = require("../../uni_modules/uv-ui-tools/libs/mixin/mpMixin.js");
 const uni_modules_uvUiTools_libs_mixin_mixin = require("../../uni_modules/uv-ui-tools/libs/mixin/mixin.js");
 const uni_modules_uvNumberBox_components_uvNumberBox_props = require("../../uni_modules/uv-number-box/components/uv-number-box/props.js");
-const common_vendor = require("../../common/vendor.js");
 const _sfc_main = {
   name: "uv-number-box",
   mixins: [uni_modules_uvUiTools_libs_mixin_mpMixin.mpMixin, uni_modules_uvUiTools_libs_mixin_mixin.mixin, uni_modules_uvNumberBox_components_uvNumberBox_props.props],
+  props: {
+    min: {
+      default: 0,
+      type: Number
+    },
+    unit: {
+      default: "吨",
+      type: String
+    },
+    minLimitMsg: {
+      default: null,
+      type: Function
+    },
+    maxLimitMsg: {
+      default: null,
+      type: Function
+    }
+  },
   data() {
     return {
       // 输入框实际操作的值
@@ -62,10 +80,12 @@ const _sfc_main = {
     },
     isDisabled() {
       return (type) => {
+        const value = this.filter(this.currentValue);
+        const newVal = value === "" ? 0 : +value;
         if (type === "plus") {
-          return this.disabled || this.disablePlus || this.currentValue >= this.max;
+          return this.disabled || this.disablePlus || newVal >= this.max;
         }
-        return this.disabled || this.disableMinus || this.currentValue <= this.min;
+        return this.disabled || this.disableMinus || newVal <= this.min;
       };
     }
   },
@@ -82,6 +102,27 @@ const _sfc_main = {
     format(value) {
       value = this.filter(value);
       value = value === "" ? 0 : +value;
+      console.log("max", this.max, "min", this.min, "value", value);
+      if (common_vendor.Big(value || 0).gt(this.max || 0)) {
+        let maxMsg = `最大值为${this.max}`;
+        if (this.maxLimitMsg && typeof this.maxLimitMsg === "function") {
+          maxMsg = this.maxLimitMsg(this.max);
+        }
+        common_vendor.index.showToast({
+          title: maxMsg,
+          icon: "none"
+        });
+      }
+      if (common_vendor.Big(value || 0).lt(this.min || 0)) {
+        let minMsg = `最小值为${this.min}`;
+        if (this.minLimitMsg && typeof this.minLimitMsg === "function") {
+          minMsg = this.minLimitMsg(this.min);
+        }
+        common_vendor.index.showToast({
+          title: minMsg,
+          icon: "none"
+        });
+      }
       value = Math.max(Math.min(this.max, value), this.min);
       if (this.decimalLength !== null) {
         value = value.toFixed(this.decimalLength);
@@ -89,7 +130,7 @@ const _sfc_main = {
       return value;
     },
     formatter(value) {
-      return `${value} 吨`;
+      return value;
     },
     // 过滤非法的字符
     filter(value) {
@@ -116,10 +157,11 @@ const _sfc_main = {
     onBlur(event) {
       let value = this.format(event.detail.value);
       if (!this.asyncChange) {
+        console.log("onBlur", value);
         this.$nextTick(() => {
           this.$emit("input", value);
           this.$emit("update:modelValue", value);
-          this.currentValue = value;
+          this.currentValue = this.formatter(value);
           this.$forceUpdate();
         });
       }
@@ -136,13 +178,7 @@ const _sfc_main = {
       const {
         value = ""
       } = e.detail || {};
-      let formatted = this.filter(value);
-      if (this.decimalLength !== null && formatted.indexOf(".") !== -1) {
-        const pair = formatted.split(".");
-        formatted = `${pair[0]}.${pair[1].slice(0, this.decimalLength)}`;
-      }
-      formatted = this.format(formatted);
-      this.emitChange(formatted);
+      this.filter(value);
     },
     // 发出change事件
     emitChange(value) {
@@ -253,26 +289,27 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
     q: common_vendor.o([($event) => $data.currentValue = $event.detail.value, (...args) => $options.onInput && $options.onInput(...args)]),
     r: common_vendor.s($options.inputStyle),
     s: $data.currentValue,
-    t: _ctx.showPlus && _ctx.$slots.plus
+    t: common_vendor.t($props.unit),
+    v: _ctx.showPlus && _ctx.$slots.plus
   }, _ctx.showPlus && _ctx.$slots.plus ? {
-    v: common_vendor.o(($event) => $options.clickHandler("plus")),
-    w: common_vendor.o(($event) => $options.onTouchStart("plus")),
-    x: common_vendor.o((...args) => $options.clearTimeout && $options.clearTimeout(...args))
+    w: common_vendor.o(($event) => $options.clickHandler("plus")),
+    x: common_vendor.o(($event) => $options.onTouchStart("plus")),
+    y: common_vendor.o((...args) => $options.clearTimeout && $options.clearTimeout(...args))
   } : _ctx.showPlus ? {
-    z: common_vendor.p({
+    A: common_vendor.p({
       name: "plus",
       color: $options.isDisabled("plus") ? "#c8c9cc" : "var(--title-color)",
       size: "15",
       bold: true,
       customStyle: _ctx.iconStyle
     }),
-    A: common_vendor.o(($event) => $options.clickHandler("plus")),
-    B: common_vendor.o(($event) => $options.onTouchStart("plus")),
-    C: common_vendor.o((...args) => $options.clearTimeout && $options.clearTimeout(...args)),
-    D: $options.isDisabled("plus") ? 1 : "",
-    E: common_vendor.s($options.buttonStyle("plus"))
+    B: common_vendor.o(($event) => $options.clickHandler("plus")),
+    C: common_vendor.o(($event) => $options.onTouchStart("plus")),
+    D: common_vendor.o((...args) => $options.clearTimeout && $options.clearTimeout(...args)),
+    E: $options.isDisabled("plus") ? 1 : "",
+    F: common_vendor.s($options.buttonStyle("plus"))
   } : {}, {
-    y: _ctx.showPlus
+    z: _ctx.showPlus
   });
 }
 const Component = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["render", _sfc_render], ["__scopeId", "data-v-9664249b"], ["__file", "/Users/wei/driver/components/my-number-box/my-number-box.vue"]]);

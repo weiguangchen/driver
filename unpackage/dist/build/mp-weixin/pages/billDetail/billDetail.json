@@ -3,7 +3,6 @@
   "navigationStyle": "custom",
   "usingComponents": {
     "uv-navbar": "../../uni_modules/uv-navbar/components/uv-navbar/uv-navbar",
-    "uv-icon": "../../uni_modules/uv-icon/components/uv-icon/uv-icon",
     "uv-image": "../../uni_modules/uv-image/components/uv-image/uv-image",
     "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
     "my-plate": "../../components/my-plate/my-plate",

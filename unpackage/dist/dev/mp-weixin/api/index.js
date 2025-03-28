@@ -39,6 +39,21 @@ function GetReceiveAssignDetail(data) {
 function GetOnwayDriver(data) {
   return utils_request.request.post("/api/permission/WechatApi/GetOnwayDriver", data);
 }
+function GetSupplyListByDriver(data) {
+  return utils_request.request.post("/api/permission/WechatApi/GetSupplyListByDriver", data);
+}
+function GetOwnerMaterialsList(data) {
+  return utils_request.request.post("/api/permission/WechatApi/GetOwnerMaterialsList", data);
+}
+function GetDriverUnloadPlace(data) {
+  return utils_request.request.post("/api/permission/WechatApi/GetDriverUnloadPlace", data);
+}
+function GetOwnerByDriver(data) {
+  return utils_request.request.post("/api/permission/WechatApi/GetOwnerByDriver", data);
+}
+function GetSupplyOnwayDetail(data) {
+  return utils_request.request.post("/api/permission/WechatApi/GetSupplyOnwayDetail", data);
+}
 function DriverMakeOnway(data) {
   return utils_request.request.post("/api/permission/WechatApi/DriverMakeOnway", data);
 }
@@ -51,16 +66,25 @@ function ArrivedConfirm(data) {
 function UnloadConfirm(data) {
   return utils_request.request.post("/api/permission/WechatApi/UnloadConfirm", data);
 }
+function ScanQR(data) {
+  return utils_request.request.post("/api/permission/WechatApi/ScanQR", data);
+}
 exports.ArrivedConfirm = ArrivedConfirm;
 exports.DiabledDriverCar = DiabledDriverCar;
 exports.DisableOnwayEnt = DisableOnwayEnt;
 exports.DriverMakeOnway = DriverMakeOnway;
 exports.GetDriverTakeTicketOwnerList = GetDriverTakeTicketOwnerList;
+exports.GetDriverUnloadPlace = GetDriverUnloadPlace;
 exports.GetDriverWayCount = GetDriverWayCount;
 exports.GetOnwayDriver = GetOnwayDriver;
+exports.GetOwnerByDriver = GetOwnerByDriver;
+exports.GetOwnerMaterialsList = GetOwnerMaterialsList;
 exports.GetProtocolList = GetProtocolList;
 exports.GetReceiveAssignDetail = GetReceiveAssignDetail;
 exports.GetReceiveAssignList = GetReceiveAssignList;
+exports.GetSupplyListByDriver = GetSupplyListByDriver;
+exports.GetSupplyOnwayDetail = GetSupplyOnwayDetail;
+exports.ScanQR = ScanQR;
 exports.SetDriverCarDefault = SetDriverCarDefault;
 exports.UnloadConfirm = UnloadConfirm;
 exports.UptDriverNickName = UptDriverNickName;

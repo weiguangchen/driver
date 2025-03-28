@@ -21,7 +21,6 @@ request.interceptors.request.use(config => {
 		body,
 	} = request;
 	
-	const useStore = useUserStore();
 	const tokenData = getToken();
 	config.header = {
 		...config.header,
@@ -42,6 +41,7 @@ request.interceptors.request.use(config => {
 //添加响应拦截器，响应拦截器会在then/catch处理之前执行
 request.interceptors.response.use(
 	function(response) {
+		const userStore = useUserStore();
 		// console.log('response',response)
 		const code = response.data.code;
 		if (code === 200) {
@@ -53,7 +53,7 @@ request.interceptors.response.use(
 				showCancel: false,
 				success(res) {
 					if(res.confirm) {
-						removeToken();
+						userStore.logout()
 						uni.reLaunch({
 							url: '/pages/index/index'
 						})

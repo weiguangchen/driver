@@ -123,13 +123,21 @@
 						id: model.value.Id
 					})
 					await userStore.getCarList()
-					uni.showToast({
-						title: '车辆删除成功',
-						success() {
-							uni.navigateBack()
+					await uni.showToast({
+						title: '操作成功',
+						icon: 'none',
+						complete() {
+							setTimeout(() => {
+								uni.navigateBack()
+							},1500)
 						}
 					})
-				} catch {
+					modal.value.close();
+				} catch(err){
+					uni.showToast({
+						title: err.data,
+						icon: 'none'
+					})
 					modal.value.closeLoading();
 				}
 			}

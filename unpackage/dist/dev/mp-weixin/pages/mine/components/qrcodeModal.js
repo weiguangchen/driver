@@ -1,5 +1,7 @@
 "use strict";
 const common_vendor = require("../../../common/vendor.js");
+const utils_token = require("../../../utils/token.js");
+const stores_user = require("../../../stores/user.js");
 if (!Array) {
   const _easycom_uv_image2 = common_vendor.resolveComponent("uv-image");
   const _easycom_uv_qrcode2 = common_vendor.resolveComponent("uv-qrcode");
@@ -15,9 +17,14 @@ if (!Math) {
 const _sfc_main = {
   __name: "qrcodeModal",
   setup(__props, { expose: __expose }) {
+    const userStore = stores_user.useUserStore();
+    const { userInfo } = common_vendor.storeToRefs(userStore);
     const popup = common_vendor.ref();
     const qrcode = common_vendor.ref();
     function open() {
+      if (!utils_token.getToken()) {
+        return;
+      }
       popup.value.open();
     }
     const init = common_vendor.ref(false);
@@ -34,7 +41,7 @@ const _sfc_main = {
       open
     });
     return (_ctx, _cache) => {
-      return {
+      return common_vendor.e({
         a: common_vendor.p({
           src: "/static/images/mine/avatar.png",
           width: "120rpx",
@@ -44,19 +51,27 @@ const _sfc_main = {
             marginRight: "24rpx"
           }
         }),
-        b: common_vendor.sr(qrcode, "811b4f34-2,811b4f34-0", {
+        b: common_vendor.unref(userInfo)
+      }, common_vendor.unref(userInfo) ? {
+        c: common_vendor.t(common_vendor.unref(userInfo).Nickname)
+      } : {}, {
+        d: common_vendor.unref(userInfo)
+      }, common_vendor.unref(userInfo) ? {
+        e: common_vendor.t(common_vendor.unref(userInfo).Mobile)
+      } : {}, {
+        f: common_vendor.sr(qrcode, "811b4f34-2,811b4f34-0", {
           "k": "qrcode"
         }),
-        c: common_vendor.p({
+        g: common_vendor.p({
           start: false,
           size: "430rpx",
           value: "https://h5.uvui.cn"
         }),
-        d: common_vendor.sr(popup, "811b4f34-0", {
+        h: common_vendor.sr(popup, "811b4f34-0", {
           "k": "popup"
         }),
-        e: common_vendor.o(change),
-        f: common_vendor.p({
+        i: common_vendor.o(change),
+        j: common_vendor.p({
           mode: "center",
           ["custom-style"]: {
             minHeight: "300rpx"
@@ -64,7 +79,7 @@ const _sfc_main = {
           bgColor: "none",
           duration: 0
         })
-      };
+      });
     };
   }
 };

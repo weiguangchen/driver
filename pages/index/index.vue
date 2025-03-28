@@ -4,7 +4,7 @@
 	<!-- end -->
 	<!-- 标题 -->
 	<view class="index-navbar">
-		早上好，{{ nickname }}！
+		你好，{{ nickname }}！
 	</view>
 	<!-- end -->
 	<!-- 背景色 -->
@@ -24,7 +24,7 @@
 				<uv-button shape="circle" text="添加车辆" icon="plus" iconColor="#ffffff" iconSize="24rpx" color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);" :custom-style="{ height: '72rpx', width: '268rpx' }" :customTextStyle="{ fontSize: '28rpx' }" @click="addCar"/>
 			</view>
 			<view class="car-info" :class="{'car1': defaultCar.Cartype === '自卸车','car2': defaultCar.Cartype === '半挂车' ,'car3': defaultCar.Cartype === '罐车'}" v-else>
-				<my-plate style="margin-bottom: 12rpx;" :plate="defaultCar.Carno" :color="defaultCar.Color"/>
+				<my-plate v-if="defaultCar" style="margin-bottom: 12rpx;" :plate="defaultCar.Carno" :color="defaultCar.Color"/>
 				<view class="type">{{ defaultCar.Cartype }}</view>
 				<view class="change-car" @click="changeCar">
 					切换当前车辆 <uv-image src="/static/images/arrow2.png" :duration="0" width="18rpx" height="18rpx" :custom-style="{ marginLeft: '4rpx' }" />
@@ -35,7 +35,7 @@
 				<uv-line color="var(--divider)"/>
 			</view>
 			<view class="menus">
-				<view class="menu">
+				<view class="menu" @click="navigate('扫码助手')">
 					<uv-image src="/static/images/home/scan.png" width="80rpx" height="80rpx" :duration="0" :custom-style="{ marginBottom: '14rpx' }"/>
 					<view class="">扫码助手</view>
 				</view>
@@ -47,10 +47,10 @@
 					<uv-image src="/static/images/home/guide.png" width="80rpx" height="80rpx" :duration="0" :custom-style="{ marginBottom: '14rpx' }"/>
 					<view class="">操作指南</view>
 				</view>
-				<view class="menu" @click="navigate('问题反馈')">
+				<button open-type="feedback" class="menu" >
 					<uv-image src="/static/images/home/feedback.png" width="80rpx" height="80rpx" :duration="0" :custom-style="{ marginBottom: '14rpx' }"/>
 					<view class="">问题反馈</view>
-				</view>
+				</button>
 			</view>
 		</view>
 	</view>
@@ -100,10 +100,9 @@
 	import { useLocationStore } from '@/stores/location.js';
 	import { getWxSetting, getLocationInfo } from '@/utils/authorize.js'
 	import { getToken } from '@/utils/token.js'
-	import { GetDriverWayCount, GetGoodsCompanyList, GetOnwayList, GetReceiveAssignList, GetDriverTakeTicketOwnerList } from '@/api/index.js'
+	import { GetDriverWayCount, GetGoodsCompanyList, GetOnwayList, GetReceiveAssignList, GetDriverTakeTicketOwnerList, ScanQR } from '@/api/index.js'
 	import SelectCargo from './components/SelectCargo.vue';
 	import Item from './components/Item.vue';
-	
 	
 	const appStore = useAppStore();
 	const userStore = useUserStore();
@@ -111,26 +110,26 @@
 	const { carList, defaultCar } = storeToRefs(userStore);
 	
 	const nickname = computed(() => {
-		const tokenData = getToken();
-		return tokenData?.userInfo?.Nickname ?? '司机师傅'
+		return userStore.userInfo.Nickname ?? '司机师傅'
 	})
 	
 	const isInit = ref(false);
 	onLoad(async () => {
 		console.log('onLoad')
 		// await getWxSetting('userLocation');
-		try {
-			await getLocationInfo();
-			console.log('locationStore',locationStore)
-		}catch {}
 		isInit.value = true;
 		if(!getToken()) {
 			return;
 		}
 		console.log('onload handle')
-		await userStore.getCarList();
-		await getCurrentCarnoCargoOptions();
-		await getProcess();
+		try {
+			await getLocationInfo();
+			console.log('locationStore',locationStore)
+		}finally{
+			await userStore.getCarList();
+			await getCurrentCarnoCargoOptions();
+			await getProcess();
+		}
 	})
 	onShow(async () => {
 		console.log('onShow')
@@ -166,15 +165,22 @@
 	}
 	// 操作指南
 	function toGuide() {
-		uni.navigateTo({
-			url: '/pages/guide/guide'
+		const src = 'https://mp.weixin.qq.com/s/6Hqb9mbfT_Te9Tu4cD26DQ'
+		// uni.navigateTo({
+		// 	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+		// })
+		uni.openOfficialAccountArticle({
+			url: src
 		})
 	}
 	// 关注公众号
 	function follow(){
 		const src = 'https://mp.weixin.qq.com/s?__biz=MzkxOTcyODM5OA==&mid=2247483675&idx=1&sn=3f1378b5f85fe5ed6144eb9446f63a32&chksm=c19cf97af6eb706cee30883335ba2e11ab4ebd79c23dac68af13106c2b56e20eee02ddfe656c#rd'
-		uni.navigateTo({
-			url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+		// uni.navigateTo({
+		// 	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+		// })
+		uni.openOfficialAccountArticle({
+			url: src
 		})
 	}
 	function navigate(type) {
@@ -183,7 +189,15 @@
 			return;
 		}
 		switch (type) {
+			case '扫码助手':
+				handleScan()
+				break;
 			case '数据统计':
+				uni.showToast({
+					title: '敬请期待',
+					icon: 'none'
+				})
+				return;
 				uni.navigateTo({
 					url: '/pages/statistics/statistics'
 				})
@@ -192,13 +206,68 @@
 				uni.navigateTo({
 					url: '/pages/guide/guide'
 				})
-				break;
+				break;扫码助手
 			case '问题反馈':
-				uni.navigateTo({
-					url: '/pages/feedback/feedback'
-				})
 				break;
 		}
+	}
+	// 扫码
+	async function handleScan() {
+		if(!defaultCar.value) {
+			uni.showToast({
+				title: '请先添加车辆',
+				icon: 'none'
+			})
+			return;
+		}
+		let params = {};
+		try {
+			const res = await uni.scanCode();
+			console.log(res)
+			params = JSON.parse(res.result)
+			console.log(params)
+			const { htQRType } = params;
+			if(!htQRType) {
+				uni.showToast({
+					title: '无效二维码',
+					icon: 'none'
+				})
+				return;
+			}
+		}catch(err) {
+			console.log('无效二维码',err)
+			uni.showToast({
+				title: '无效二维码',
+				icon: 'none'
+			})
+			return;
+		}
+
+		try {
+			uni.showLoading({
+				mask: true
+			})
+			const param = {
+				scanParam: JSON.stringify({
+					...params
+				})
+			}
+			console.log(param);
+			await ScanQR(param);
+			console.log('允许扫码')
+			uni.hideLoading()
+			const { assignId, supplyId } = params;
+			uni.navigateTo({
+				url: `/pages/billDetail/billDetail?assignId=${assignId}&supplyId=${supplyId}`
+			})
+		}catch(err) {
+			uni.hideLoading();
+			uni.showToast({
+				title: err.data,
+				icon: 'none'
+			})
+		}
+		
 	}
 	// 登录
 	const loginDrawer = ref()
@@ -211,25 +280,25 @@
 		})
 	}
 	// 切换货主
-	const ownerId = ref('0');
+	const ownerId = ref('');
 	const currentCarnoCargoOptions = ref([]);
 	async function getCurrentCarnoCargoOptions() {
 		try {
 			const res = await GetDriverTakeTicketOwnerList({
-				carno: defaultCar.value.Carno
+				carno: defaultCar.value.Carno ? defaultCar.value.Carno.trim() : ''
 			})
 			const cargos = res.map(m => ({
 				value: m.Id,
 				label: m.Ownername
 			}))
 			currentCarnoCargoOptions.value = [{
-				value: '0',
+				value: '',
 				label: '全部货主'
 			},...cargos];
 		}catch {
-			ownerId.value = '0';
+			ownerId.value = '';
 			currentCarnoCargoOptions.value = [{
-				value: '0',
+				value: '',
 				label: '全部货主'
 			}];
 		}
@@ -239,7 +308,7 @@
 		if((val && !oldVal) || (val && oldVal && val.Id !== oldVal.Id)) {
 			console.log('重新获取列表')
 			try {
-				ownerId.value = '0';
+				ownerId.value = '';
 				currentCarnoCargoOptions.value = [];
 				await getCurrentCarnoCargoOptions()
 			}catch {}
@@ -250,8 +319,13 @@
 	}, {
 		immediate: true
 	})
-	function changeCargo(item) {
-		getList();
+	async function changeCargo(item) {
+		try {
+			uni.showLoading()
+			await getList();
+		}finally {
+			uni.hideLoading();
+		}
 	}
 	// 首页运单
 	const assignCnt = ref(0);
@@ -259,7 +333,7 @@
 	async function getList() {
 		try {
 			const res = await GetReceiveAssignList({
-				ownerId: ownerId.value === '0' ? '' : ownerId.value,
+				ownerId: ownerId.value,
 				latitude: locationStore.location ? locationStore.location.latitude : '',
 				longitude: locationStore.location ? locationStore.location.longitude : ''
 			});
@@ -367,6 +441,8 @@
 				justify-content: space-between;
 
 				.menu {
+					background-color: transparent;
+					padding: 0;
 					flex: 1;
 					display: flex;
 					align-items: center;
@@ -375,6 +451,9 @@
 					font-size: 26rpx;
 					color: var(--title-color);
 					line-height: 36rpx;
+					&::after {
+						display: none;
+					}
 				}
 			}
 		}

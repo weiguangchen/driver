@@ -85,13 +85,21 @@ const _sfc_main = {
               id: model.value.Id
             });
             await userStore.getCarList();
-            common_vendor.index.showToast({
-              title: "车辆删除成功",
-              success() {
-                common_vendor.index.navigateBack();
+            await common_vendor.index.showToast({
+              title: "操作成功",
+              icon: "none",
+              complete() {
+                setTimeout(() => {
+                  common_vendor.index.navigateBack();
+                }, 1500);
               }
             });
-          } catch {
+            modal.value.close();
+          } catch (err) {
+            common_vendor.index.showToast({
+              title: err.data,
+              icon: "none"
+            });
             modal.value.closeLoading();
           }
         }

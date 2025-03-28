@@ -1,7 +1,11 @@
 export const tokenKey = process.env.TOKEN_KEY;
 
-export function setToken(data) {
-	return uni.setStorageSync(tokenKey, data)
+export async function setToken(data) {
+	try {
+		await uni.setStorageSync(tokenKey, data)
+	}catch (error) {
+		console.log('setToken error',error)
+	}
 }
 export function getToken() {
 	return uni.getStorageSync(tokenKey)

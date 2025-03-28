@@ -1,8 +1,12 @@
 "use strict";
 const common_vendor = require("../common/vendor.js");
 const tokenKey = "test-driver-token";
-function setToken(data) {
-  return common_vendor.index.setStorageSync(tokenKey, data);
+async function setToken(data) {
+  try {
+    await common_vendor.index.setStorageSync(tokenKey, data);
+  } catch (error) {
+    console.log("setToken error", error);
+  }
 }
 function getToken() {
   return common_vendor.index.getStorageSync(tokenKey);

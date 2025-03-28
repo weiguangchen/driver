@@ -40,11 +40,26 @@ page {
   justify-content: space-between;
   padding: 0 32rpx;
   height: 72rpx;
-  background: rgba(252, 126, 44, 0.18);
+  background: #FFF1E8;
   font-size: 24rpx;
   color: #FC7E2C;
   font-weight: bold;
 }
+.has-filter .redo {
+  background-color: #FC7E2C;
+  height: 48rpx;
+  padding: 0 20rpx;
+  border-radius: 24rpx;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
 .bill-list {
   padding: 24rpx;
+}
+.scroll-view {
+  flex: 1;
+  height: 400px;
 }

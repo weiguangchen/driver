@@ -1,7 +1,7 @@
 <template>
 	<!-- 输入昵称 -->
-	<my-modal ref="modal" title="请填写您的称呼" :show-cancel-button="false" async-close @confirm="submit"
-		:close-on-click-overlay="false">
+	<my-modal ref="modal" title="请填写您的称呼" :show-cancel-button="showCancelButton" async-close @confirm="submit"
+		:close-on-click-overlay="closeOnClickOverlay">
 		<view class="nickname">
 			<view class="content">希望货主或其他司机怎么称呼您?</view>
 			<uv-input v-model="nickname" input-align="center" placeholder="限 6 个字以内" border="none"
@@ -14,12 +14,22 @@
 	import {
 		ref
 	} from 'vue';
-	const emits = defineEmits(['success'])
+	const emits = defineEmits(['success']);
+	const props = defineProps({
+		closeOnClickOverlay: {
+			type: Boolean,
+			default: false
+		},
+		showCancelButton: {
+			type: Boolean,
+			default: false
+		}
+	})
 	const modal = ref()
 	const nickname = ref();
 
-	function open() {
-		nickname.value = '';
+	function open(name = '') {
+		nickname.value = name;
 		modal.value.open();
 	}
 

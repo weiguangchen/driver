@@ -174,13 +174,17 @@ page {
 .common-wrapper .menus {
   display: flex;
   flex-wrap: wrap;
-  font-size: 24rpx;
 }
 .common-wrapper .menus .menu {
+  font-size: 24rpx;
+  background-color: transparent;
   flex: none;
   width: 25%;
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 32rpx;
+}
+.common-wrapper .menus .menu::after {
+  display: none;
 }

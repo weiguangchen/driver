@@ -38,6 +38,7 @@ const useUserStore = common_vendor.defineStore("user", {
     },
     logout() {
       utils_token.removeToken();
+      this.setUserInfo({});
     },
     setUserInfo(payload) {
       this.userInfo = payload;

@@ -102,6 +102,36 @@ export function GetOnwayDriver(data) {
 	return request.post("/api/permission/WechatApi/GetOnwayDriver", data);
 }
 /**
+ * 获取装货地点
+*/
+export function GetSupplyListByDriver(data) {
+	return request.post("/api/permission/WechatApi/GetSupplyListByDriver", data);
+}
+/**
+ * 获取货主材料
+*/
+export function GetOwnerMaterialsList(data) {
+	return request.post("/api/permission/WechatApi/GetOwnerMaterialsList", data);
+}
+/**
+ * 获取司机卸货地点
+*/
+export function GetDriverUnloadPlace(data) {
+	return request.post("/api/permission/WechatApi/GetDriverUnloadPlace", data);
+}
+/**
+ * 获取货主
+*/
+export function GetOwnerByDriver(data) {
+	return request.post("/api/permission/WechatApi/GetOwnerByDriver", data);
+}
+/**
+ * 获取运单详情
+*/
+export function GetSupplyOnwayDetail(data) {
+	return request.post("/api/permission/WechatApi/GetSupplyOnwayDetail", data);
+}
+/**
  * 司机接单
 */
 export function DriverMakeOnway(data) {
@@ -124,6 +154,12 @@ export function ArrivedConfirm(data) {
 */
 export function UnloadConfirm(data) {
 	return request.post("/api/permission/WechatApi/UnloadConfirm", data);
+}
+/**
+ * 校验二维码
+*/
+export function ScanQR(data) {
+	return request.post("/api/permission/WechatApi/ScanQR", data);
 }
 
 

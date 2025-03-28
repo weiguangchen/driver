@@ -4,8 +4,8 @@
 			<view class="person">
 				<uv-image src="/static/images/mine/avatar.png" width="120rpx" height="120rpx" :duration="0" :custom-style="{ marginRight: '24rpx' }"/>
 				<view class="user">
-					<view class="name">霍货主</view>
-					<view class="phone">13806053204</view>
+					<view class="name" v-if="userInfo">{{ userInfo.Nickname }}</view>
+					<view class="phone" v-if="userInfo">{{ userInfo.Mobile }}</view>
 				</view>
 			</view>
 			<view class="qrcode-wrapper">
@@ -16,11 +16,21 @@
 </template>
 
 <script setup>
-	import { ref } from 'vue'
+	import { onMounted, ref } from 'vue';
+	import { getToken } from '@/utils/token.js';
+	import { useUserStore } from '@/stores/user.js';
+	import { storeToRefs } from 'pinia';
+	
+	const userStore = useUserStore();
+	const { userInfo } = storeToRefs(userStore);
+	
 	const popup = ref();
 	const qrcode = ref();
 	function open() {
-		popup.value.open()
+		if(!getToken()) {
+			return;
+		}
+		popup.value.open();
 	}
 	
 	const init = ref(false)

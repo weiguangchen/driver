@@ -2,6 +2,8 @@
 const common_vendor = require("../../common/vendor.js");
 const stores_app = require("../../stores/app.js");
 const utils_token = require("../../utils/token.js");
+const stores_user = require("../../stores/user.js");
+const api_index = require("../../api/index.js");
 if (!Array) {
   const _easycom_uv_navbar2 = common_vendor.resolveComponent("uv-navbar");
   const _easycom_uv_image2 = common_vendor.resolveComponent("uv-image");
@@ -20,6 +22,8 @@ const QrcodeModal = () => "./components/qrcodeModal.js";
 const _sfc_main = {
   __name: "mine",
   setup(__props) {
+    const userStore = stores_user.useUserStore();
+    const { userInfo, defaultCar } = common_vendor.storeToRefs(userStore);
     const appStore = stores_app.useAppStore();
     common_vendor.onLoad(() => {
       appStore.switchTab(2);
@@ -30,16 +34,23 @@ const _sfc_main = {
         return;
       }
       switch (type) {
+        case "扫码":
+          handleScan();
+          break;
+        case "二维码":
+          openQrcode();
+          break;
         case "车辆管理":
           common_vendor.index.navigateTo({
             url: "/pages/carList/carList"
           });
           break;
         case "数据统计":
-          common_vendor.index.navigateTo({
-            url: "/pages/statistics/statistics"
+          common_vendor.index.showToast({
+            title: "敬请期待",
+            icon: "none"
           });
-          break;
+          return;
         case "卸货地址":
           common_vendor.index.navigateTo({
             url: "/pages/addressList/addressList"
@@ -56,9 +67,6 @@ const _sfc_main = {
           });
           break;
         case "问题反馈":
-          common_vendor.index.navigateTo({
-            url: "/pages/feedback/feedback"
-          });
           break;
         case "设置":
           common_vendor.index.navigateTo({
@@ -67,33 +75,75 @@ const _sfc_main = {
           break;
       }
     }
-    function openScan() {
-      if (!utils_token.getToken()) {
-        openLoginDrawer();
+    async function handleScan() {
+      if (!defaultCar.value) {
+        common_vendor.index.showToast({
+          title: "请先添加车辆",
+          icon: "none"
+        });
         return;
       }
-      common_vendor.index.scanCode({
-        onlyFromCamera: false,
-        scanType: ["qrCode"]
-      });
+      let params = {};
+      try {
+        const res = await common_vendor.index.scanCode();
+        console.log(res);
+        params = JSON.parse(res.result);
+        console.log(params);
+        const { htQRType } = params;
+        if (!htQRType) {
+          common_vendor.index.showToast({
+            title: "无效二维码",
+            icon: "none"
+          });
+          return;
+        }
+      } catch (err) {
+        console.log("无效二维码", err);
+        common_vendor.index.showToast({
+          title: "无效二维码",
+          icon: "none"
+        });
+        return;
+      }
+      try {
+        common_vendor.index.showLoading({
+          mask: true
+        });
+        const param = {
+          scanParam: JSON.stringify({
+            ...params
+          })
+        };
+        console.log(param);
+        await api_index.ScanQR(param);
+        console.log("允许扫码");
+        common_vendor.index.hideLoading();
+        const { assignId } = params;
+        common_vendor.index.navigateTo({
+          url: `/pages/billDetail/billDetail?assignId=${assignId}`
+        });
+      } catch (err) {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: err.data,
+          icon: "none"
+        });
+      }
     }
     const qrcode = common_vendor.ref();
     function openQrcode() {
-      if (!utils_token.getToken()) {
-        openLoginDrawer();
-        return;
-      }
       qrcode.value.open();
     }
     function follow() {
       const src = "https://mp.weixin.qq.com/s?__biz=MzkxOTcyODM5OA==&mid=2247483675&idx=1&sn=3f1378b5f85fe5ed6144eb9446f63a32&chksm=c19cf97af6eb706cee30883335ba2e11ab4ebd79c23dac68af13106c2b56e20eee02ddfe656c#rd";
-      common_vendor.index.navigateTo({
-        url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+      common_vendor.index.openOfficialAccountArticle({
+        url: src
       });
     }
     function toGuide() {
-      common_vendor.index.navigateTo({
-        url: "/pages/guide/guide"
+      const src = "https://mp.weixin.qq.com/s/6Hqb9mbfT_Te9Tu4cD26DQ";
+      common_vendor.index.openOfficialAccountArticle({
+        url: src
       });
     }
     const loginDrawer = common_vendor.ref();
@@ -120,8 +170,8 @@ const _sfc_main = {
         }),
         c: common_vendor.unref(utils_token.getToken)()
       }, common_vendor.unref(utils_token.getToken)() ? {
-        d: common_vendor.t(common_vendor.unref(utils_token.getToken)().userInfo.Nickname || "暂无昵称"),
-        e: common_vendor.t(common_vendor.unref(utils_token.getToken)().userInfo.Mobile || "")
+        d: common_vendor.t(common_vendor.unref(userInfo).Nickname || "暂无昵称"),
+        e: common_vendor.t(common_vendor.unref(userInfo).Mobile || "")
       } : {
         f: common_vendor.p({
           src: "/static/images/arrow3.png",
@@ -140,14 +190,14 @@ const _sfc_main = {
           height: "56rpx",
           duration: 0
         }),
-        i: common_vendor.o(openScan),
+        i: common_vendor.o(($event) => navigate("扫码")),
         j: common_vendor.p({
           src: "/static/images/mine/qrcode.png",
           width: "56rpx",
           height: "56rpx",
           duration: 0
         }),
-        k: common_vendor.o(openQrcode),
+        k: common_vendor.o(($event) => navigate("二维码")),
         l: common_vendor.o(($event) => navigate("车辆管理")),
         m: common_vendor.o(($event) => navigate("数据统计")),
         n: common_vendor.p({
@@ -195,8 +245,7 @@ const _sfc_main = {
           },
           duration: 0
         }),
-        w: common_vendor.o(($event) => navigate("问题反馈")),
-        x: common_vendor.p({
+        w: common_vendor.p({
           src: "/static/images/mine/setting.png",
           width: "56rpx",
           height: "56rpx",
@@ -205,12 +254,12 @@ const _sfc_main = {
           },
           duration: 0
         }),
-        y: common_vendor.o(($event) => navigate("设置")),
-        z: common_vendor.sr(loginDrawer, "ba8f522e-11", {
+        x: common_vendor.o(($event) => navigate("设置")),
+        y: common_vendor.sr(loginDrawer, "ba8f522e-11", {
           "k": "loginDrawer"
         }),
-        A: common_vendor.o(loginSuccess),
-        B: common_vendor.sr(qrcode, "ba8f522e-12", {
+        z: common_vendor.o(loginSuccess),
+        A: common_vendor.sr(qrcode, "ba8f522e-12", {
           "k": "qrcode"
         })
       });

@@ -41,8 +41,8 @@ view.data-v-9664249b, scroll-view.data-v-9664249b, swiper-item.data-v-9664249b {
   touch-action: none;
 }
 .uv-number-box__plus.data-v-9664249b, .uv-number-box__minus.data-v-9664249b {
-  width: 72rpx;
-  height: 72rpx;
+  width: 112rpx;
+  height: 88rpx;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -71,22 +71,22 @@ view.data-v-9664249b, scroll-view.data-v-9664249b, swiper-item.data-v-9664249b {
   flex-direction: row;
   align-items: center;
   flex: none;
-  width: 208rpx;
-  height: 72rpx;
+  width: 304rpx;
+  padding: 0 20rpx;
+  height: 88rpx;
   border: 2rpx solid var(--page-bg);
 }
 .uv-number-box .input-wrapper .unit.data-v-9664249b {
-  flex: 1;
+  flex: none;
   font-weight: bold;
   font-size: 28rpx;
-  margin-left: 6rpx;
   color: var(--title-color);
 }
 .uv-number-box__input.data-v-9664249b {
   flex: 1;
   position: relative;
   text-align: center;
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: bold;
   display: flex;
   flex-direction: row;

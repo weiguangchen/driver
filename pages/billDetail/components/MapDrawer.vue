@@ -5,14 +5,16 @@
 		</view>
 		<view class="info-wrapper">
 			<view class="map-location-wrapper">
-				<view class="tag xie">卸货地</view>
-				<view class="name">河南腾圃建材有限公司</view>
-				<view class="address">天津市河西区陈塘庄街道88号</view>
-				<uv-line color="#E3E9EF" margin="28rpx 0 32rpx" />
-				<view class="person">
-					<text style="margin-right: 24rpx;">霍了了</text>
-					<text>18608086666</text>
-				</view>
+				<view class="tag" :class="{ 'zhuang': info.type === 1, 'xie': info.type === 2 }">{{ info.type === 1 ? '装货地' : '卸货地' }}</view>
+				<view class="name">{{ info.name }}</view>
+				<view class="address">{{ info.address }}</view>
+				<template v-if="info.user || info.phone">
+					<uv-line color="#E3E9EF" margin="28rpx 0 32rpx"/>
+					<view class="person" v-if="info.user || info.phone">
+						<text style="margin-right: 24rpx;" v-if="info.user">{{ info.user }}</text>
+						<text v-if="info.phone">{{ info.phone }}</text>
+					</view>
+				</template>
 			</view>
 		</view>
 
@@ -42,38 +44,77 @@
 	import {
 		ref,
 		onMounted,
-		getCurrentInstance
+		getCurrentInstance,
+		reactive
 	} from 'vue';
+	import { sleep } from '@/utils/index.js';
+	
 	const { ctx } = getCurrentInstance();
 	const drawer = ref();
 	
 	const mapContext = ref();
 	onMounted(() => {
 		mapContext.value = uni.createMapContext("map", ctx);
-		
-		mapContext.value.moveToLocation({
-			longitude: 117.216188,
-			latitude: 39.113613,
-		})
 	})
 	
 	function makePhone() {
+		if(!info.phone) {
+			return;
+		}
+		
+		uni.makePhoneCall({
+			phoneNumber: info.phone
+		})
+	}
+	function openApp() {
 		uni.openLocation({
-			longitude: 117.216188,
-			latitude: 39.113613,
+			longitude: info.longitude,
+			latitude: info.latitude,
+			name: info.name,
+			address: info.address
 		})
 	}
 	
-	function openApp() {
-		mapContext.value.openMapApp({
-			longitude: 117.216188,
-			latitude: 39.113613,
-			destination: '天津国贸购物中心'
-		});
-	}
-
-	function open() {
+	const info = reactive({
+		type: '',
+		name: '',
+		address: '',
+		user: '',
+		phone: ''
+	})
+	async function open(data) {
+		console.log('打开地图 data', data)
+		info.type = data?.type ?? '';
+		info.name = data?.name ?? '';
+		info.address = data?.address ?? '';
+		info.user = data?.user ?? '';
+		info.phone = data?.phone ?? '';
+		info.longitude = data?.longitude ?? '';
+		info.latitude = data?.latitude ?? '';
 		drawer.value.popup.open();
+		
+		await sleep(300);
+		const marker = {
+			id: 123,
+			longitude: data.longitude,
+			latitude: data.latitude,
+			iconPath: '/static/images/map-marker.png',
+			width: '30rpx',
+			height: '42rpx',
+			customCallout: {
+				display: 'ALWAYS',
+				anchorX: 0,
+				anchorY: -12
+			}
+		}
+		mapContext.value.addMarkers({
+			markers: [marker],
+			clear: true
+		})
+		mapContext.value.moveToLocation({
+			longitude: info.longitude,
+			latitude: info.latitude,
+		})
 	}
 
 
@@ -115,6 +156,9 @@
 
 			&.xie {
 				background-color: #FC7E2C;
+			}
+			&.zhuang {
+				background-color: var(--main-color);
 			}
 		}
 

@@ -27,16 +27,17 @@ page {
   padding: 24rpx;
 }
 .item-group {
+  padding: 0 24rpx;
   border-radius: 24rpx;
   background: #FFFFFF;
+  overflow: hidden;
+  margin-bottom: 20rpx;
 }
 .item-group .item {
   margin-bottom: 0 !important;
 }
 .item {
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 32rpx 28rpx;
+  height: 112rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -46,4 +47,12 @@ page {
 }
 .item .label {
   color: var(--title-color);
+}
+.item .value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--title-color);
+  font-weight: 500;
 }

@@ -12,7 +12,8 @@
     "pages/setting/setting",
     "pages/statistics/statistics",
     "pages/webview/webview",
-    "pages/agreement/agreement"
+    "pages/agreement/agreement",
+    "pages/wayBillDetail/wayBillDetail"
   ],
   "window": {
     "navigationBarTextStyle": "black",

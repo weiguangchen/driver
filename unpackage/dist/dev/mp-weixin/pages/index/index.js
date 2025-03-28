@@ -42,26 +42,24 @@ const _sfc_main = {
     const locationStore = stores_location.useLocationStore();
     const { carList, defaultCar } = common_vendor.storeToRefs(userStore);
     const nickname = common_vendor.computed(() => {
-      var _a;
-      const tokenData = utils_token.getToken();
-      return ((_a = tokenData == null ? void 0 : tokenData.userInfo) == null ? void 0 : _a.Nickname) ?? "司机师傅";
+      return userStore.userInfo.Nickname ?? "司机师傅";
     });
     const isInit = common_vendor.ref(false);
     common_vendor.onLoad(async () => {
       console.log("onLoad");
-      try {
-        await utils_authorize.getLocationInfo();
-        console.log("locationStore", locationStore);
-      } catch {
-      }
       isInit.value = true;
       if (!utils_token.getToken()) {
         return;
       }
       console.log("onload handle");
-      await userStore.getCarList();
-      await getCurrentCarnoCargoOptions();
-      await getProcess();
+      try {
+        await utils_authorize.getLocationInfo();
+        console.log("locationStore", locationStore);
+      } finally {
+        await userStore.getCarList();
+        await getCurrentCarnoCargoOptions();
+        await getProcess();
+      }
     });
     common_vendor.onShow(async () => {
       console.log("onShow");
@@ -93,14 +91,15 @@ const _sfc_main = {
       });
     }
     function toGuide() {
-      common_vendor.index.navigateTo({
-        url: "/pages/guide/guide"
+      const src = "https://mp.weixin.qq.com/s/6Hqb9mbfT_Te9Tu4cD26DQ";
+      common_vendor.index.openOfficialAccountArticle({
+        url: src
       });
     }
     function follow() {
       const src = "https://mp.weixin.qq.com/s?__biz=MzkxOTcyODM5OA==&mid=2247483675&idx=1&sn=3f1378b5f85fe5ed6144eb9446f63a32&chksm=c19cf97af6eb706cee30883335ba2e11ab4ebd79c23dac68af13106c2b56e20eee02ddfe656c#rd";
-      common_vendor.index.navigateTo({
-        url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+      common_vendor.index.openOfficialAccountArticle({
+        url: src
       });
     }
     function navigate(type) {
@@ -109,21 +108,75 @@ const _sfc_main = {
         return;
       }
       switch (type) {
-        case "数据统计":
-          common_vendor.index.navigateTo({
-            url: "/pages/statistics/statistics"
-          });
+        case "扫码助手":
+          handleScan();
           break;
+        case "数据统计":
+          common_vendor.index.showToast({
+            title: "敬请期待",
+            icon: "none"
+          });
+          return;
         case "操作指南":
           common_vendor.index.navigateTo({
             url: "/pages/guide/guide"
           });
           break;
-        case "问题反馈":
-          common_vendor.index.navigateTo({
-            url: "/pages/feedback/feedback"
+      }
+    }
+    async function handleScan() {
+      if (!defaultCar.value) {
+        common_vendor.index.showToast({
+          title: "请先添加车辆",
+          icon: "none"
+        });
+        return;
+      }
+      let params = {};
+      try {
+        const res = await common_vendor.index.scanCode();
+        console.log(res);
+        params = JSON.parse(res.result);
+        console.log(params);
+        const { htQRType } = params;
+        if (!htQRType) {
+          common_vendor.index.showToast({
+            title: "无效二维码",
+            icon: "none"
           });
-          break;
+          return;
+        }
+      } catch (err) {
+        console.log("无效二维码", err);
+        common_vendor.index.showToast({
+          title: "无效二维码",
+          icon: "none"
+        });
+        return;
+      }
+      try {
+        common_vendor.index.showLoading({
+          mask: true
+        });
+        const param = {
+          scanParam: JSON.stringify({
+            ...params
+          })
+        };
+        console.log(param);
+        await api_index.ScanQR(param);
+        console.log("允许扫码");
+        common_vendor.index.hideLoading();
+        const { assignId, supplyId } = params;
+        common_vendor.index.navigateTo({
+          url: `/pages/billDetail/billDetail?assignId=${assignId}&supplyId=${supplyId}`
+        });
+      } catch (err) {
+        common_vendor.index.hideLoading();
+        common_vendor.index.showToast({
+          title: err.data,
+          icon: "none"
+        });
       }
     }
     const loginDrawer = common_vendor.ref();
@@ -135,25 +188,25 @@ const _sfc_main = {
         url: "/pages/index/index"
       });
     }
-    const ownerId = common_vendor.ref("0");
+    const ownerId = common_vendor.ref("");
     const currentCarnoCargoOptions = common_vendor.ref([]);
     async function getCurrentCarnoCargoOptions() {
       try {
         const res = await api_index.GetDriverTakeTicketOwnerList({
-          carno: defaultCar.value.Carno
+          carno: defaultCar.value.Carno ? defaultCar.value.Carno.trim() : ""
         });
         const cargos = res.map((m) => ({
           value: m.Id,
           label: m.Ownername
         }));
         currentCarnoCargoOptions.value = [{
-          value: "0",
+          value: "",
           label: "全部货主"
         }, ...cargos];
       } catch {
-        ownerId.value = "0";
+        ownerId.value = "";
         currentCarnoCargoOptions.value = [{
-          value: "0",
+          value: "",
           label: "全部货主"
         }];
       }
@@ -163,7 +216,7 @@ const _sfc_main = {
       if (val && !oldVal || val && oldVal && val.Id !== oldVal.Id) {
         console.log("重新获取列表");
         try {
-          ownerId.value = "0";
+          ownerId.value = "";
           currentCarnoCargoOptions.value = [];
           await getCurrentCarnoCargoOptions();
         } catch {
@@ -175,15 +228,20 @@ const _sfc_main = {
     }, {
       immediate: true
     });
-    function changeCargo(item) {
-      getList();
+    async function changeCargo(item) {
+      try {
+        common_vendor.index.showLoading();
+        await getList();
+      } finally {
+        common_vendor.index.hideLoading();
+      }
     }
     const assignCnt = common_vendor.ref(0);
     const assignList = common_vendor.ref([]);
     async function getList() {
       try {
         const res = await api_index.GetReceiveAssignList({
-          ownerId: ownerId.value === "0" ? "" : ownerId.value,
+          ownerId: ownerId.value,
           latitude: locationStore.location ? locationStore.location.latitude : "",
           longitude: locationStore.location ? locationStore.location.longitude : ""
         });
@@ -239,13 +297,16 @@ const _sfc_main = {
             fontSize: "28rpx"
           }
         })
-      } : {
-        k: common_vendor.p({
+      } : common_vendor.e({
+        k: common_vendor.unref(defaultCar)
+      }, common_vendor.unref(defaultCar) ? {
+        l: common_vendor.p({
           plate: common_vendor.unref(defaultCar).Carno,
           color: common_vendor.unref(defaultCar).Color
-        }),
-        l: common_vendor.t(common_vendor.unref(defaultCar).Cartype),
-        m: common_vendor.p({
+        })
+      } : {}, {
+        m: common_vendor.t(common_vendor.unref(defaultCar).Cartype),
+        n: common_vendor.p({
           src: "/static/images/arrow2.png",
           duration: 0,
           width: "18rpx",
@@ -254,16 +315,16 @@ const _sfc_main = {
             marginLeft: "4rpx"
           }
         }),
-        n: common_vendor.o(changeCar),
-        o: common_vendor.unref(defaultCar).Cartype === "自卸车" ? 1 : "",
-        p: common_vendor.unref(defaultCar).Cartype === "半挂车" ? 1 : "",
-        q: common_vendor.unref(defaultCar).Cartype === "罐车" ? 1 : ""
-      }, {
+        o: common_vendor.o(changeCar),
+        p: common_vendor.unref(defaultCar).Cartype === "自卸车" ? 1 : "",
+        q: common_vendor.unref(defaultCar).Cartype === "半挂车" ? 1 : "",
+        r: common_vendor.unref(defaultCar).Cartype === "罐车" ? 1 : ""
+      }), {
         h: common_vendor.unref(carList) && common_vendor.unref(carList).length === 0,
-        r: common_vendor.p({
+        s: common_vendor.p({
           color: "var(--divider)"
         }),
-        s: common_vendor.p({
+        t: common_vendor.p({
           src: "/static/images/home/scan.png",
           width: "80rpx",
           height: "80rpx",
@@ -272,7 +333,8 @@ const _sfc_main = {
             marginBottom: "14rpx"
           }
         }),
-        t: common_vendor.p({
+        v: common_vendor.o(($event) => navigate("扫码助手")),
+        w: common_vendor.p({
           src: "/static/images/home/statistics.png",
           width: "80rpx",
           height: "80rpx",
@@ -281,8 +343,8 @@ const _sfc_main = {
             marginBottom: "14rpx"
           }
         }),
-        v: common_vendor.o(($event) => navigate("数据统计")),
-        w: common_vendor.p({
+        x: common_vendor.o(($event) => navigate("数据统计")),
+        y: common_vendor.p({
           src: "/static/images/home/guide.png",
           width: "80rpx",
           height: "80rpx",
@@ -291,8 +353,8 @@ const _sfc_main = {
             marginBottom: "14rpx"
           }
         }),
-        x: common_vendor.o(toGuide),
-        y: common_vendor.p({
+        z: common_vendor.o(toGuide),
+        A: common_vendor.p({
           src: "/static/images/home/feedback.png",
           width: "80rpx",
           height: "80rpx",
@@ -301,33 +363,32 @@ const _sfc_main = {
             marginBottom: "14rpx"
           }
         }),
-        z: common_vendor.o(($event) => navigate("问题反馈")),
-        A: common_vendor.p({
+        B: common_vendor.p({
           width: "100%",
           height: "100%",
           duration: 0,
           src: "/static/images/mine/banner.png"
         }),
-        B: common_vendor.o(follow),
-        C: !common_vendor.unref(utils_token.getToken)()
+        C: common_vendor.o(follow),
+        D: !common_vendor.unref(utils_token.getToken)()
       }, !common_vendor.unref(utils_token.getToken)() ? {
-        D: common_vendor.p({
+        E: common_vendor.p({
           src: "/static/images/empty/index.png",
           width: "176rpx",
           height: "176rpx",
           duration: 0
         })
       } : common_vendor.e({
-        E: common_vendor.t(assignCnt.value),
-        F: common_vendor.o(changeCargo),
-        G: common_vendor.o(($event) => ownerId.value = $event),
-        H: common_vendor.p({
+        F: common_vendor.t(assignCnt.value),
+        G: common_vendor.o(changeCargo),
+        H: common_vendor.o(($event) => ownerId.value = $event),
+        I: common_vendor.p({
           options: currentCarnoCargoOptions.value,
           modelValue: ownerId.value
         }),
-        I: assignList.value.length > 0
+        J: assignList.value.length > 0
       }, assignList.value.length > 0 ? {
-        J: common_vendor.f(assignList.value, (item, index, i0) => {
+        K: common_vendor.f(assignList.value, (item, index, i0) => {
           return {
             a: item.Id,
             b: "09b53fa2-14-" + i0,
@@ -336,22 +397,22 @@ const _sfc_main = {
             })
           };
         }),
-        K: common_vendor.p({
+        L: common_vendor.p({
           status: "nomore",
           color: "#B0BECC",
           ["line-color"]: "#B0BECC",
           ["font-size"]: "24rpx"
         })
       } : {
-        L: common_vendor.p({
+        M: common_vendor.p({
           height: "200px",
           text: "暂无可接运单"
         })
       }), {
-        M: common_vendor.sr(loginDrawer, "09b53fa2-17", {
+        N: common_vendor.sr(loginDrawer, "09b53fa2-17", {
           "k": "loginDrawer"
         }),
-        N: common_vendor.o(loginSuccess)
+        O: common_vendor.o(loginSuccess)
       });
     };
   }

@@ -1,20 +1,19 @@
 <template>
 	<view class="date-range">
-		<view class="start-date" @click="selectDate('start')">
+		<view class="start-date" :class="{'active': startDate}" @click="selectDate('start')">
 			{{ startDate || '开始时间' }}
-			<uv-icon name="arrow-down" size="8" color="#B0BECC" />
+			<uv-icon name="arrow-down" size="8" color="#B0BECC" v-if="!disabled"/>
 		</view>
 		<uv-line color="#C8D4DF" length="20rpx" margin="0 20rpx" />
-		<view class="end-date" @click="selectDate('end')">
+		<view class="end-date" :class="{'active': endDate}" @click="selectDate('end')">
 			{{ endDate || '结束时间' }}
-			<uv-icon name="arrow-down" size="8" color="#B0BECC" />
+			<uv-icon name="arrow-down" size="8" color="#B0BECC" v-if="!disabled"/>
 		</view>
 	</view>
 
 	<!-- 时间类型 -->
 	<root-portal>
-		<uv-datetime-picker ref="datetimePicker" v-model="dateTime" mode="date" confirmColor="var(--main-color)"
-			@confirm="confirmDateTime" :min-date="minDate" :max-date="maxDate" />
+		<uv-datetime-picker ref="datetimePicker" v-model="dateTime" mode="date" confirmColor="var(--main-color)" :min-date="minDate" :max-date="maxDate" :formatter="formatter" @confirm="confirmDateTime" />
 	</root-portal>
 </template>
 
@@ -30,46 +29,55 @@
 		modelValue: {
 			default: () => [],
 			type: Array
+		},
+		disabled: {
+			default: false,
+			type: Boolean
 		}
 	})
 	const emits = defineEmits(['update:modelValue','change']);
-
+	
 	const startDate = ref();
 	const endDate = ref();
 	const dateType = ref('start')
 	const datetimePicker = ref();
-	const minDate = ref();
-	const maxDate = ref();
+	const minDate = ref('2000-01-01');
+	const maxDate = ref('2049-12-31');
 	// 时间范围
 	const min = dayjs();
 	const max = dayjs().add(1, 'year').valueOf();
 	const dateTime = ref();
-
+	
+	
 	watchEffect(() => {
+		console.log('modelValue',props.modelValue)
 		const [start, end] = props.modelValue;
 		startDate.value = start;
 		endDate.value = end;
 	})
 
-	const getMinDate = computed(() => {
-		if(!startDate.value) return dayjs(min).valueOf();
-		return dayjs(startDate.value).isAfter(min) ? dayjs(startDate.value).valueOf() : dayjs(min).valueOf();
-	})
-	const getMaxDate = computed(() => {
-		if(!endDate.value) return dayjs(max).valueOf();
-		return dayjs(endDate.value).isBefore(max) ? dayjs(endDate.value).valueOf() : dayjs(max).valueOf();
-	})
+	function formatter(type, value) {
+		if (type === 'year') {
+			return `${value}年`
+		}
+		if (type === 'month') {
+			return `${value}月`
+		}
+		if (type === 'day') {
+			return `${value}日`
+		}
+		return value
+	}
 
 
 	function selectDate(type) {
+		if(props.disabled) return;
 		dateType.value = type;
 		if (type === 'start') {
-			minDate.value = min.valueOf();
-			maxDate.value = getMaxDate.value;
+			dateTime.value = startDate.value || dayjs().format('YYYY-MM-DD');
 		}
 		if (type === 'end') {
-			minDate.value = getMinDate.value;
-			maxDate.value = max.valueOf()
+			dateTime.value = endDate.value || dayjs().format('YYYY-MM-DD');
 		}
 		datetimePicker.value.open()
 	}
@@ -78,13 +86,34 @@
 		value
 	}) {
 		const val = dayjs(value).format('YYYY-MM-DD');
+		
+		
 		if (dateType.value === 'start') {
-			startDate.value = val;
+			if(endDate.value) {
+				if(dayjs(val).isAfter(endDate.value)) {
+					startDate.value = endDate.value;
+					endDate.value = val;
+				}else {
+					startDate.value = val;
+				}
+			}else {
+				startDate.value = val;
+			}
 		}
 		if (dateType.value === 'end') {
-			endDate.value = val;
+			if(startDate.value) {
+				if(dayjs(val).isBefore(startDate.value)) {
+					endDate.value = startDate.value;
+					startDate.value = val;
+				}else {
+					endDate.value = val;
+				}
+			}else {
+				endDate.value = val;
+			}
 		}
 		const date = [startDate?.value ?? '',endDate?.value ?? '']
+		console.log('confirmDateTime',date)
 		emits('update:modelValue', date)
 		emits('change', date)
 	}
@@ -100,35 +129,26 @@
 
 		.start-date,
 		.end-date {
-			justify-content: space-between;
 			width: 300rpx;
 			flex: none;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 			color: var(--intr-color);
-		}
-	}
+			padding: 0 32rpx;
+			height: 72rpx;
+			background: #FFFFFF;
+			border-radius: 36rpx;
+			border: 2rpx solid var(--divider);
+			font-size: 26rpx;
+			line-height: 48rpx;
 
-	.start-date,
-	.end-date {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: var(--intr-color);
-		padding: 0 32rpx;
-		height: 72rpx;
-		background: #FFFFFF;
-		border-radius: 36rpx;
-		border: 2rpx solid var(--divider);
-		font-size: 26rpx;
-		line-height: 48rpx;
-
-		&--active {
-			opacity: 0.45;
-		}
-
-		&.active {
-			background: linear-gradient(270deg, #31CE57 0%, #07B130 100%);
-			color: #FFFFFF;
-			border: none;
+			&--active {
+				opacity: 0.45;
+			}
+			&.active {
+				color: var(--title-color);
+			}
 		}
 	}
 </style>

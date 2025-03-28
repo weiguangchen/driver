@@ -1,44 +1,52 @@
 <template>
 	<uv-navbar bgColor="rgba(255,255,255,0)" @leftClick="leftClick"></uv-navbar>
 	<view class="placeholder" :style="{ height: placeholderHeight }"></view>
-	<view class="page-bg" :class="{'no-auth': info.EntryAuthened === '0'}" />
+	<view class="page-bg" :class="{'no-auth': ['0','2'].includes(info.EntryAuthened) }" />
 	<!-- 状态 -->
-	<view class="status-wrapper" @click="openStepModal">
+	<!-- @click="openStepModal" -->
+	<view class="status-wrapper">
 		<view class="status-text">
 			<template v-if="info.EntryAuthened === '0'">需完成安全认证</template>
+			<template v-else-if="info.EntryAuthened === '2'">已存在装运计划</template>
 			<template v-else>
 				待接单
-				<uv-icon name="arrow-right" size="32rpx" color="#FFFFFF" :custom-style="{ marginLeft: '8rpx' }" bold/>
+				<!-- <uv-icon name="arrow-right" size="32rpx" color="#FFFFFF" :custom-style="{ marginLeft: '8rpx' }" bold/> -->
 			</template>
 		</view>
 		<view class="status-tip">
-			请选择装运物料
-			<template v-if="(!info.StartTime && !info.EndTime) || (info.StartTime && dayjs().isAfter(info.StartTime)) && !info.EndTime"></template>
-			<template v-else-if="!info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)">
-				，并于 {{ info.StartTime }} 后入场装货
-			</template>
-			<template v-else-if="info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)">
-				，并于 {{ info.StartTime }} 至 {{ info.EndTime }} 入场装货
-			</template>
-			<template v-else-if="(info.StartTime && dayjs().isAfter(info.StartTime) && info.EndTime && dayjs().isBefore(info.EndTime)) || (!info.StartTime && info.EndTime && dayjs().isBefore(info.EndTime))">
-				，并于 {{ info.EndTime }} 前入场装货
+			<template v-if="info.EntryAuthened === '0'">接单前，请先完成生产企业安全认证</template>
+			<template v-else-if="info.EntryAuthened === '2'">完成装车并出厂后方可再次接单</template>
+			<template v-else>
+				请选择装运物料
+				<view class="">
+					<template v-if="(!info.StartTime && !info.EndTime) || (info.StartTime && dayjs().isAfter(info.StartTime)) && !info.EndTime"></template>
+					<template v-else-if="!info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)">
+						并于 {{ dayjs(info.StartTime).format('MM-DD HH:mm') }} 后入厂装货
+					</template>
+					<template v-else-if="info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)">
+						并于 {{ dayjs(info.StartTime).format('MM-DD HH:mm') }} 至 {{ dayjs(info.EndTime).format('MM-DD HH:mm') }} 入厂装货
+					</template>
+					<template v-else-if="(info.StartTime && dayjs().isAfter(info.StartTime) && info.EndTime && dayjs().isBefore(info.EndTime)) || (!info.StartTime && info.EndTime && dayjs().isBefore(info.EndTime))">
+						并于 {{ dayjs(info.EndTime).format('MM-DD HH:mm') }} 前入厂装货
+					</template>
+				</view>
 			</template>
 		</view>
 	</view>
 	<!-- end -->
 	<!-- 地址 -->
 	<view class="location-wrapper">
-		<view class="from-wrapper" @click="openMapModal" v-if="info.SupEnt">
+		<view class="from-wrapper" @click="openMapModal(1)" v-if="info.SupEnt">
 			<view class="icon">装</view>
 			<view class="content-box my-border-bottom">
 				<view class="info" @click="selectAddress">
-					<view class="name uv-line-1">{{ info.SupEnt ? info.SupEnt.SupplierName : '' }}</view>
+					<view class="name uv-line-1">{{ info.SupEnt ? info.SupEnt.Name : '' }}</view>
 					<view class="address uv-line-1">{{ info.SupEnt ? info.SupEnt.Province : '' }}{{ info.SupEnt ? info.SupEnt.City : '' }}{{ info.SupEnt ? info.SupEnt.District : '' }}{{ info.SupEnt ? info.SupEnt.Address : '' }}</view>
 				</view>
 				<uv-image src="/static/images/arrow.png" :duration="0" width="24rpx" height="24rpx" />
 			</view>
 		</view>
-		<view class="to-wrapper" @click="openMapModal" v-if="info.UnloadEnt">
+		<view class="to-wrapper" @click="openMapModal(2)" v-if="info.UnloadEnt">
 			<view class="icon">卸</view>
 			<view class="content-box">
 				<view class="info" @click="selectAddress">
@@ -104,12 +112,6 @@
 		</view> -->
 	</view>
 	<!-- end -->
-	<!-- 备注 -->
-	<view class="remark" v-if="info.Memo">
-		<view class="title">运单备注</view>
-		<view class="content">{{ info.Memo }}</view>
-	</view>
-	<!-- end -->
 	<!-- 运单详情 -->
 	<view class="remark" v-if="info.Memo">
 		<view class="title">运单备注</view>
@@ -135,7 +137,7 @@
 	</view> -->
 	<!-- end -->
 	
-	<view class="page-footer">
+	<!-- <view class="page-footer">
 		<view class="btns">
 			<view class="left">
 				<uv-button text="取消运单" color="var(--page-bg)" :custom-style="{ height: '96rpx', borderRadius: '16rpx',color: 'var(--sub-color)' }"></uv-button>
@@ -144,7 +146,7 @@
 				<uv-button text="已到达装货厂家" color=" linear-gradient( 270deg, #31CE57 0%, #07B130 100%)" :custom-style="{ height: '96rpx', borderRadius: '16rpx' }"></uv-button>
 			</view>
 		</view>
-	</view>
+	</view> -->
 	<!-- 地图 -->
 	<MapDrawer ref="mapModal"/>
 	<!-- 追踪 -->
@@ -167,16 +169,19 @@
 
 	const statusBarHeight = ref();
 	const assignId = ref('');
+	const supplyId = ref('');
 	onLoad((options) => {
 		statusBarHeight.value = uni.getSystemInfoSync().statusBarHeight;
 		assignId.value = options?.assignId ?? '';
+		supplyId.value = options?.supplyId ?? '';
 		getData();
 	})
 	const info = ref({});
 	async function getData() {
 		try {
 			const res = await GetReceiveAssignDetail({
-				assignId: assignId.value
+				assignId: assignId.value,
+				supplyId: supplyId.value
 			})
 			info.value = {
 				...res,
@@ -198,8 +203,17 @@
 	}
 	// 地图
 	const mapModal = ref();
-	function openMapModal() {
-		mapModal.value.open();
+	function openMapModal(type) {
+		const data = {
+			type,
+			name: type === 1 ? info.value?.SupEnt?.Name ?? '' : info.value?.UnloadEnt?.PlaceName ?? '',
+			address: type === 1 ? `${info.value?.SupEnt?.Province ?? ''}${info.value?.SupEnt?.City ?? ''}${info.value?.SupEnt?.District ?? ''}${info.value?.SupEnt?.Address ?? ''}` : `${info.value?.UnloadEnt?.Province ?? ''}${info.value?.UnloadEnt?.City ?? ''}${info.value?.UnloadEnt?.District ?? ''}${info.value?.UnloadEnt?.Address ?? ''}`,
+			user: type === 1 ? info.value?.SupEnt?.Linker ?? '' : info.value?.UnloadEnt?.NickName ?? '',
+			phone: type === 1 ? info.value?.SupEnt?.LinkerMobile ?? '' : info.value?.UnloadEnt?.Mobile ?? '',
+			longitude: type === 1 ? info.value?.SupEnt?.Logitude : info.value?.UnloadEnt?.Logitude,
+			latitude: type === 1 ? info.value?.SupEnt?.Latitude : info.value?.UnloadEnt?.Latitude
+		}
+		mapModal.value.open(data);
 	}
 	// 跟踪
 	const stepModal = ref();
@@ -220,7 +234,7 @@
 
 <style lang="scss">
 	page {
-		padding: 0 24rpx 300rpx;
+		padding: 0 24rpx;
 	}
 	
 	.page-bg {

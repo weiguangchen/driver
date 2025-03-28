@@ -59,7 +59,6 @@
 		cancel,
 		close
 	}) {
-		if(title)
 		innerTitle.value = title;
 		innerContent.value = content;
 		innerShowCancelButton.value = showCancelButton ?? true;

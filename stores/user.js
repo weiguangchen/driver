@@ -40,6 +40,7 @@ export const useUserStore = defineStore('user', {
 		},
 		logout() {
 			removeToken();
+			this.setUserInfo({});
 		},
 		setUserInfo(payload) {
 			this.userInfo = payload;

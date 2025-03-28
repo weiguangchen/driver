@@ -16,7 +16,7 @@
 					}">设为当前车辆</view>
 				</uv-radio>
 				<view class="btns">
-					<view class="btn" @click="remove(item)" v-if="item.Isdefault === '0'">
+					<view class="btn" @click="remove(item)" v-if="item.Isdefault !== '1'">
 						<uv-image src="/static/images/remove.png" width="32rpx" height="32rpx"
 							:custom-style="{ marginRight: '8rpx' }" :duration="0" />
 						删除

@@ -1,5 +1,6 @@
 "use strict";
 const common_vendor = require("../../../common/vendor.js");
+const utils_index = require("../../../utils/index.js");
 const api_index = require("../../../api/index.js");
 const utils_token = require("../../../utils/token.js");
 if (!Array) {
@@ -44,11 +45,11 @@ const _sfc_main = /* @__PURE__ */ Object.assign(__default__, {
   setup(__props, { emit: __emit }) {
     const props = __props;
     const disabled = common_vendor.computed(() => {
-      return props.bill.EntryAuthened === "0" || props.bill.EntryAuthened === "1" && props.record.ReceiveAble === "0";
+      return ["0", "2"].includes(props.bill.EntryAuthened) || props.bill.EntryAuthened === "1" && props.record.ReceiveAble === "0";
     });
     const emits = __emit;
     const model = common_vendor.reactive({
-      FullLoad: false,
+      FullLoad: "0",
       Load: 0
     });
     const rules = common_vendor.reactive({
@@ -75,8 +76,8 @@ const _sfc_main = /* @__PURE__ */ Object.assign(__default__, {
       const carType = ((_b = (_a = props.bill) == null ? void 0 : _a.CarEnt) == null ? void 0 : _b.CarType) ?? "";
       const carTare = (map == null ? void 0 : map[carType]) ?? 0;
       const carWeight = ((_d = (_c = props.bill) == null ? void 0 : _c.ConfigEnt) == null ? void 0 : _d[carTare]) ?? 0;
-      if (model.FullLoad) {
-        return common_vendor.Big(((_f = (_e = props.bill) == null ? void 0 : _e.ConfigEnt) == null ? void 0 : _f.FullLoadGross) || 0).minus(carWeight).toFixed(2);
+      if (model.FullLoad === "1") {
+        return common_vendor.Big(((_f = (_e = props.bill) == null ? void 0 : _e.ConfigEnt) == null ? void 0 : _f.fullLoadGross) || 0).minus(carWeight).toFixed(2);
       } else {
         return common_vendor.Big(model.Load || 0).minus(carWeight).toFixed(2);
       }
@@ -87,6 +88,8 @@ const _sfc_main = /* @__PURE__ */ Object.assign(__default__, {
     }
     async function confirm() {
       var _a, _b, _c, _d, _e;
+      await common_vendor.index.hideKeyboard();
+      await utils_index.sleep(200);
       try {
         const tokenData = utils_token.getToken();
         const params = {
@@ -97,7 +100,7 @@ const _sfc_main = /* @__PURE__ */ Object.assign(__default__, {
           Material: props.record.Material,
           MatName: props.record.MaterialName,
           FullLoad: model.FullLoad,
-          Load: model.FullLoad ? (_e = (_d = props == null ? void 0 : props.bill) == null ? void 0 : _d.ConfigEnt) == null ? void 0 : _e.fullLoadGross : model.Load,
+          Load: model.FullLoad === "1" ? (_e = (_d = props == null ? void 0 : props.bill) == null ? void 0 : _d.ConfigEnt) == null ? void 0 : _e.fullLoadGross : model.Load,
           Suttle: Suttle.value
         };
         console.log("接单参数", params);
@@ -108,9 +111,10 @@ const _sfc_main = /* @__PURE__ */ Object.assign(__default__, {
         });
         emits("confirm");
         drawer.value.popup.close();
-      } catch {
+      } catch (err) {
+        console.log(err);
         common_vendor.index.showToast({
-          title: "接单失败",
+          title: err == null ? void 0 : err.data,
           icon: "none"
         });
         drawer.value.closeLoading();
@@ -119,79 +123,83 @@ const _sfc_main = /* @__PURE__ */ Object.assign(__default__, {
     return (_ctx, _cache) => {
       return common_vendor.e({
         a: common_vendor.t(__props.record.MaterialName),
-        b: __props.record.Limittype === "1"
-      }, __props.record.Limittype === "1" ? {
-        c: common_vendor.t(__props.record.EstimateWeight)
+        b: __props.record.ReceiveAble === "0"
+      }, __props.record.ReceiveAble === "0" ? {} : __props.record.Limittype === "1" ? {
+        d: common_vendor.t(__props.record.LeftWeight)
+      } : __props.record.Limittype === "2" ? {
+        f: common_vendor.t(__props.record.Lefttimes)
       } : {}, {
-        d: __props.record.Limittype === "2"
-      }, __props.record.Limittype === "2" ? {
-        e: common_vendor.t(__props.record.EstimateTimes)
-      } : {}, {
-        f: __props.record.Realheight
+        c: __props.record.Limittype === "1",
+        e: __props.record.Limittype === "2",
+        g: __props.record.Realheight
       }, __props.record.Realheight ? {
-        g: common_vendor.t(__props.record.Realheight)
+        h: common_vendor.t(__props.record.Realheight)
       } : {}, {
-        h: common_vendor.o(openDrawer),
-        i: common_vendor.p({
+        i: common_vendor.o(openDrawer),
+        j: common_vendor.p({
           disabled: disabled.value,
           shape: "circle",
           color: disabled.value ? "#B0BECC" : "linear-gradient( 270deg, #31CE57 0%, #07B130 100%)",
-          text: "接单",
+          text: disabled.value ? "不可接" : "接单",
           ["custom-style"]: {
             height: "68rpx"
           }
         }),
-        j: __props.borderBottom ? 1 : "",
         k: __props.borderBottom ? 1 : "",
-        l: __props.bill.ConfigEnt.fullLoad === "1"
+        l: __props.borderBottom ? 1 : "",
+        m: __props.bill.ConfigEnt.fullLoad === "1"
       }, __props.bill.ConfigEnt.fullLoad === "1" ? {
-        m: common_vendor.o(changeIsFull),
-        n: common_vendor.o(($event) => model.FullLoad = $event),
-        o: common_vendor.p({
+        n: common_vendor.o(changeIsFull),
+        o: common_vendor.o(($event) => model.FullLoad = $event),
+        p: common_vendor.p({
           ["active-color"]: "var(--main-color)",
           activeValue: "1",
           inactiveValue: "0",
           modelValue: model.FullLoad
         }),
-        p: common_vendor.p({
+        q: common_vendor.p({
           prop: "FullLoad",
           customStyle: {
             padding: "28rpx 0"
           }
         })
       } : {}, {
-        q: model.FullLoad === "0"
+        r: model.FullLoad === "0"
       }, model.FullLoad === "0" ? {
-        r: common_vendor.t(__props.bill.ConfigEnt ? __props.bill.ConfigEnt.fullLoadMin ? __props.bill.ConfigEnt.fullLoadMin : 0 : 0),
-        s: common_vendor.t(__props.bill.ConfigEnt ? __props.bill.ConfigEnt.fullLoadMax ? __props.bill.ConfigEnt.fullLoadMax : "" : ""),
-        t: common_vendor.o(($event) => model.Load = $event),
-        v: common_vendor.p({
+        s: common_vendor.t(__props.bill.ConfigEnt ? __props.bill.ConfigEnt.fullLoadMin ? __props.bill.ConfigEnt.fullLoadMin : 0 : 0),
+        t: common_vendor.t(__props.bill.ConfigEnt ? __props.bill.ConfigEnt.fullLoadMax ? __props.bill.ConfigEnt.fullLoadMax : "" : ""),
+        v: common_vendor.o(($event) => model.Load = $event),
+        w: common_vendor.p({
+          ["decimal-length"]: "2",
           min: __props.bill.ConfigEnt ? __props.bill.ConfigEnt.fullLoadMin ? __props.bill.ConfigEnt.fullLoadMin : 0 : 0,
+          ["min-limit-msg"]: (min) => `重量最少为${min}吨`,
           max: __props.bill.ConfigEnt ? __props.bill.ConfigEnt.fullLoadMax ? __props.bill.ConfigEnt.fullLoadMax : void 0 : void 0,
+          ["max-limit-msg"]: (max) => `重量最多为${max}吨`,
           modelValue: model.Load
         }),
-        w: common_vendor.p({
+        x: common_vendor.p({
+          labelPosition: "top",
           prop: "Load",
           customStyle: {
             padding: "28rpx 0"
           }
         })
       } : {}, {
-        x: common_vendor.sr("form", "68193817-2,68193817-1"),
-        y: common_vendor.p({
+        y: common_vendor.sr("form", "68193817-2,68193817-1"),
+        z: common_vendor.p({
           labelPosition: "left",
           model,
           rules
         }),
-        z: common_vendor.t(Suttle.value),
-        A: common_vendor.sr(drawer, "68193817-1", {
+        A: common_vendor.t(Suttle.value),
+        B: common_vendor.sr(drawer, "68193817-1", {
           "k": "drawer"
         }),
-        B: common_vendor.o(confirm),
-        C: common_vendor.p({
+        C: common_vendor.o(confirm),
+        D: common_vendor.p({
           title: "设置预计装运量",
           showConfirmButton: true,
-          confirmText: "确认订单",
+          confirmText: "确认接单",
           bgColor: "#FFFFFF",
           asyncClose: true
         })

@@ -204,7 +204,7 @@
 				this.emitResult()
 			},
 			emitResult(){
-				const returnResult = this.inputList.join("")
+				const returnResult = this.inputList.join("").trim();
 				this.$emit('change', returnResult);
 				this.$emit('update:modelValue', returnResult);
 				this.$uv.formValidate(this, 'change')

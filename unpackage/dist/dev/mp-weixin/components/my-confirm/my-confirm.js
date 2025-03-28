@@ -46,8 +46,7 @@ const _sfc_main = {
       cancel,
       close: close2
     }) {
-      if (title)
-        innerTitle.value = title;
+      innerTitle.value = title;
       innerContent.value = content;
       innerShowCancelButton.value = showCancelButton ?? true;
       innerCancelText.value = cancelText ?? "取消";

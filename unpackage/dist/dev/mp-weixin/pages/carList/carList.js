@@ -102,8 +102,8 @@ const _sfc_main = {
               name: item.Carno,
               activeColor: "var(--main-color)"
             }),
-            h: item.Isdefault === "0"
-          }, item.Isdefault === "0" ? {
+            h: item.Isdefault !== "1"
+          }, item.Isdefault !== "1" ? {
             i: "7135ddef-3-" + i0 + ",7135ddef-0",
             j: common_vendor.p({
               src: "/static/images/remove.png",

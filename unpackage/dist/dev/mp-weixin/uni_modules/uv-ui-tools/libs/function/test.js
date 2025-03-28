@@ -172,10 +172,13 @@ const test = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty
   video
 }, Symbol.toStringTag, { value: "Module" }));
 exports.array = array;
+exports.date = date;
 exports.empty = empty;
 exports.func = func;
 exports.image = image;
 exports.number = number;
 exports.promise = promise;
+exports.range = range;
 exports.test = test;
+exports.url = url;
 exports.video = video;

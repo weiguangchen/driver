@@ -43,7 +43,7 @@
 				  type="number"
 				  :style="[inputStyle]"
 				/>
-				<!-- <view class="unit" @click="clickUnit">吨</view> -->
+				<view class="unit">{{ unit }}</view>
 			</view>
 		<!-- </slot> -->
 		<view
@@ -80,6 +80,7 @@
 	import mpMixin from '@/uni_modules/uv-ui-tools/libs/mixin/mpMixin.js'
 	import mixin from '@/uni_modules/uv-ui-tools/libs/mixin/mixin.js'
 	import props from '@/uni_modules/uv-number-box/components/uv-number-box/props.js';
+	import Big from 'big.js';
 	/**
 	 * numberBox 步进器
 	 * @description 该组件一般用于商城购物选择物品数量的场景。
@@ -114,6 +115,24 @@
 	export default {
 		name: 'uv-number-box',
 		mixins: [mpMixin, mixin, props],
+		props: {
+			min: {
+				default: 0,
+				type: Number
+			},
+			unit: {
+				default: '吨',
+				type: String
+			},
+			minLimitMsg: {
+				default: null,
+				type: Function
+			},
+			maxLimitMsg: {
+				default: null,
+				type: Function
+			}
+		},
 		data() {
 			return {
 				// 输入框实际操作的值
@@ -173,19 +192,21 @@
 			},
 			isDisabled() {
 				return (type) => {
+					const value = this.filter(this.currentValue);
+					const newVal = value === '' ? 0 : +value;
 					if (type === 'plus') {
-						// 在点击增加按钮情况下，判断整体的disabled，是否单独禁用增加按钮，以及当前值是否大于最大的允许值
+						// 在点击增加按钮情况下，判断整体的disabled，是否单独禁用增加按钮，以及当前值是否大于最大的允许值					   
 						return (
 							this.disabled ||
 							this.disablePlus ||
-							this.currentValue >= this.max
+							newVal >= this.max
 						)
 					}
 					// 点击减少按钮同理
 					return (
 						this.disabled ||
 						this.disableMinus ||
-						this.currentValue <= this.min
+						newVal <= this.min
 					)
 				}
 			},
@@ -206,6 +227,27 @@
 				// 如果为空字符串，那么设置为0，同时将值转为Number类型
 				value = value === '' ? 0 : +value
 				// 对比最大最小值，取在min和max之间的值
+				console.log('max',this.max,'min',this.min,'value',value);
+				if(Big(value || 0).gt(this.max || 0)) {
+					let maxMsg = `最大值为${this.max}`;
+					if(this.maxLimitMsg && typeof this.maxLimitMsg === 'function') {
+						maxMsg = this.maxLimitMsg(this.max);
+					}
+					uni.showToast({
+						title: maxMsg,
+						icon: 'none'
+					})
+				}
+				if(Big(value || 0).lt(this.min || 0)) {
+					let minMsg = `最小值为${this.min}`;
+					if(this.minLimitMsg && typeof this.minLimitMsg === 'function') {
+						minMsg = this.minLimitMsg(this.min);
+					}
+					uni.showToast({
+						title: minMsg,
+						icon: 'none'
+					})
+				}
 				value = Math.max(Math.min(this.max, value), this.min)
 				// 如果设定了最大的小数位数，使用toFixed去进行格式化
 				if (this.decimalLength !== null) {
@@ -214,7 +256,8 @@
 				return value
 			},
 			formatter(value) {
-				return `${value} 吨`
+				return value;
+				// return `${value} ${this.unit}`
 			},
 			// 过滤非法的字符
 			filter(value) {
@@ -246,10 +289,11 @@
 				let value = this.format(event.detail.value)
 				// value = this.formatter(value);
 				if (!this.asyncChange) {
+					console.log('onBlur',value)
 					this.$nextTick(() => {
 						this.$emit('input', value);
 						this.$emit('update:modelValue', value);
-						this.currentValue = value;
+						this.currentValue = this.formatter(value);
 						this.$forceUpdate();
 					})
 				}
@@ -270,13 +314,12 @@
 				// if (value === '') return;
 				let formatted = this.filter(value)
 				// 最大允许的小数长度
-				if (this.decimalLength !== null && formatted.indexOf('.') !== -1) {
-					const pair = formatted.split('.');
-					formatted = `${pair[0]}.${pair[1].slice(0, this.decimalLength)}`
-				}
-				formatted = this.format(formatted)
-				// formatted = this.formatter(formatted);
-				this.emitChange(formatted);
+				// if (this.decimalLength !== null && formatted.indexOf('.') !== -1) {
+				// 	const pair = formatted.split('.');
+				// 	formatted = `${pair[0]}.${pair[1].slice(0, this.decimalLength)}`
+				// }
+				// formatted = this.format(formatted)
+				// this.emitChange(formatted);
 			},
 			// 发出change事件
 			emitChange(value) {
@@ -379,8 +422,8 @@
 		}
 		&__plus,
 		&__minus {
-			width: 72rpx;
-			height: 72rpx;
+			width: 112rpx;
+			height: 88rpx;
 			@include flex;
 			justify-content: center;
 			align-items: center;
@@ -411,15 +454,14 @@
 			flex-direction: row;
 			align-items: center;
 			flex:none;
-			width: 208rpx;
-			// padding: 0 40rpx;
-			height: 72rpx;
+			width: 304rpx;
+			padding: 0 20rpx;
+			height: 88rpx;
 			border: 2rpx solid var(--page-bg);
 			.unit {
-				flex:1;
+				flex:none;
 				font-weight: bold;
 				font-size: 28rpx;
-				margin-left: 6rpx;
 				color: var(--title-color);
 			}
 		}
@@ -427,7 +469,7 @@
 			flex:1;
 			position: relative;
 			text-align: center;
-			font-size: 28rpx;
+			font-size: 32rpx;
 			font-weight: bold;
 			// padding: $uv-numberBox-input-padding;
 			// margin: $uv-numberBox-input-margin;

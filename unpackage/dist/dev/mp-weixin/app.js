@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
 const common_vendor = require("./common/vendor.js");
+const utils_token = require("./utils/token.js");
+const stores_user = require("./stores/user.js");
 const uni_modules_uvUiTools_index = require("./uni_modules/uv-ui-tools/index.js");
 if (!Math) {
   "./pages/index/index.js";
@@ -16,16 +18,19 @@ if (!Math) {
   "./pages/statistics/statistics.js";
   "./pages/webview/webview.js";
   "./pages/agreement/agreement.js";
+  "./pages/wayBillDetail/wayBillDetail.js";
 }
 const _sfc_main = {
-  onLaunch: function() {
-    console.log("App Launch");
-  },
-  onShow: function() {
-    console.log("App Show");
-  },
-  onHide: function() {
-    console.log("App Hide");
+  __name: "App",
+  setup(__props) {
+    const userStore = stores_user.useUserStore();
+    common_vendor.onLaunch(async () => {
+      var _a;
+      console.log("App Launch");
+      userStore.setUserInfo(utils_token.getToken() ? (_a = utils_token.getToken()) == null ? void 0 : _a.userInfo : {});
+    });
+    return () => {
+    };
   }
 };
 const App = /* @__PURE__ */ common_vendor._export_sfc(_sfc_main, [["__file", "/Users/wei/driver/App.vue"]]);

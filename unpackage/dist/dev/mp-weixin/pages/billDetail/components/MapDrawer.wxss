@@ -58,6 +58,9 @@
 .map-location-wrapper .tag.xie.data-v-a251a19b {
   background-color: #FC7E2C;
 }
+.map-location-wrapper .tag.zhuang.data-v-a251a19b {
+  background-color: var(--main-color);
+}
 .map-location-wrapper .name.data-v-a251a19b {
   color: var(--title-color);
   font-weight: bold;

@@ -23,7 +23,7 @@ const _sfc_main = {
     const props = __props;
     function toDetail() {
       common_vendor.index.navigateTo({
-        url: `/pages/billDetail/billDetail?assignId=${props.record.Id}`
+        url: `/pages/billDetail/billDetail?assignId=${props.record.Id}&supplyId=${props.record.Supply}`
       });
     }
     return (_ctx, _cache) => {
@@ -34,13 +34,16 @@ const _sfc_main = {
       } : {}, {
         c: common_vendor.t(__props.record.CreatorTime),
         d: common_vendor.t(__props.record.MatList.length > 0 ? __props.record.MatList[0].MaterialName : ""),
-        e: common_vendor.t(__props.record.MatList.length),
-        f: __props.record.SupEnt
+        e: __props.record.MatList.length > 1
+      }, __props.record.MatList.length > 1 ? {
+        f: common_vendor.t(__props.record.MatList.length)
+      } : {}, {
+        g: __props.record.SupEnt
       }, __props.record.SupEnt ? common_vendor.e({
-        g: common_vendor.f(3, (dot, k0, i0) => {
+        h: common_vendor.f(3, (dot, k0, i0) => {
           return {};
         }),
-        h: common_vendor.p({
+        i: common_vendor.p({
           src: "/static/images/dot1.png",
           width: "16rpx",
           height: "16rpx",
@@ -49,15 +52,15 @@ const _sfc_main = {
             marginRight: "16rpx"
           }
         }),
-        i: common_vendor.t(__props.record.SupEnt ? __props.record.SupEnt.City : ""),
-        j: common_vendor.t(__props.record.SupEnt ? __props.record.SupEnt.SupplierName : ""),
-        k: __props.record.District
+        j: common_vendor.t(__props.record.SupEnt ? __props.record.SupEnt.City : ""),
+        k: common_vendor.t(__props.record.SupEnt ? __props.record.SupEnt.SupplierName : ""),
+        l: __props.record.District
       }, __props.record.District ? {
-        l: common_vendor.t(__props.record.District)
+        m: common_vendor.t(__props.record.District)
       } : {}) : {}, {
-        m: __props.record.UnloadEnt
+        n: __props.record.UnloadEnt
       }, __props.record.UnloadEnt ? {
-        n: common_vendor.p({
+        o: common_vendor.p({
           src: "/static/images/dot2.png",
           width: "16rpx",
           height: "16rpx",
@@ -66,11 +69,11 @@ const _sfc_main = {
             marginRight: "16rpx"
           }
         }),
-        o: common_vendor.t(__props.record.UnloadEnt ? __props.record.UnloadEnt.City : ""),
-        p: common_vendor.t(__props.record.UnloadEnt ? __props.record.UnloadEnt.PlaceName : "")
+        p: common_vendor.t(__props.record.UnloadEnt ? __props.record.UnloadEnt.City : ""),
+        q: common_vendor.t(__props.record.UnloadEnt ? __props.record.UnloadEnt.PlaceName : "")
       } : {}, {
-        q: common_vendor.o(toDetail),
-        r: common_vendor.p({
+        r: common_vendor.o(toDetail),
+        s: common_vendor.p({
           text: "查看详情",
           color: "linear-gradient( 270deg, #31CE57 0%, #07B130 100%);",
           customStyle: {

@@ -12,13 +12,23 @@ if (!Math) {
 }
 const _sfc_main = {
   __name: "nickname-modal",
+  props: {
+    closeOnClickOverlay: {
+      type: Boolean,
+      default: false
+    },
+    showCancelButton: {
+      type: Boolean,
+      default: false
+    }
+  },
   emits: ["success"],
   setup(__props, { expose: __expose, emit: __emit }) {
     const emits = __emit;
     const modal = common_vendor.ref();
     const nickname = common_vendor.ref();
-    function open() {
-      nickname.value = "";
+    function open(name = "") {
+      nickname.value = name;
       modal.value.open();
     }
     function submit() {
@@ -56,9 +66,9 @@ const _sfc_main = {
         d: common_vendor.o(submit),
         e: common_vendor.p({
           title: "请填写您的称呼",
-          ["show-cancel-button"]: false,
+          ["show-cancel-button"]: __props.showCancelButton,
           ["async-close"]: true,
-          ["close-on-click-overlay"]: false
+          ["close-on-click-overlay"]: __props.closeOnClickOverlay
         })
       };
     };

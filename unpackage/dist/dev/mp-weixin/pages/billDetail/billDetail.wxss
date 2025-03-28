@@ -24,7 +24,7 @@
 /* 透明度 */
 /* 文章场景相关 */
 page {
-  padding: 0 24rpx 300rpx;
+  padding: 0 24rpx;
 }
 .page-bg.no-auth {
   background: linear-gradient(to bottom, transparent 168px, #F2F4F7), linear-gradient(270deg, #FC7E2C 0%, #FC7E2C 100%);

@@ -7,18 +7,18 @@
 				<uv-image :src="getToken() ? '/static/images/mine/avatar.png' : '/static/images/mine/no-avatar.png'" width="100%" height="100%" :duration="0"/>
 			</view>
 			<view class="user" v-if="getToken()">
-				<view class="name">{{ getToken().userInfo.Nickname || '暂无昵称' }}</view>
-				<view class="phone">{{ getToken().userInfo.Mobile || '' }}</view>
+				<view class="name">{{ userInfo.Nickname || '暂无昵称' }}</view>
+				<view class="phone">{{ userInfo.Mobile || '' }}</view>
 			</view>
 			<view class="no-login" v-else @click="openLoginDrawer">
 				请登录 <uv-image src="/static/images/arrow3.png" :duration="0" width="32rpx" height="32rpx" :custom-style="{ flex: 'none' }"/>
 			</view>
 		</view>
 		<view class="right">
-			<view class="btn" @click="openScan">
+			<view class="btn" @click="navigate('扫码')">
 				<uv-image src="/static/images/mine/scan.png" width="56rpx" height="56rpx" :duration="0" />
 			</view>
-			<view class="btn" @click="openQrcode">
+			<view class="btn" @click="navigate('二维码')">
 				<uv-image src="/static/images/mine/qrcode.png" width="56rpx" height="56rpx" :duration="0" />
 			</view>
 		</view>
@@ -37,19 +37,19 @@
 		<view class="title">本月运单</view>
 		<view class="menus">
 			<view class="menu">
-				<view class="number">256</view>
+				<view class="number">-</view>
 				<view class="">全部</view>
 			</view>
 			<view class="menu">
-				<view class="number">8</view>
+				<view class="number">-</view>
 				<view class="">已接单</view>
 			</view>
 			<view class="menu">
-				<view class="number">23</view>
+				<view class="number">-</view>
 				<view class="">已完成</view>
 			</view>
 			<view class="menu">
-				<view class="number">89</view>
+				<view class="number">-</view>
 				<view class="">已取消</view>
 			</view>
 		</view>
@@ -79,11 +79,11 @@
 					:custom-style="{ marginBottom: '4rpx' }" :duration="0" />
 				<view class="name">操作指南</view>
 			</view>
-			<view class="menu" @click="navigate('问题反馈')">
+			<button open-type="feedback" class="menu">
 				<uv-image src="/static/images/mine/feedback.png" width="56rpx" height="56rpx"
 					:custom-style="{ marginBottom: '4rpx' }" :duration="0" />
 				<view class="name">问题反馈</view>
-			</view>
+			</button>
 			<view class="menu" @click="navigate('设置')">
 				<uv-image src="/static/images/mine/setting.png" width="56rpx" height="56rpx"
 					:custom-style="{ marginBottom: '4rpx' }" :duration="0" />
@@ -111,8 +111,13 @@
 		useAppStore
 	} from '@/stores/app.js'
 	import QrcodeModal from './components/qrcodeModal.vue'
-	import { getToken } from '@/utils/token.js'
-	
+	import { getToken } from '@/utils/token.js';
+	import { useUserStore } from '@/stores/user.js';
+	import { storeToRefs } from 'pinia';
+	import { ScanQR } from '@/api/index.js';
+
+	const userStore = useUserStore();
+	const { userInfo, defaultCar } = storeToRefs(userStore);
 	const appStore = useAppStore();
 	const {
 		ctx
@@ -128,12 +133,23 @@
 			return;
 		}
 		switch (type) {
+			case '扫码':
+				handleScan()
+				break;
+			case '二维码':
+				openQrcode()
+				break;
 			case '车辆管理':
 				uni.navigateTo({
 					url: '/pages/carList/carList'
 				})
 				break;
 			case '数据统计':
+				uni.showToast({
+					title: '敬请期待',
+					icon: 'none'
+				})
+				return;
 				uni.navigateTo({
 					url: '/pages/statistics/statistics'
 				})
@@ -154,9 +170,6 @@
 				})
 				break;
 			case '问题反馈':
-				uni.navigateTo({
-					url: '/pages/feedback/feedback'
-				})
 				break;
 			case '设置':
 				uni.navigateTo({
@@ -167,36 +180,84 @@
 	}
 	
 	// 扫码
-	function openScan() {
-		if(!getToken()) {
-			openLoginDrawer();
+	async function handleScan() {
+		if(!defaultCar.value) {
+			uni.showToast({
+				title: '请先添加车辆',
+				icon: 'none'
+			})
 			return;
 		}
-		uni.scanCode({
-			onlyFromCamera: false,
-			scanType: ['qrCode']
-		})
+		let params = {};
+		try {
+			const res = await uni.scanCode();
+			console.log(res)
+			params = JSON.parse(res.result)
+			console.log(params)
+			const { htQRType } = params;
+			if(!htQRType) {
+				uni.showToast({
+					title: '无效二维码',
+					icon: 'none'
+				})
+				return;
+			}
+		}catch(err) {
+			console.log('无效二维码',err)
+			uni.showToast({
+				title: '无效二维码',
+				icon: 'none'
+			})
+			return;
+		}
+		try {
+			uni.showLoading({
+				mask: true
+			})
+			const param = {
+				scanParam: JSON.stringify({
+					...params
+				})
+			}
+			console.log(param);
+			await ScanQR(param);
+			console.log('允许扫码')
+			uni.hideLoading()
+			const { assignId } = params;
+			uni.navigateTo({
+				url: `/pages/billDetail/billDetail?assignId=${assignId}`
+			})
+		}catch(err) {
+			uni.hideLoading();
+			uni.showToast({
+				title: err.data,
+				icon: 'none'
+			})
+		}
 	}
 	// 二维码
 	const qrcode = ref();
 	function openQrcode() {
-		if(!getToken()) {
-			openLoginDrawer();
-			return;
-		}
 		qrcode.value.open();
 	}
 	// 关注公众号
 	function follow(){
 		const src = 'https://mp.weixin.qq.com/s?__biz=MzkxOTcyODM5OA==&mid=2247483675&idx=1&sn=3f1378b5f85fe5ed6144eb9446f63a32&chksm=c19cf97af6eb706cee30883335ba2e11ab4ebd79c23dac68af13106c2b56e20eee02ddfe656c#rd'
-		uni.navigateTo({
-			url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+		// uni.navigateTo({
+		// 	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+		// })
+		uni.openOfficialAccountArticle({
+			url: src
 		})
 	}
 	// 操作指南
 	function toGuide() {
-		uni.navigateTo({
-			url: '/pages/guide/guide'
+		const src = 'https://mp.weixin.qq.com/s/6Hqb9mbfT_Te9Tu4cD26DQ'
+		// uni.navigateTo({
+		// 	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+		// })
+		uni.openOfficialAccountArticle({
+			url: src
 		})
 	}
 	// 登录
@@ -387,15 +448,19 @@
 		.menus {
 			display: flex;
 			flex-wrap: wrap;
-			font-size: 24rpx;
 
 			.menu {
+				font-size: 24rpx;
+				background-color: transparent;
 				flex: none;
 				width: 25%;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
 				margin-bottom: 32rpx;
+				&::after {
+					display: none;
+				}
 			}
 		}
 	}

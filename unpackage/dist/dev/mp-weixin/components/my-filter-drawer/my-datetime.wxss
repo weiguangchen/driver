@@ -32,16 +32,11 @@
 }
 .date-range .start-date,
 .date-range .end-date {
-  justify-content: space-between;
   width: 300rpx;
   flex: none;
-  color: var(--intr-color);
-}
-.start-date,
-.end-date {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   color: var(--intr-color);
   padding: 0 32rpx;
   height: 72rpx;
@@ -51,13 +46,11 @@
   font-size: 26rpx;
   line-height: 48rpx;
 }
-.start-date--active,
-.end-date--active {
+.date-range .start-date--active,
+.date-range .end-date--active {
   opacity: 0.45;
 }
-.start-date.active,
-.end-date.active {
-  background: linear-gradient(270deg, #31CE57 0%, #07B130 100%);
-  color: #FFFFFF;
-  border: none;
+.date-range .start-date.active,
+.date-range .end-date.active {
+  color: var(--title-color);
 }

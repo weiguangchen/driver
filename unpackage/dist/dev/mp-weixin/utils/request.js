@@ -4,12 +4,11 @@ const utils_token = require("./token.js");
 const stores_user = require("../stores/user.js");
 const js_sdk_luchRequest_luchRequest_core_Request = require("../js_sdk/luch-request/luch-request/core/Request.js");
 var request = new js_sdk_luchRequest_luchRequest_core_Request.Request();
-const baseURL = "http://118.195.244.32:28012";
+const baseURL = "https://www.wwwxapp.cn:28065";
 request.config.timeout = 6e4;
 request.config.baseURL = baseURL;
 request.interceptors.request.use((config) => {
   var _a;
-  stores_user.useUserStore();
   const tokenData = utils_token.getToken();
   config.header = {
     ...config.header,
@@ -24,6 +23,7 @@ request.interceptors.request.use((config) => {
 });
 request.interceptors.response.use(
   function(response) {
+    const userStore = stores_user.useUserStore();
     const code = response.data.code;
     if (code === 200) {
       return response.data.data;
@@ -34,7 +34,7 @@ request.interceptors.response.use(
         showCancel: false,
         success(res) {
           if (res.confirm) {
-            utils_token.removeToken();
+            userStore.logout();
             common_vendor.index.reLaunch({
               url: "/pages/index/index"
             });

@@ -1,10 +1,13 @@
 <template>
 	<view class="bill-wrapper">
 		<view class="mfrs">
-			<view class="name" v-if="record.OwnerEnt">{{ record.OwnerEnt ? record.OwnerEnt.OwnerName : '' }}</view>
+			<view class="name uv-line-1" v-if="record.OwnerEnt">{{ record.OwnerEnt ? record.OwnerEnt.OwnerName : '' }}</view>
 			<view class="date">{{ record.CreatorTime }}</view>
 		</view>
-		<view class="cate">{{ record.MatList.length > 0 ? record.MatList[0].MaterialName : '' }} 等 {{ record.MatList.length }} 物料</view>
+		<view class="cate">
+			{{ record.MatList.length > 0 ? record.MatList[0].MaterialName : '' }} 
+			<template v-if="record.MatList.length > 1">等 {{ record.MatList.length }} 物料</template>
+		</view>
 		<view class="location-wrapper">
 			<view class="from" v-if="record.SupEnt">
 				<view class="line">
@@ -40,7 +43,7 @@
 	
 	function toDetail() {
 		uni.navigateTo({
-			url: `/pages/billDetail/billDetail?assignId=${props.record.Id}`
+			url: `/pages/billDetail/billDetail?assignId=${props.record.Id}&supplyId=${props.record.Supply}`
 		})
 	}
 	
@@ -66,8 +69,10 @@
 			}
 
 			.date {
+				flex: none;
 				font-size: 26rpx;
 				color: var(--sub-color);
+				margin-left: 10rpx;
 			}
 		}
 
