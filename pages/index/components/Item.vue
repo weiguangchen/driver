@@ -1,141 +1,207 @@
 <template>
-	<view class="bill-wrapper">
-		<view class="mfrs">
-			<view class="name uv-line-1" v-if="record.OwnerEnt">{{ record.OwnerEnt ? record.OwnerEnt.OwnerName : '' }}</view>
-			<view class="date">{{ record.CreatorTime }}</view>
-		</view>
-		<view class="cate">
-			{{ record.MatList.length > 0 ? record.MatList[0].MaterialName : '' }} 
-			<template v-if="record.MatList.length > 1">等 {{ record.MatList.length }} 物料</template>
-		</view>
-		<view class="location-wrapper">
-			<view class="from" v-if="record.SupEnt">
-				<view class="line">
-					<view class="dot" v-for="dot in 3" />
-				</view>
-				<uv-image src="/static/images/dot1.png" width="16rpx" height="16rpx" :duration="0"
-					:custom-style="{ marginRight: '16rpx' }" />
-				<view class="city uv-line-1">{{ record.SupEnt ? record.SupEnt.City : '' }}</view>
-				<view class="name uv-line-1">{{ record.SupEnt ? record.SupEnt.SupplierName : '' }}</view>
-				<view class="dis" v-if="record.District">{{ record.District }} km</view>
-			</view>
-			<view class="to" v-if="record.UnloadEnt">
-				<uv-image src="/static/images/dot2.png" width="16rpx" height="16rpx" :duration="0"
-					:custom-style="{ marginRight: '16rpx' }" />
-				<view class="city uv-line-1">{{ record.UnloadEnt ? record.UnloadEnt.City : '' }}</view>
-				<view class="name uv-line-1">{{ record.UnloadEnt ? record.UnloadEnt.PlaceName : '' }}</view>
-			</view>
-		</view>
-		<view class="footer">
-			<uv-button text="查看详情" color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
-				:customStyle="{ height: '92rpx', borderRadius:'16rpx' }" @click="toDetail" />
-		</view>
-	</view>
+  <view class="bill-wrapper" @click="toDetail">
+    <view class="mfrs">
+      <view class="name uv-line-1">{{
+        record?.OwnerEnt?.OwnerName ?? ""
+      }}</view>
+      <uv-icon name="/static/images/arrow.png" size="14" />
+    </view>
+    <view class="tags">
+      <view class="tag" v-for="item in record.MatList" :key="item.Id">{{
+        item.MaterialName
+      }}</view>
+    </view>
+    <view class="location-wrapper">
+      <view class="from" v-if="record.SupEnt">
+        <view class="line">
+          <view class="dot" v-for="dot in 3" />
+        </view>
+        <uv-image
+          src="/static/images/dot1.png"
+          width="16rpx"
+          height="16rpx"
+          :duration="0"
+          :custom-style="{ marginRight: '16rpx' }"
+        />
+        <view class="city uv-line-1">{{
+          record.SupEnt ? record.SupEnt.City : ""
+        }}</view>
+        <view class="name uv-line-1">{{
+          record.SupEnt ? record.SupEnt.SupplierName : ""
+        }}</view>
+        <view class="dis" v-if="record.District">{{ record.District }} km</view>
+      </view>
+      <view class="to" v-if="record.UnloadEnt">
+        <uv-image
+          src="/static/images/dot2.png"
+          width="16rpx"
+          height="16rpx"
+          :duration="0"
+          :custom-style="{ marginRight: '16rpx' }"
+        />
+        <view class="city uv-line-1">{{
+          record.UnloadEnt ? record.UnloadEnt.City : ""
+        }}</view>
+        <view class="name uv-line-1">{{
+          record.UnloadEnt ? record.UnloadEnt.PlaceName : ""
+        }}</view>
+      </view>
+    </view>
+    <view class="date">
+      <text class="label">发布于</text>
+      <text>{{ formatDate(record.CreatorTime) }}</text>
+    </view>
+  </view>
 </template>
 
 <script setup>
-	const props = defineProps({
-		record: {
-			default: () => {},
-			type: Object
-		}
-	})
-	
-	function toDetail() {
-		uni.navigateTo({
-			url: `/pages/billDetail/billDetail?assignId=${props.record.Id}&supplyId=${props.record.Supply}`
-		})
-	}
-	
+const props = defineProps({
+  record: {
+    default: () => {},
+    type: Object,
+  },
+});
+
+function toDetail() {
+  uni.navigateTo({
+    url: `/pages/billDetail/billDetail?assignId=${props.record.Id}&supplyId=${props.record.Supply}`,
+  });
+}
+
+function formatDate(date) {
+  const now = new Date();
+  const targetDate = new Date(date);
+  const diffTime = now.getTime() - targetDate.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  const hours = targetDate.getHours().toString().padStart(2, "0");
+  const minutes = targetDate.getMinutes().toString().padStart(2, "0");
+  const timeStr = `${hours}:${minutes}`;
+
+  if (diffDays === 0) {
+    return `今天 ${timeStr}`;
+  } else if (diffDays === 1) {
+    return `昨天 ${timeStr}`;
+  } else if (diffDays === -1) {
+    return `明天 ${timeStr}`;
+  } else {
+    const month = (targetDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = targetDate.getDate().toString().padStart(2, "0");
+    return `${month}-${day} ${timeStr}`;
+  }
+}
 </script>
 
 <style lang="scss">
-	.bill-wrapper {
-		padding: 28rpx;
-		background: #FFFFFF;
-		border-radius: 24rpx;
-		margin-bottom: 20rpx;
+.bill-wrapper {
+  padding: 28rpx 24rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  margin-bottom: 20rpx;
 
-		.mfrs {
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			color: var(--title-color);
-			line-height: 48rpx;
+  .mfrs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--title-color);
+    line-height: 48rpx;
+    margin-bottom: 16rpx;
 
-			.name {
-				font-weight: bold;
-				font-size: 32rpx;
-			}
+    .name {
+      font-weight: bold;
+      font-size: 32rpx;
+      flex: 1;
+    }
 
-			.date {
-				flex: none;
-				font-size: 26rpx;
-				color: var(--sub-color);
-				margin-left: 10rpx;
-			}
-		}
+    .date {
+      flex: none;
+      font-size: 26rpx;
+      color: var(--sub-color);
+      margin-left: 10rpx;
+    }
+  }
 
-		.cate {
-			font-size: 26rpx;
-			color: var(--sub-color);
-			line-height: 48rpx;
-			margin-bottom: 20rpx;
-		}
+  .tags {
+    margin-bottom: 12rpx;
+    overflow: hidden;
+    .tag {
+      height: 44rpx;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12rpx;
+      font-weight: 500;
+      font-size: 26rpx;
+      color: #ffffff;
+      background-color: var(--main-color);
+      border-radius: 8rpx;
+      margin-right: 12rpx;
+      margin-bottom: 12rpx;
+    }
+  }
 
-		.location-wrapper {
-			padding: 24rpx 20rpx;
-			background: var(--page-bg);
-			border-radius: 16rpx;
-			margin-bottom: 28rpx;
+  .location-wrapper {
+    padding: 24rpx 20rpx;
+    background: var(--page-bg);
+    border-radius: 16rpx;
+    margin-bottom: 28rpx;
 
-			.line {
-				position: absolute;
-				height: 24rpx;
-				top: 34rpx;
-				left: 6rpx;
+    .line {
+      position: absolute;
+      height: 24rpx;
+      top: 34rpx;
+      left: 6rpx;
 
-				.dot {
-					width: 4rpx;
-					height: 4rpx;
-					border-radius: 50%;
-					background-color: #C8D4DF;
+      .dot {
+        width: 4rpx;
+        height: 4rpx;
+        border-radius: 50%;
+        background-color: #c8d4df;
 
-					&:not(:last-child) {
-						margin-bottom: 6rpx;
-					}
-				}
-			}
+        &:not(:last-child) {
+          margin-bottom: 6rpx;
+        }
+      }
+    }
 
-			.from,
-			.to {
-				display: flex;
-				align-items: center;
-				font-weight: 500;
-				font-size: 26rpx;
-				line-height: 36rpx;
+    .from,
+    .to {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      font-size: 26rpx;
+      line-height: 36rpx;
 
-				.city {
-					color: var(--title-color);
-					margin-right: 16rpx;
-					max-width: 120rpx;
-				}
+      .city {
+        color: var(--title-color);
+        margin-right: 16rpx;
+        max-width: 120rpx;
+      }
 
-				.name {
-					flex: 1;
-					color: var(--content-color);
-				}
+      .name {
+        flex: 1;
+        color: var(--content-color);
+      }
 
-				.dis {
-					color: var(--main-color);
-					margin-left: 12rpx;
-				}
-			}
+      .dis {
+        color: var(--main-color);
+        margin-left: 12rpx;
+      }
+    }
 
-			.from {
-				position: relative;
-				margin-bottom: 20rpx;
-			}
-		}
-	}
+    .from {
+      position: relative;
+      margin-bottom: 20rpx;
+    }
+  }
+
+  .date {
+    font-size: 26rpx;
+    color: #a0afba;
+    line-height: 36rpx;
+    .label {
+      margin-right: 10rpx;
+    }
+  }
+}
 </style>
