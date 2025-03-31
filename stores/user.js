@@ -41,6 +41,7 @@ export const useUserStore = defineStore('user', {
 		logout() {
 			removeToken();
 			this.setUserInfo({});
+			this.carList = [];
 		},
 		setUserInfo(payload) {
 			this.userInfo = payload;

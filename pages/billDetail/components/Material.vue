@@ -257,10 +257,6 @@ async function confirm() {
       ConfigEnt: props?.bill?.ConfigEnt ?? {},
     });
     await DriverMakeOnway(params);
-    uni.showToast({
-      title: "接单成功",
-      icon: "none",
-    });
     emits("confirm");
     drawer.value.popup.close();
   } catch (err) {

@@ -349,7 +349,7 @@ function isOpenResultModal() {
       },
     });
   }
-  if (info.value.AccOnwayPoint === "2") {
+  if (info.value.EntryAuthened === "2") {
     resultModal.value.open({
       type: "warning",
       title: "已存在装运任务",
@@ -368,7 +368,7 @@ function isOpenResultModal() {
       },
     });
   }
-  if (info.value.AccOnwayPoint === "3") {
+  if (info.value.EntryAuthened === "3") {
     resultModal.value.open({
       type: "warning",
       title: "车辆已达上限",
@@ -448,6 +448,9 @@ function confirm() {
     info: "可在「运单」中查看装运进度",
     confirmText: "查看运单",
     confirmCallBack: () => {
+      appStore.setWaybillQuery({
+        status: "10",
+      });
       uni.switchTab({
         url: "/pages/waybill/waybill",
       });

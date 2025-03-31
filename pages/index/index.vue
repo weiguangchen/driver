@@ -11,23 +11,46 @@
       :duration="0"
     />
   </view>
+  <view style="position: relative; z-index: 1000" :style="{ opacity: ratio }" v-if="defaultCar">
+    <uv-navbar title="个人中心" fixed @leftClick="leftClick" :border="false">
+      <template #left></template>
+      <template #center>
+        <view
+          style="
+            display: flex;
+            align-items: center;
+            flex: 1;
+            padding-left: 32rpx;
+          "
+          class="navbar"
+          @click="toCarInfo"
+        >
+          <my-plate
+            style="margin-bottom: 12rpx"
+            :plate="defaultCar.Carno"
+            :color="defaultCar.Color"
+          />
+          <text
+            style="
+              font-size: 26rpx;
+              color: #73838e;
+              line-height: 36rpx;
+              margin-left: 16rpx;
+              margin-right: 2rpx;
+            "
+            >{{ defaultCar.Cartype }}</text
+          >
+          <uv-icon name="/static/images/arrow.png" size="10" />
+        </view>
+      </template>
+    </uv-navbar>
+  </view>
   <!-- end -->
   <!-- 背景色 -->
   <view class="page-bg" />
   <!-- end -->
   <!-- 金刚区 -->
   <view class="kingkong">
-    <!-- <view class="tasks" v-if="processNumber > 0">
-      <view class="">有 {{ processNumber }} 项进行中的运输任务</view>
-      <view style="display: flex; align-items: center"
-        >查看
-        <uv-icon
-          name="arrow-right"
-          size="20rpx"
-          :custom-style="{ marginLeft: '4rpx' }"
-          color="#ffffff"
-      /></view>
-    </view> -->
     <view class="car-wrapper" :class="{ 'has-task': processNumber > 0 }">
       <view class="placeholder" v-if="!getToken()">
         <uv-button
@@ -202,8 +225,16 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, watchEffect } from "vue";
-import { onLoad, onShow } from "@dcloudio/uni-app";
+import {
+  computed,
+  ref,
+  unref,
+  watch,
+  watchEffect,
+  getCurrentInstance,
+  nextTick,
+} from "vue";
+import { onLoad, onShow, onReady, onPageScroll } from "@dcloudio/uni-app";
 import { storeToRefs } from "pinia";
 import { useAppStore } from "@/stores/app.js";
 import { useUserStore } from "@/stores/user.js";
@@ -221,15 +252,12 @@ import {
 } from "@/api/index.js";
 import SelectCargo from "./components/SelectCargo.vue";
 import Item from "./components/Item.vue";
+const { ctx } = getCurrentInstance();
 
 const appStore = useAppStore();
 const userStore = useUserStore();
 const locationStore = useLocationStore();
 const { carList, defaultCar } = storeToRefs(userStore);
-
-const nickname = computed(() => {
-  return userStore.userInfo.Nickname ?? "司机师傅";
-});
 
 const isInit = ref(false);
 onLoad(async () => {
@@ -247,6 +275,7 @@ onLoad(async () => {
     await userStore.getCarList();
     await getCurrentCarnoCargoOptions();
     await getProcess();
+    getScrollPos();
   }
 });
 onShow(async () => {
@@ -263,6 +292,28 @@ onShow(async () => {
   await userStore.getCarList();
   await getProcess();
 });
+// 顶部导航条逻辑
+const scrollTop = ref(0);
+const navbarHeight = ref(1);
+async function getScrollPos() {
+  await nextTick();
+  let navbarInfo = await ctx.$uv.getRect(".car-info");
+  navbarHeight.value = navbarInfo.bottom;
+}
+onPageScroll((e) => {
+  scrollTop.value = e.scrollTop;
+});
+const ratio = computed(() => {
+  const r = unref(scrollTop) / unref(navbarHeight);
+  return r >= 1 ? 1 : r;
+});
+function toCarInfo() {
+  if (ratio.value === 1) {
+    uni.navigateTo({
+      url: "/pages/carList/carList",
+    });
+  }
+}
 // 获取进行中的运单数量
 const processNumber = ref(0);
 async function getProcess() {
