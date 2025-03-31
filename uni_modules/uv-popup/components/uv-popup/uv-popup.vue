@@ -483,7 +483,7 @@
 		.uv-popup__content {
 			/* #ifndef APP-NVUE */
 			display: block;
-			overflow: hidden;
+			// overflow: hidden;
 			/* #endif */
 			position: relative;
 

@@ -20,13 +20,27 @@
 		  :class="{ 'uv-number-box__minus--disabled': isDisabled('minus') }"
 		  :style="[buttonStyle('minus')]"
 		>
-			<uv-icon
+			<!-- <uv-icon
 			  name="minus"
 			  :color="isDisabled('minus') ? '#c8c9cc' : 'var(--title-color)'"
 			  size="15"
 			  bold
 				:customStyle="iconStyle"
-			></uv-icon>
+			></uv-icon> -->
+			<uv-image
+				v-if="isDisabled('minus')"
+				src="/static/images/myNumberBox/minus_disabled.png"
+				width="64rpx"
+				height="64rpx"
+				:duration="0"
+			/>
+			<uv-image
+				v-else
+				src="/static/images/myNumberBox/minus.png"
+				width="64rpx"
+				height="64rpx"
+				:duration="0"
+			/>
 		</view>
 		<!-- <slot name="input"> -->
 			<view class="input-wrapper">
@@ -66,13 +80,27 @@
 		  :class="{ 'uv-number-box__minus--disabled': isDisabled('plus') }"
 		  :style="[buttonStyle('plus')]"
 		>
-			<uv-icon
+			<!-- <uv-icon
 			  name="plus"
 			  :color="isDisabled('plus') ? '#c8c9cc' : 'var(--title-color)'"
 			  size="15"
 			  bold
 				:customStyle="iconStyle"
-			></uv-icon>
+			></uv-icon> -->
+			<uv-image
+				v-if="isDisabled('plus')"
+				src="/static/images/myNumberBox/plus_disabled.png"
+				width="64rpx"
+				height="64rpx"
+				:duration="0"
+			/>
+			<uv-image
+				v-else
+				src="/static/images/myNumberBox/plus.png"
+				width="64rpx"
+				height="64rpx"
+				:duration="0"
+			/>
 		</view>
 	</view>
 </template>

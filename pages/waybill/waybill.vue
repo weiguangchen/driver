@@ -12,7 +12,7 @@
 		</uv-navbar>
 		<!-- end -->
 		<!-- tab -->
-		<uv-tabs :activeStyle="{ fontWeight: 'bold', color: 'var(--title-color)' }" :inactiveStyle="{ color: 'var(--sub-color)' }" lineWidth="32rpx" lineHeight="8rpx" :list="tabs" @change="changeTabs" :scrollable="false" lineColor="var(--main-color)" :customStyle="{ background: '#ffffff' }" />
+		<uv-tabs :current="current" :activeStyle="{ fontWeight: 'bold', color: 'var(--title-color)' }" :inactiveStyle="{ color: 'var(--sub-color)' }" lineWidth="32rpx" lineHeight="8rpx" :list="tabs" @change="changeTabs" :scrollable="false" lineColor="var(--main-color)" :customStyle="{ background: '#ffffff' }" />
 		<view class="has-filter" v-if="(isFilter && !isFiltering) || (isKeyWord && !isFiltering)">
 			已按条件筛选出 {{ total }} 条数据
 			<view class="redo" @click="reset">
@@ -49,11 +49,10 @@
 	import { getToken } from '@/utils/token.js'
 	import { GetOnwayDriver } from '@/api/index.js';
 	import FilterDrawer from './components/FilterDrawer.vue';
-	
 	const appStore = useAppStore();
 	
 	onLoad(() => {
-		appStore.switchTab(1);
+		console.log('onLoad')
 	})
 	// 登录
 	const loginDrawer = ref();
@@ -78,6 +77,7 @@
 	});
 	// tab
 	const status = ref('')
+	const current = ref(0)
 	const tabs = ref([{
 		name: '全部',
 		value: ''
@@ -150,6 +150,10 @@
 		filter.value.reset();
 	}
 	onShow(() => {
+		appStore.switchTab(1);
+		status.value = appStore.waybillQuery?.status ?? '';
+		current.value = appStore.waybillQuery?.status ? tabs.value.findIndex(item => item.value === appStore.waybillQuery?.status) : 0;
+		appStore.setWaybillQuery({});
 		if(getToken()) {
 			getList();
 		}

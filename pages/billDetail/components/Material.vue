@@ -8,10 +8,14 @@
       <view class="info">
         <template v-if="record.ReceiveAble === '0'">暂无可接量</template>
         <template v-else-if="record.Limittype === '1'"
-          >可接 {{ record.LeftWeight }} 吨</template
+          >可接
+          <text style="font-weight: 600">{{ record.LeftWeight }}</text>
+          吨</template
         >
         <template v-else-if="record.Limittype === '2'"
-          >可接 {{ record.Lefttimes }} 车次</template
+          >可接
+          <text style="font-weight: 600">{{ record.Lefttimes }}</text>
+          车次</template
         >
         <template v-if="record.Realheight"
           >，当前库高 {{ record.Realheight }} 米</template
@@ -29,7 +33,10 @@
               : 'linear-gradient( 270deg, #31CE57 0%, #07B130 100%)'
           "
           :text="disabled ? '不可接' : '接单'"
-          :custom-style="{ height: '68rpx' }"
+          :custom-style="{ height: '68rpx', width: '168rpx' }"
+          :custom-text-style="{
+            fontSize: '26rpx',
+          }"
           @click="openDrawer"
         ></uv-button>
       </view>
@@ -249,7 +256,6 @@ async function confirm() {
       ...model,
       ConfigEnt: props?.bill?.ConfigEnt ?? {},
     });
-    return;
     await DriverMakeOnway(params);
     uni.showToast({
       title: "接单成功",
@@ -300,7 +306,7 @@ async function confirm() {
 }
 
 .form-wrapper {
-  padding: 0 24rpx;
+  padding: 0 32rpx;
 
   .main-title {
     display: flex;

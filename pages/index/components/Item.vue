@@ -49,12 +49,13 @@
     </view>
     <view class="date">
       <text class="label">发布于</text>
-      <text>{{ formatDate(record.CreatorTime) }}</text>
+      <text>{{ formatDateTime(record.CreatorTime) }}</text>
     </view>
   </view>
 </template>
 
 <script setup>
+import { formatDateTime } from "@/utils";
 const props = defineProps({
   record: {
     default: () => {},
@@ -66,29 +67,6 @@ function toDetail() {
   uni.navigateTo({
     url: `/pages/billDetail/billDetail?assignId=${props.record.Id}&supplyId=${props.record.Supply}`,
   });
-}
-
-function formatDate(date) {
-  const now = new Date();
-  const targetDate = new Date(date);
-  const diffTime = now.getTime() - targetDate.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  const hours = targetDate.getHours().toString().padStart(2, "0");
-  const minutes = targetDate.getMinutes().toString().padStart(2, "0");
-  const timeStr = `${hours}:${minutes}`;
-
-  if (diffDays === 0) {
-    return `今天 ${timeStr}`;
-  } else if (diffDays === 1) {
-    return `昨天 ${timeStr}`;
-  } else if (diffDays === -1) {
-    return `明天 ${timeStr}`;
-  } else {
-    const month = (targetDate.getMonth() + 1).toString().padStart(2, "0");
-    const day = targetDate.getDate().toString().padStart(2, "0");
-    return `${month}-${day} ${timeStr}`;
-  }
 }
 </script>
 

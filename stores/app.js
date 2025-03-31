@@ -25,11 +25,15 @@ export const useAppStore = defineStore('app', {
 					"text": "我的"
 				}
 			],
+			waybillQuery: {}
 		};
 	},
 	actions: {
 		switchTab(index) {
 			this.tabbarValue = index;
+		},
+		setWaybillQuery(query) {
+			this.waybillQuery = query;
 		}
 	},
 });
