@@ -6,7 +6,8 @@
       "style": {
         "navigationBarTitleText": "uni-app",
         "backgroundColorTop": "#07b130",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true
       }
     },
     {

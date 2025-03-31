@@ -11,7 +11,11 @@
       :duration="0"
     />
   </view>
-  <view style="position: relative; z-index: 1000" :style="{ opacity: ratio }" v-if="defaultCar">
+  <view
+    style="position: relative; z-index: 1000"
+    :style="{ opacity: ratio }"
+    v-if="defaultCar"
+  >
     <uv-navbar title="个人中心" fixed @leftClick="leftClick" :border="false">
       <template #left></template>
       <template #center>
@@ -234,7 +238,13 @@ import {
   getCurrentInstance,
   nextTick,
 } from "vue";
-import { onLoad, onShow, onReady, onPageScroll } from "@dcloudio/uni-app";
+import {
+  onLoad,
+  onShow,
+  onReady,
+  onPageScroll,
+  onPullDownRefresh,
+} from "@dcloudio/uni-app";
 import { storeToRefs } from "pinia";
 import { useAppStore } from "@/stores/app.js";
 import { useUserStore } from "@/stores/user.js";
@@ -314,6 +324,16 @@ function toCarInfo() {
     });
   }
 }
+onPullDownRefresh(async () => {
+  try {
+    await userStore.getCarList();
+    await getCurrentCarnoCargoOptions();
+    await getProcess();
+    await getList();
+  } finally {
+    uni.stopPullDownRefresh();
+  }
+});
 // 获取进行中的运单数量
 const processNumber = ref(0);
 async function getProcess() {
