@@ -273,15 +273,15 @@ async function getData() {
           LoadType = "";
         if (res?.ConfigEnt?.fullLoad === "0") {
           FullLoad = "0";
-          Load = res?.ConfigEnt?.fullLoadMax;
+          Load = res?.ConfigEnt?.fullLoadMax ?? '';
           LoadType = "0";
         } else if (res?.ConfigEnt?.fullLoad === "1") {
           FullLoad = "1";
-          Load = 1;
+          Load = '';
           LoadType = "1";
         } else if (res?.ConfigEnt?.fullLoad === "2") {
           FullLoad = "0";
-          Load = 1;
+          Load = '';
           LoadType = "";
         }
 

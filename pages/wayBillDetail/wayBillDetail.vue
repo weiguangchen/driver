@@ -22,13 +22,13 @@
 			<template v-if="info.Weightedstatus === '0'">
 				<template v-if="(!info.StartTime && !info.EndTime) || (info.StartTime && dayjs().isAfter(info.StartTime)) && !info.EndTime">请尽快到达装货厂家完成装货</template>
 				<template v-else-if="!info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)">
-					请于 {{ dayjs(info.StartTime).format('MM-DD HH:mm') }} 后入厂装货
+					请于 {{ formatDateTime(info.StartTime) }} 后入厂装货
 				</template>
 				<template v-else-if="info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)">
-					请于 {{ dayjs(info.StartTime).format('MM-DD HH:mm') }} 至 {{ dayjs(info.EndTime).format('MM-DD HH:mm') }} 入厂装货
+					请于 {{ formatDateTime(info.StartTime) }} 至 {{ formatDateTime(info.EndTime) }} 入厂装货
 				</template>
-				<template v-else-if="(info.StartTime && dayjs().isAfter(info.StartTime) && info.EndTime && dayjs().isBefore(info.EndTime)) || (!info.StartTime && info.EndTime && dayjs().isBefore(record.EndTime))">
-					请于 {{ dayjs(info.EndTime).format('MM-DD HH:mm') }} 前入厂装货
+				<template v-else-if="(info.StartTime && dayjs().isAfter(info.StartTime) && info.EndTime && dayjs().isBefore(info.EndTime)) || (!info.StartTime && info.EndTime && dayjs().isBefore(info.EndTime))">
+					请于 {{ formatDateTime(info.EndTime) }} 前入厂装货
 				</template>
 			</template>
 			<template v-if="info.Weightedstatus === '1'">{{ info.StatusCount && info.StatusCount > 1? `当前共 ${info.StatusCount} 辆车等待入厂` : '即将入厂' }}</template>
@@ -233,6 +233,7 @@
 	import { getToken } from '@/utils/token.js';
 	import { getLocationInfo } from '@/utils/authorize.js';
 	import UnloadModal from '@/pages/waybill/components/UnloadModal.vue'
+	import { formatDateTime } from '@/utils/index.js';
 	
 	import dayjs from 'dayjs';
 	const modal = ref();

@@ -5,13 +5,13 @@
 			<template v-if="record.WeightedStatus === '0'">
 				<template v-if="(!record.StartTime && !record.EndTime) || (record.StartTime && dayjs().isAfter(record.StartTime)) && !record.EndTime">请尽快到达装货厂家</template>
 				<template v-else-if="!record.EndTime && record.StartTime && dayjs().isBefore(record.StartTime)">
-					{{ dayjs(record.StartTime).format('MM-DD HH:mm') }} 后可入厂装货
+					{{ formatDateTime(record.StartTime) }} 后可入厂装货
 				</template>
 				<template v-else-if="record.EndTime && record.StartTime && dayjs().isBefore(record.StartTime)">
-					{{ dayjs(record.StartTime).format('MM-DD HH:mm') }} 至 {{ dayjs(record.EndTime).format('MM-DD HH:mm') }} 可入厂装货
+					{{ formatDateTime(record.StartTime) }} 至 {{ formatDateTime(record.EndTime) }} 可入厂装货
 				</template>
 				<template v-else-if="(record.StartTime && dayjs().isAfter(record.StartTime) && record.EndTime && dayjs().isBefore(record.EndTime)) || (!record.StartTime && record.EndTime && dayjs().isBefore(record.EndTime))">
-					{{ dayjs(record.EndTime).format('MM-DD HH:mm') }} 前可入厂装货
+					{{ formatDateTime(record.EndTime) }} 前可入厂装货
 				</template>
 			</template>
 			<template v-if="record.WeightedStatus === '1'">
@@ -104,6 +104,7 @@
 	import { useLocationStore } from '@/stores/location.js';
 	import { getLocationInfo } from '@/utils/authorize.js'
 	import UnloadModal from './UnloadModal.vue';
+	import { formatDateTime } from '@/utils/index.js';
 	
 	const locationStore = useLocationStore();
 	

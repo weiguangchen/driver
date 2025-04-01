@@ -256,7 +256,7 @@
 				value = value === '' ? 0 : +value
 				// 对比最大最小值，取在min和max之间的值
 				console.log('max',this.max,'min',this.min,'value',value);
-				if(Big(value || 0).gt(this.max || 0)) {
+				if(!!value && Big(value || 0).gt(this.max || 0)) {
 					let maxMsg = `最大值为${this.max}`;
 					if(this.maxLimitMsg && typeof this.maxLimitMsg === 'function') {
 						maxMsg = this.maxLimitMsg(this.max);
@@ -266,7 +266,7 @@
 						icon: 'none'
 					})
 				}
-				if(Big(value || 0).lt(this.min || 0)) {
+				if(!!value && Big(value || 0).lt(this.min || 0)) {
 					let minMsg = `最小值为${this.min}`;
 					if(this.minLimitMsg && typeof this.minLimitMsg === 'function') {
 						minMsg = this.minLimitMsg(this.min);

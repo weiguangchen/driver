@@ -10,22 +10,30 @@ export function sleep(time = 2000) {
 export function formatDateTime(date) {
 	const now = new Date();
 	const targetDate = new Date(date);
-	const diffTime = now.getTime() - targetDate.getTime();
+	
+	// 设置时区偏移，确保日期比较正确
+	const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	const targetDateOnly = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+	
+	// 计算日期差异（以天为单位）
+	const diffTime = nowDate.getTime() - targetDateOnly.getTime();
 	const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
+	
+	// 格式化时间部分
 	const hours = targetDate.getHours().toString().padStart(2, "0");
 	const minutes = targetDate.getMinutes().toString().padStart(2, "0");
 	const timeStr = `${hours}:${minutes}`;
-  
+	
 	if (diffDays === 0) {
-	  return `今天 ${timeStr}`;
+		return `今天 ${timeStr}`;
 	} else if (diffDays === 1) {
-	  return `昨天 ${timeStr}`;
+		return `昨天 ${timeStr}`;
 	} else if (diffDays === -1) {
-	  return `明天 ${timeStr}`;
+		return `明天 ${timeStr}`;
 	} else {
-	  const month = (targetDate.getMonth() + 1).toString().padStart(2, "0");
-	  const day = targetDate.getDate().toString().padStart(2, "0");
-	  return `${month}-${day} ${timeStr}`;
+		// 对于其他日期，显示为 MM-DD HH:mm 格式
+		const month = (targetDate.getMonth() + 1).toString().padStart(2, "0");
+		const day = targetDate.getDate().toString().padStart(2, "0");
+		return `${month}-${day} ${timeStr}`;
 	}
-  }
+}
