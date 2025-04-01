@@ -16,7 +16,7 @@
     :style="{ opacity: ratio }"
     v-if="defaultCar"
   >
-    <uv-navbar title="个人中心" fixed @leftClick="leftClick" :border="false">
+    <uv-navbar fixed @leftClick="leftClick" :border="false">
       <template #left></template>
       <template #center>
         <view
@@ -30,6 +30,7 @@
           @click="toCarInfo"
         >
           <my-plate
+            :mode="2"
             style="margin-bottom: 12rpx"
             :plate="defaultCar.Carno"
             :color="defaultCar.Color"
@@ -307,7 +308,9 @@ const scrollTop = ref(0);
 const navbarHeight = ref(1);
 async function getScrollPos() {
   await nextTick();
-  let navbarInfo = await ctx.$uv.getRect(".car-info");
+  // let navbarInfo = await ctx.$uv.getRect(".car-info");
+  let navbarInfo = await ctx.$uv.getRect(".index-navbar");
+  console.log("navbarInfo", navbarInfo);
   navbarHeight.value = navbarInfo.bottom;
 }
 onPageScroll((e) => {
@@ -342,6 +345,9 @@ async function getProcess() {
 }
 // 查看运单
 function toTask() {
+  appStore.setWaybillQuery({
+    status: "10",
+  });
   uni.switchTab({
     url: "/pages/waybill/waybill",
   });
