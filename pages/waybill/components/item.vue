@@ -51,7 +51,7 @@
 			</view>
 		</view>
 		<view class="car-info">
-			<my-plate v-if="record.Carno" :plate="record.Carno" :color="record.CarColor"/>
+			<my-plate v-if="record.Carno" :mode="3" :plate="record.Carno" :color="record.CarColor"/>
 			<view class="cate">{{ record.MaterialName ? record.MaterialName : '' }}</view>
 			<uv-line direction="col" color="#B0BECC" length="26rpx" margin="0 20rpx 0 20rpx"></uv-line>
 			<view v-if="['0','1','2','3','4','5','9'].includes(record.WeightedStatus)" class="unit">预装 <text style="font-weight: 500;">{{ record.EstimiteWeight }}</text> 吨</view>

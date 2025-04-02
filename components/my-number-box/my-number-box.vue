@@ -248,6 +248,7 @@
 				// this.currentValue = this.format(value)
 				let val = this.format(value)
 				this.currentValue = this.formatter(val);
+				this.emitChange(val)
 			},
 			// 格式化整理数据，限制范围
 			format(value) {

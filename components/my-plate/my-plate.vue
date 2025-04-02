@@ -125,6 +125,10 @@ watchEffect(() => {
 
   &.mode_2 {
     font-size: 32rpx;
+    height: 56rpx;
+  }
+  &.mode_3 {
+    font-size: 26rpx;
     height: 52rpx;
   }
 }

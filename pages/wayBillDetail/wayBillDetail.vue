@@ -115,7 +115,7 @@
 	<view class="bill-car">
 		<view class="info-wrapper my-border-bottom">
 			<view class="info">
-				<my-plate :plate="info.Carno" :color="info.CarColor"/><text class="type">{{ info.CarType }}</text>
+				<my-plate :mode="2" :plate="info.Carno" :color="info.CarColor"/><text class="type">{{ info.CarType }}</text>
 			</view>
 			<view class="person" v-if="info.DriverEnt">
 				<text class="user">{{ info.DriverEnt ? info.DriverEnt.NickName : '' }}</text>

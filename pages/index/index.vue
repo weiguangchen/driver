@@ -202,7 +202,7 @@
   <view class="bill-list" v-else>
     <view class="title-wrapper">
       <view class="title"
-        >当前车辆可接 <text class="total">{{ assignCnt }}</text> 笔运单</view
+        >当前存在 <text class="total">{{ assignCnt }}</text> 项运输任务</view
       >
       <SelectCargo
         v-model="ownerId"
@@ -216,8 +216,8 @@
         status="nomore"
         color="#B0BECC"
         line-color="#B0BECC"
-        font-size="24rpx"
         line
+        :custom-style="{ marginTop: '28rpx' }"
       />
     </template>
     <my-empty v-else height="200px" text="暂无可接运单" />

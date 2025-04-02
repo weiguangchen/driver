@@ -146,7 +146,7 @@ $show-lines: 1;
     }
 
     &__text {
-      font-size: 12px;
+      font-size: 14px;
       color: $uv-content-color;
     }
 

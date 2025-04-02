@@ -166,6 +166,7 @@
       <view class="info-wrapper my-border-bottom" v-if="info.CarEnt">
         <view class="info">
           <my-plate
+            :mode="2"
             :plate="info.CarEnt.Carno"
             :color="info.CarEnt.Color"
           /><text class="type">{{ info.CarEnt.CarType }}</text>
@@ -273,16 +274,16 @@ async function getData() {
           LoadType = "";
         if (res?.ConfigEnt?.fullLoad === "0") {
           FullLoad = "0";
-          Load = res?.ConfigEnt?.fullLoadMax ?? '';
+          Load = res?.ConfigEnt?.fullLoadMax ?? 0;
           LoadType = "0";
         } else if (res?.ConfigEnt?.fullLoad === "1") {
           FullLoad = "1";
-          Load = '';
+          Load = 0;
           LoadType = "1";
         } else if (res?.ConfigEnt?.fullLoad === "2") {
           FullLoad = "0";
-          Load = '';
-          LoadType = "";
+          Load = res?.ConfigEnt?.fullLoadMax ?? 0;
+          LoadType = "1";
         }
 
         //获取历史数据
@@ -326,6 +327,7 @@ async function getData() {
         };
       }),
     };
+    console.log("info.value", info.value);
 
     isOpenResultModal();
   } catch {

@@ -184,7 +184,7 @@ const disabled = computed(() => {
 const emits = defineEmits(["confirm"]);
 const model = reactive({
   FullLoad: "",
-  Load: 0,
+  Load: '',
   LoadType: "",
 });
 const rules = reactive({
@@ -251,7 +251,6 @@ async function confirm() {
       LoadType: model.LoadType,
       Suttle: Suttle.value,
     };
-    console.log("接单参数", params);
     setStorage("driverMakeOnway", {
       ...model,
       ConfigEnt: props?.bill?.ConfigEnt ?? {},

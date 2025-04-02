@@ -21,7 +21,6 @@
 		--safe-area-inset-right: 0px;
 		--safe-area-inset-bottom: 0px;
 		--safe-area-inset-left: 0px;
-		font-family: misans!important;
 	}
 	
 	@supports (top: constant(safe-area-inset-top)) {
