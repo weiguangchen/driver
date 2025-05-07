@@ -97,8 +97,9 @@
 
     onMounted(() => {
         console.log('onMounted')
-        getMfrsOptions();
-        getUnloadOptions();
+		if(!getToken()) return;
+		getMfrsOptions();
+		getUnloadOptions();
     })
 	
 	const filter = ref();

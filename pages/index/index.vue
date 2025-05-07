@@ -213,7 +213,7 @@
     <template v-if="assignList.length > 0">
       <Item v-for="(item, index) in assignList" :record="item" :key="item.Id" />
       <uv-load-more
-        status="nomore"
+        :status="noMore ? 'nomore' : loading ? 'loading' : 'loadmore' "
         color="#B0BECC"
         line-color="#B0BECC"
         line
@@ -244,6 +244,7 @@ import {
   onShow,
   onReady,
   onPageScroll,
+  onReachBottom,
   onPullDownRefresh,
 } from "@dcloudio/uni-app";
 import { storeToRefs } from "pinia";
@@ -263,6 +264,7 @@ import {
 } from "@/api/index.js";
 import SelectCargo from "./components/SelectCargo.vue";
 import Item from "./components/Item.vue";
+import useList from "@/hooks/useList.js";
 const { ctx } = getCurrentInstance();
 
 const appStore = useAppStore();
@@ -273,8 +275,9 @@ const { carList, defaultCar } = storeToRefs(userStore);
 const isInit = ref(false);
 onLoad(async () => {
   console.log("onLoad");
-  // await getWxSetting('userLocation');
-  isInit.value = true;
+  if(isInit.value) {
+    return;
+  }
   if (!getToken()) {
     return;
   }
@@ -288,6 +291,7 @@ onLoad(async () => {
     await getProcess();
     getScrollPos();
   }
+  isInit.value = true;
 });
 onShow(async () => {
   console.log("onShow");
@@ -332,7 +336,7 @@ onPullDownRefresh(async () => {
     await userStore.getCarList();
     await getCurrentCarnoCargoOptions();
     await getProcess();
-    await getList();
+    await fetchData(true);
   } finally {
     uni.stopPullDownRefresh();
   }
@@ -521,7 +525,7 @@ watch(
         currentCarnoCargoOptions.value = [];
         await getCurrentCarnoCargoOptions();
       } catch {}
-      getList();
+      await fetchData(true);
     } else {
       console.log("不需重新获取");
     }
@@ -533,25 +537,27 @@ watch(
 async function changeCargo(item) {
   try {
     uni.showLoading();
-    await getList();
+    await fetchData(true)
   } finally {
     uni.hideLoading();
   }
 }
 // 首页运单
-const assignCnt = ref(0);
-const assignList = ref([]);
-async function getList() {
-  try {
-    const res = await GetReceiveAssignList({
-      ownerId: ownerId.value,
-      latitude: locationStore.location ? locationStore.location.latitude : "",
-      longitude: locationStore.location ? locationStore.location.longitude : "",
-    });
-    assignCnt.value = res.assignCnt;
-    assignList.value = res.assignList;
-  } catch {}
-}
+const listParams = computed(() => ({
+  ownerId: ownerId.value,
+  latitude: locationStore.location ? locationStore.location.latitude : "",
+  longitude: locationStore.location ? locationStore.location.longitude : "",
+}))
+const { list: assignList, loading, noMore, total: assignCnt, fetchData } = useList({
+  api: GetReceiveAssignList,
+  totalField: 'assignCnt',
+  listField: 'assignList',
+  params: listParams,
+});
+//上拉加载
+onReachBottom(() => {
+  fetchData();
+})
 </script>
 
 <style lang="scss">

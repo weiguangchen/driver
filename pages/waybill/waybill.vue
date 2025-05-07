@@ -21,19 +21,20 @@
 		</view>
 		<!-- end -->
 		<!-- 列表 -->
-		<scroll-view scroll-y style="flex:1;height: 400px;">
-			<my-empty v-if="!getToken()" showButton buttonText="登录" text="登录后查看运单" @confirm="openLoginDrawer"/>
-			<my-empty v-else-if="list.length === 0"/>
-			<view class="bill-list" v-else>
-				<Item v-for="item in list" :record="item" :key="item.Id" @success="getList"/>
-			</view>
-		</scroll-view>
+		<my-list :list="list" rowKey="Id" :noMore="noMore" :loading="loading" :fetchData="fetchData">
+			<template #item="{ item }">
+				<Item :record="item" @success="fetchData(true)"/>
+			</template>
+			<template #empty>
+				<my-empty v-if="!getToken()" showButton buttonText="登录" text="登录后查看运单" @confirm="openLoginDrawer"/>
+				<my-empty v-else/>
+			</template>
+		</my-list>
 		<!-- end -->
+		<my-tabbar :fixed="false"/>
 	</view>
 	<!-- 登录弹窗 -->
 	<my-login-drawer ref="loginDrawer" @success="loginSuccess"/>
-
-	<my-tabbar />
 </template>
 
 <script setup>
@@ -41,7 +42,8 @@
 		ref,
 		onMounted,
 		computed,
-		nextTick
+		nextTick,
+		getCurrentInstance,
 	} from 'vue'
 	import { onLoad, onShow } from '@dcloudio/uni-app'
 	import { useAppStore } from '@/stores/app.js';
@@ -49,6 +51,10 @@
 	import { getToken } from '@/utils/token.js'
 	import { GetOnwayDriver } from '@/api/index.js';
 	import FilterDrawer from './components/FilterDrawer.vue';
+	import useList from "@/hooks/useList.js";
+
+	const { ctx } = getCurrentInstance();
+
 	const appStore = useAppStore();
 	
 	onLoad(() => {
@@ -72,7 +78,6 @@
 	const navbarPad = ref(0);
 	onMounted(() => {
 		let menuButtonInfo = uni.getMenuButtonBoundingClientRect();
-		// console.log("menuButtonInfo", menuButtonInfo);
 		navbarPad.value = menuButtonInfo.width + 20;
 	});
 	// tab
@@ -80,70 +85,47 @@
 	const current = ref(0)
 	const tabs = ref([{
 		name: '全部',
-		value: ''
+		value: '',
+		disabled: !getToken()
 	}, {
 		name: '已接单',
-		value: '10'
+		value: '10',
+		disabled: !getToken()
 	}, {
 		name: '已完成',
-		value: '8'
+		value: '8',
+		disabled: !getToken()
 	}, {
 		name: '已取消',
-		value: '9'
+		value: '9',
+		disabled: !getToken()
 	}])
 	function changeTabs({ value }) {
 		status.value = value;
-		getList();
+		fetchData(true);
 	}
 	// 筛选
 	const filter = ref();
 	const isFilter = ref(false);
 	const isFiltering = ref(false);	
-	function changeFilter(data) {
+	async function changeFilter(data) {
 		console.log('changeFilter',data)
 		isFiltering.value = true;
 		isFilter.value = data.isFilter;
 		params.value = data.params;
-		getList();
+		await fetchData(true);
+		isFiltering.value = false;
 	}
 	const keyWord = ref('');
 	const isKeyWord = ref(false);
-	function handleSearch() {
+	async function handleSearch() {
 		isFiltering.value = true;
 		isKeyWord.value = !!keyWord.value;
-		getList();
+		await fetchData(true);
+		isFiltering.value = false;
 	}
 	// 运单列表
-	const list = ref([])
 	const params = ref({});
-	const total = ref(0);
-	async function getList() {
-		const { dateMode, date, ...rest } = params.value;
-		try {
-			uni.showLoading({
-				mask:true
-			})
-			const res = await GetOnwayDriver({
-				status: status.value,
-				keyWord: keyWord.value,
-				...rest
-			});
-			list.value = res.onwayList;
-			total.value = res.onwayCnt;
-			await nextTick();
-			uni.hideLoading();
-		}
-		catch(err) {
-			uni.hideLoading();
-			uni.showToast({
-				title: err.data,
-				icon: 'none'
-			})
-		}
-		finally {
-			isFiltering.value = false;
-		}
-	}
 	function reset() {
 		keyWord.value = '';
 		isKeyWord.value = false;
@@ -155,9 +137,25 @@
 		current.value = appStore.waybillQuery?.status ? tabs.value.findIndex(item => item.value === appStore.waybillQuery?.status) : 0;
 		appStore.setWaybillQuery({});
 		if(getToken()) {
-			getList();
+			fetchData(true);
 		}
 	})
+
+
+	const listParams = computed(() => {
+		const { dateMode, date, ...rest } = params.value;
+		return {
+			status: status.value,
+			keyword: keyWord.value,
+			...rest,
+		};
+	});
+	const { list, noMore, total, loading, fetchData } = useList({
+		api: GetOnwayDriver,
+		totalField: 'onwayCnt',
+		listField: 'onwayList',
+		params: listParams,
+	});
 </script>
 
 <style lang="scss">

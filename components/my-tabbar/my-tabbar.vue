@@ -1,5 +1,5 @@
 <template>
-	<uv-tabbar activeColor="var(--main-color)" inactiveColor="var(--sub-color)" :value="tabbarValue" @change="change">
+	<uv-tabbar :fixed="fixed" activeColor="var(--main-color)" inactiveColor="var(--sub-color)" :value="tabbarValue" @change="change">
 		<uv-tabbar-item :text="item.text" v-for="item in tabbarList" :key="item.text">
 			<template v-slot:active-icon>
 				<image class="icon" :src="item.selectedIconPath"></image>
@@ -13,7 +13,16 @@
 
 <script setup> 
 	import { storeToRefs } from 'pinia'
-	import { useAppStore } from '@/stores/app'
+	import { useAppStore } from '@/stores/app';
+
+
+	const props = defineProps({
+		fixed: {
+			type: Boolean,
+			default: true
+		}
+	})
+	
 	const appStore = useAppStore()
 	const { tabbarList, tabbarValue } = storeToRefs(appStore);
 	
