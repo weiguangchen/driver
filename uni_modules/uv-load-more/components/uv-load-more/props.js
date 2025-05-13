@@ -28,7 +28,7 @@ export default {
 		// 字体颜色
 		color: {
 			type: String,
-			default: '#606266'
+			default: '#B0BECC'
 		},
 		// 加载中状态的图标，spinner-花朵状图标，circle-圆圈状，semicircle-半圆
 		loadingIcon: {
@@ -48,7 +48,7 @@ export default {
 		// 没有更多的提示语
 		nomoreText: {
 			type: String,
-			default: '没有更多了'
+			default: '— 没有更多了 —'
 		},
 		// 在“没有更多”状态下，是否显示粗点
 		isDot: {
@@ -63,7 +63,7 @@ export default {
 		// 上边距
 		marginTop: {
 			type: [String, Number],
-			default: 10
+			default: 14
 		},
 		// 下边距
 		marginBottom: {

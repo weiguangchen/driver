@@ -23,7 +23,7 @@
 		<!-- 列表 -->
 		<my-list :list="list" rowKey="Id" :noMore="noMore" :loading="loading" :fetchData="fetchData">
 			<template #item="{ item }">
-				<Item :record="item" @success="fetchData(true)"/>
+				<Item :record="item" v-if="item"/>
 			</template>
 			<template #empty>
 				<my-empty v-if="!getToken()" showButton buttonText="登录" text="登录后查看运单" @confirm="openLoginDrawer"/>
@@ -45,21 +45,18 @@
 		nextTick,
 		getCurrentInstance,
 	} from 'vue'
-	import { onLoad, onShow } from '@dcloudio/uni-app'
+	import { onLoad, onUnload, onShow } from '@dcloudio/uni-app'
 	import { useAppStore } from '@/stores/app.js';
 	import Item from './components/item.vue';
 	import { getToken } from '@/utils/token.js'
-	import { GetOnwayDriver } from '@/api/index.js';
+	import { GetOnwayDriver, GetSupplyOnwayDetail } from '@/api/index.js';
 	import FilterDrawer from './components/FilterDrawer.vue';
 	import useList from "@/hooks/useList.js";
 
 	const { ctx } = getCurrentInstance();
 
 	const appStore = useAppStore();
-	
-	onLoad(() => {
-		console.log('onLoad')
-	})
+
 	// 登录
 	const loginDrawer = ref();
 	function openLoginDrawer() {
@@ -136,8 +133,64 @@
 		status.value = appStore.waybillQuery?.status ?? '';
 		current.value = appStore.waybillQuery?.status ? tabs.value.findIndex(item => item.value === appStore.waybillQuery?.status) : 0;
 		appStore.setWaybillQuery({});
-		if(getToken()) {
+		if(getToken() && !!status.value) {
 			fetchData(true);
+		}
+	})
+	// 定义列表操作
+	const handleMap = {
+		cancel: async(record) => {
+			console.log('cancel', record)
+			if(status.value === '') {
+				updateItem(record);
+			}else {
+				hideItem(record);
+			}
+		},
+		confirmArrive: (item) => {
+			console.log('confirmArrive', item);
+			updateItem(record);
+		},
+		confirmUnload: (item) => {
+			console.log('confirmUnload', item);
+			if(status.value === '') {
+				updateItem(record);
+			}else {
+				hideItem(record);
+			}
+		}
+	}
+	// 从前端缓存中隐藏数据
+	function hideItem(record) {
+		total.value--;
+		list.value = list.value.map(item => {
+			if(item.Id === record.Id) {
+				item._isShow = false;
+			}
+		});
+	}
+	// 更新前端缓存列表中数据
+	async function updateItem(record) {
+		const res = await GetSupplyOnwayDetail({
+			onwayId: record.OnwayId,
+			supplyId: record.SupplyId,
+			uType: "driver"
+		})
+		list.value.map(item => {
+			return item.Id === record.Id ? res : item;
+		});
+	}
+	// 监听事件
+	onLoad(() => {
+		fetchData(true);
+		for(let key in handleMap) {
+			uni.$on(`waybill:${key}`, handleMap[key])
+		}
+	})
+	// 卸载事件
+	onUnload(() => {
+		for(let key in handleMap) {
+			uni.$off(`waybill:${key}`, handleMap[key])
 		}
 	})
 

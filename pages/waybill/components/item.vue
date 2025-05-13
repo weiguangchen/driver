@@ -96,7 +96,8 @@
 <script setup>
 	import {
 		computed,
-		ref
+		ref,
+		watch
 	} from 'vue';
 	import dayjs from 'dayjs';
 	import { DisableOnwayEnt, ArrivedConfirm, UnloadConfirm } from '@/api/index.js';
@@ -115,15 +116,15 @@
 			type: Object
 		}
 	})
-	
+
 	const statusText = computed(() => {
-		if(['0','1'].includes(props.record.WeightedStatus)) return '待入厂';
-		if(['2','3','4'].includes(props.record.WeightedStatus)) return '已入厂';
-		if(['5'].includes(props.record.WeightedStatus)) return '装车中';
-		if(['6'].includes(props.record.WeightedStatus)) return '已装车';
-		if(['7'].includes(props.record.WeightedStatus)) return '已出厂';
-		if(['8'].includes(props.record.WeightedStatus)) return '已完成';
-		if(['9'].includes(props.record.WeightedStatus)) return '已取消';
+		if(['0','1'].includes(props?.record?.WeightedStatus)) return '待入厂';
+		if(['2','3','4'].includes(props?.record?.WeightedStatus)) return '已入厂';
+		if(['5'].includes(props?.record?.WeightedStatus)) return '装车中';
+		if(['6'].includes(props?.record?.WeightedStatus)) return '已装车';
+		if(['7'].includes(props?.record?.WeightedStatus)) return '已出厂';
+		if(['8'].includes(props?.record?.WeightedStatus)) return '已完成';
+		if(['9'].includes(props?.record?.WeightedStatus)) return '已取消';
 	})
 	
 	const modal = ref()
@@ -153,9 +154,7 @@
 						title: '操作成功',
 						icon: 'none',
 						complete() {
-							setTimeout(() => {
-								emits('success')
-							},1500)
+							uni.$emit(`waybill:cancel`, props.record)
 						}
 					})
 					modal.value.close();
@@ -223,18 +222,15 @@
 			})
 		}
 	}
-	
 	// 确认卸货
 	const unload = ref();
 	async function confirmUnload() {
 		unload.value.open(props.record);
 	}
-	
-	
-	
 	function onSuccess() {
 		emits('success')
 	}
+
 </script>
 
 <style lang="scss" scoped>

@@ -14,12 +14,11 @@
         <uv-load-more
           :status="noMore ? 'nomore' : loading ? 'loading' : 'loadmore'"
           color="#B0BECC"
-          line-color="#B0BECC"
-          line
         />
     </view>
     <view v-else class="empty-wrapper">
-      <slot name="empty">
+      <my-empty v-if="loading" img="/static/images/empty/loading.gif" text="查询中"/>
+      <slot name="empty" v-else>
         <my-empty/>
       </slot>
     </view>
@@ -34,7 +33,7 @@ export default {
 };
 </script>
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 const props = defineProps({
   list: {
     type: Array,
@@ -50,7 +49,7 @@ const props = defineProps({
   },
   rowKey: {
     type: String,
-    default: "id",
+    default: "Id",
   },
   params: {
     type: Object,
