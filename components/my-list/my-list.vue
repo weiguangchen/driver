@@ -7,19 +7,30 @@
     @refresherrefresh="onRefresh"
     @scrolltolower="onLoadMore"
   >
-    <view class="list-wrapper" v-if="list.length > 0">
-        <view v-for="(item, index) in list" :key="item[rowKey]">
-          <slot name="item" :item="item" :index="index"></slot>
-        </view>
-        <uv-load-more
-          :status="noMore ? 'nomore' : loading ? 'loading' : 'loadmore'"
-          color="#B0BECC"
-        />
+    <view class="list-wrapper" v-if="list.filter((m) => m._isShow).length > 0">
+      <template
+        v-for="(item, index) in list"
+        :key="item ? item[rowKey] : index"
+      >
+        <slot
+          v-if="item._isShow"
+          name="item"
+          :item="item"
+          :index="index"
+        ></slot>
+      </template>
+      <uv-load-more
+        :status="noMore ? 'nomore' : loading ? 'loading' : 'loadmore'"
+      />
     </view>
     <view v-else class="empty-wrapper">
-      <my-empty v-if="loading" img="/static/images/empty/loading.gif" text="查询中"/>
+      <my-empty
+        v-if="loading"
+        img="/static/images/empty/loading.gif"
+        text="查询中"
+      />
       <slot name="empty" v-else>
-        <my-empty/>
+        <my-empty />
       </slot>
     </view>
   </scroll-view>
@@ -88,7 +99,7 @@ async function onLoadMore() {
   flex: 1;
   height: 200px;
   .list-wrapper {
-   padding: 24rpx;
+    padding: 24rpx;
   }
   .empty-wrapper {
     height: 100%;

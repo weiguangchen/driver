@@ -21,9 +21,16 @@ export default function useList({
     const fetchId = ++lastFetchId; // 每次请求自增
     const tempParams = {
       ...unref(params),
-    }
-    await nextTick();
-    console.log('fetchId',fetchId, 'lastFetchId', lastFetchId,'params', tempParams);
+    };
+    // await nextTick();
+    console.log(
+      "fetchId",
+      fetchId,
+      "lastFetchId",
+      lastFetchId,
+      "params",
+      tempParams
+    );
     if (isRefresh) {
       // if (loading.value) return;
     } else {
@@ -33,6 +40,7 @@ export default function useList({
       loading.value = true;
       if (isRefresh) {
         list.value = [];
+        total.value = 0;
         pageIndex.value = 1;
       }
       const res = await api({
@@ -42,16 +50,17 @@ export default function useList({
         ...newParams,
       });
       if (fetchId !== lastFetchId) {
-        console.log('不是最后一次请求，丢弃结果',fetchId, lastFetchId);
+        console.log("不是最后一次请求，丢弃结果", fetchId, lastFetchId);
         return;
-      }else {
-        console.log('是最后一次请求，展示结果',fetchId, lastFetchId, res);
-      } 
+      } else {
+        console.log("是最后一次请求，展示结果", fetchId, lastFetchId, res);
+      }
       // 增加_isShow字段用来判断是否在前端展示
-      const newList = res?.[listField]?.map(m => ({
-        ...m,
-        _isShow: true,
-      })) ?? [];
+      const newList =
+        res?.[listField]?.map((m) => ({
+          ...m,
+          _isShow: true,
+        })) ?? [];
 
       if (isRefresh) {
         list.value = [...newList];
@@ -66,14 +75,14 @@ export default function useList({
       }
     } catch (err) {
       console.log("err", err);
-      if(fetchId === lastFetchId) {
+      if (fetchId === lastFetchId) {
         uni.showToast({
           title: err.data || "加载失败",
           icon: "none",
         });
       }
     } finally {
-      if(fetchId === lastFetchId) {
+      if (fetchId === lastFetchId) {
         loading.value = false;
       }
     }

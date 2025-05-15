@@ -450,6 +450,7 @@ function confirm() {
     info: "可在「运单」中查看装运进度",
     confirmText: "查看运单",
     confirmCallBack: () => {
+      uni.$emit("index:confirm", info.value);
       appStore.setWaybillQuery({
         status: "10",
       });

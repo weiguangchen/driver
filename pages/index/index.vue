@@ -192,12 +192,12 @@
   <!-- 待接单运单 -->
   <view class="empty-wrapper" v-if="!getToken()">
     <uv-image
-      src="/static/images/empty/index.png"
+      src="/static/images/empty/bill.png"
       width="176rpx"
       height="176rpx"
       :duration="0"
     />
-    <view class="text">登录并添加车辆后方可接单</view>
+    <view class="text">请先登录</view>
   </view>
   <view class="bill-list" v-else>
     <view class="title-wrapper">
@@ -213,14 +213,18 @@
     <template v-if="assignList.length > 0">
       <Item v-for="(item, index) in assignList" :record="item" :key="item.Id" />
       <uv-load-more
-        :status="noMore ? 'nomore' : loading ? 'loading' : 'loadmore' "
-        color="#B0BECC"
-        line-color="#B0BECC"
-        line
+        :status="noMore ? 'nomore' : loading ? 'loading' : 'loadmore'"
         :custom-style="{ marginTop: '28rpx' }"
       />
     </template>
-    <my-empty v-else height="200px" text="暂无可接运单" />
+    <view style="padding-top: 42px" v-else>
+      <my-empty
+        v-if="loading"
+        img="/static/images/empty/loading.gif"
+        text="查询中"
+      />
+      <my-empty v-else height="200px" text="没有可接单的运输任务" />
+    </view>
   </view>
 
   <!-- 登录弹窗 -->
@@ -241,6 +245,7 @@ import {
 } from "vue";
 import {
   onLoad,
+  onUnload,
   onShow,
   onReady,
   onPageScroll,
@@ -275,7 +280,7 @@ const { carList, defaultCar } = storeToRefs(userStore);
 const isInit = ref(false);
 onLoad(async () => {
   console.log("onLoad");
-  if(isInit.value) {
+  if (isInit.value) {
     return;
   }
   if (!getToken()) {
@@ -537,27 +542,64 @@ watch(
 async function changeCargo(item) {
   try {
     uni.showLoading();
-    await fetchData(true)
+    await fetchData(true);
   } finally {
     uni.hideLoading();
   }
 }
+
 // 首页运单
 const listParams = computed(() => ({
   ownerId: ownerId.value,
   latitude: locationStore.location ? locationStore.location.latitude : "",
   longitude: locationStore.location ? locationStore.location.longitude : "",
-}))
-const { list: assignList, loading, noMore, total: assignCnt, fetchData } = useList({
+}));
+const {
+  list: assignList,
+  loading,
+  noMore,
+  total: assignCnt,
+  fetchData,
+} = useList({
   api: GetReceiveAssignList,
-  totalField: 'assignCnt',
-  listField: 'assignList',
+  totalField: "assignCnt",
+  listField: "assignList",
   params: listParams,
 });
 //上拉加载
 onReachBottom(() => {
   fetchData();
-})
+});
+
+// 定义列表操作
+const handleMap = {
+  confirm: async (record) => {
+    console.log("cancel", record);
+    hideItem(record);
+  },
+};
+// 从前端缓存中隐藏数据
+function hideItem(record) {
+  total.value--;
+  list.value.map((item) => {
+    if (item.Id === record.Id) {
+      item._isShow = false;
+    }
+  });
+}
+// 监听事件
+onLoad(() => {
+  fetchData(true);
+  for (let key in handleMap) {
+    uni.$on(`index:${key}`, handleMap[key]);
+  }
+});
+// 卸载事件
+onUnload(() => {
+  for (let key in handleMap) {
+    uni.$off(`index:${key}`, handleMap[key]);
+  }
+});
 </script>
 
 <style lang="scss">
@@ -759,12 +801,11 @@ page {
 }
 
 .empty-wrapper {
-  height: 520rpx;
+  padding-top: 156rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
   border-radius: 24rpx;
   margin: 0 24rpx;
   .text {
