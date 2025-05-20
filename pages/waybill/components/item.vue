@@ -1,15 +1,6 @@
 <template>
-  <view class="bill" @click="toDetail" v-if="record">
-    <view
-      class="tag"
-      :class="{
-        cancel: ['8', '9'].includes(record.WeightedStatus),
-        success: ['0', '1', '2', '3', '4', '5', '6', '7'].includes(
-          record.WeightedStatus
-        ),
-      }"
-      >{{ statusText }}</view
-    >
+  <view class="bill" @click="toDetail">
+    <view class="tag" :class="className">{{ statusText }}</view>
     <view class="status-text">
       <template v-if="record.WeightedStatus === '0'">
         <template
@@ -149,12 +140,14 @@
         "
         class="unit"
         >预装
-        <text style="font-weight: 500">{{ record.EstimiteWeight }}</text>
+        <text style="font-weight: 500; margin: 0 10rpx">{{
+          record.EstimiteWeight
+        }}</text>
         吨</view
       >
       <view v-if="['6', '7', '8'].includes(record.WeightedStatus)" class="unit"
         >实装
-        <text style="font-weight: 500">{{
+        <text style="font-weight: 500; margin: 0 10rpx">{{
           record.WeightEnt ? record.WeightEnt.Suttle : ""
         }}</text>
         吨</view
@@ -283,9 +276,17 @@ const locationStore = useLocationStore();
 const emits = defineEmits(["success"]);
 const props = defineProps({
   record: {
-    default: () => {},
     type: Object,
   },
+});
+
+const className = computed(() => {
+  return {
+    cancel: ["8", "9"].includes(props.record?.WeightedStatus),
+    success: ["0", "1", "2", "3", "4", "5", "6", "7"].includes(
+      props.record?.WeightedStatus
+    ),
+  };
 });
 
 const statusText = computed(() => {

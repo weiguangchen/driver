@@ -361,9 +361,7 @@ function isOpenResultModal() {
           : "不允许重复接单，出厂后方可再次接单",
       confirmText: "查看运单",
       confirmCallBack: () => {
-        appStore.setWaybillQuery({
-          status: "10",
-        });
+        uni.$emit("waybill:reload");
         uni.switchTab({
           url: "/pages/waybill/waybill",
         });
@@ -451,9 +449,7 @@ function confirm() {
     confirmText: "查看运单",
     confirmCallBack: () => {
       uni.$emit("index:confirm", info.value);
-      appStore.setWaybillQuery({
-        status: "10",
-      });
+      uni.$emit("waybill:reload");
       uni.switchTab({
         url: "/pages/waybill/waybill",
       });

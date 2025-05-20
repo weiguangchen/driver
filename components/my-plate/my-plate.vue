@@ -26,7 +26,7 @@ const props = defineProps({
     type: Object,
   },
   plate: {
-    default: "京ATY8902",
+    default: "京XXXXXX",
     type: String,
   },
   color: {

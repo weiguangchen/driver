@@ -32,6 +32,7 @@
     <!-- end -->
     <!-- tab -->
     <uv-tabs
+      v-if="tabHack"
       :current="current"
       :activeStyle="{ fontWeight: 'bold', color: 'var(--title-color)' }"
       :inactiveStyle="{ color: 'var(--sub-color)' }"
@@ -42,6 +43,7 @@
       :scrollable="false"
       lineColor="var(--main-color)"
       :customStyle="{ background: '#ffffff' }"
+      :loading="loading"
     />
     <view
       class="has-filter"
@@ -60,16 +62,12 @@
     </view>
     <!-- end -->
     <!-- 列表 -->
-    <my-list
+    <ListComponent
       :list="list"
-      rowKey="Id"
       :noMore="noMore"
       :loading="loading"
       :fetchData="fetchData"
     >
-      <template #item="{ item }">
-        <Item :record="item" v-if="item" />
-      </template>
       <template #empty>
         <my-empty
           v-if="!getToken()"
@@ -80,7 +78,7 @@
         />
         <my-empty v-else />
       </template>
-    </my-list>
+    </ListComponent>
     <!-- end -->
     <my-tabbar :fixed="false" />
   </view>
@@ -89,10 +87,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick, getCurrentInstance } from "vue";
+import { ref, onMounted, computed, getCurrentInstance, nextTick } from "vue";
 import { onLoad, onUnload, onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "@/stores/app.js";
-import Item from "./components/item.vue";
+import ListComponent from "./components/ListComponent.vue";
 import { getToken } from "@/utils/token.js";
 import { GetOnwayDriver, GetSupplyOnwayDetail } from "@/api/index.js";
 import FilterDrawer from "./components/FilterDrawer.vue";
@@ -123,8 +121,8 @@ onMounted(() => {
   navbarPad.value = menuButtonInfo.width + 20;
 });
 // tab
-const status = ref("");
-const current = ref(0);
+const status = ref("10");
+const current = ref(1);
 const tabs = ref([
   {
     name: "全部",
@@ -155,8 +153,9 @@ function changeTabs({ value }) {
 const filter = ref();
 const isFilter = ref(false);
 const isFiltering = ref(false);
-async function changeFilter(data) {
-  console.log("changeFilter", data);
+async function changeFilter(data, flag) {
+  console.log("changeFilter", data, flag);
+  if (!flag) return;
   isFiltering.value = true;
   isFilter.value = data.isFilter;
   params.value = data.params;
@@ -178,19 +177,40 @@ function reset() {
   isKeyWord.value = false;
   filter.value.reset();
 }
+
+const isInit = ref(false);
+onLoad(async () => {
+  if (!getToken()) return;
+
+  if (isInit.value) return;
+  console.log("onLoad");
+  uni.$on(`waybill:reload`, handleShow);
+  await fetchData(true);
+  isInit.value = true;
+});
+onUnload(() => {
+  uni.$off(`waybill:reload`, handleShow);
+});
 onShow(() => {
   appStore.switchTab(1);
-  status.value = appStore.waybillQuery?.status ?? "";
-  current.value = appStore.waybillQuery?.status
-    ? tabs.value.findIndex(
-        (item) => item.value === appStore.waybillQuery?.status
-      )
-    : 0;
-  appStore.setWaybillQuery({});
-  if (getToken() && !!status.value) {
-    fetchData(true);
-  }
 });
+
+const tabHack = ref(true);
+async function handleShow() {
+  if (!getToken()) return;
+  tabHack.value = false;
+  await nextTick();
+  tabHack.value = true;
+  filter.value?.reset(false);
+  isFilter.value = false;
+  isKeyWord.value = false;
+  keyWord.value = "";
+  params.value = {};
+  status.value = "10";
+  current.value = 1;
+  fetchData(true);
+}
+
 // 定义列表操作
 const handleMap = {
   cancel: async (record) => {
@@ -201,12 +221,12 @@ const handleMap = {
       hideItem(record);
     }
   },
-  confirmArrive: (item) => {
-    console.log("confirmArrive", item);
+  confirmArrive: (record) => {
+    console.log("confirmArrive", record);
     updateItem(record);
   },
-  confirmUnload: (item) => {
-    console.log("confirmUnload", item);
+  confirmUnload: (record) => {
+    console.log("confirmUnload", record);
     if (status.value === "") {
       updateItem(record);
     } else {
@@ -217,10 +237,11 @@ const handleMap = {
 // 从前端缓存中隐藏数据
 function hideItem(record) {
   total.value--;
-  list.value.map((item) => {
+  list.value = list.value.map((item) => {
     if (item.Id === record.Id) {
       item._isShow = false;
     }
+    return item;
   });
 }
 // 更新前端缓存列表中数据
@@ -230,13 +251,17 @@ async function updateItem(record) {
     supplyId: record.SupplyId,
     uType: "driver",
   });
-  list.value.map((item) => {
-    return item.Id === record.Id ? res : item;
+  list.value = list.value.map((item) => {
+    return item.Id === record.Id
+      ? {
+          ...res,
+          _isShow: true,
+        }
+      : item;
   });
 }
 // 监听事件
 onLoad(() => {
-  fetchData(true);
   for (let key in handleMap) {
     uni.$on(`waybill:${key}`, handleMap[key]);
   }
@@ -252,7 +277,7 @@ const listParams = computed(() => {
   const { dateMode, date, ...rest } = params.value;
   return {
     status: status.value,
-    keyword: keyWord.value,
+    keyWord: keyWord.value,
     ...rest,
   };
 });

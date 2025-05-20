@@ -9,16 +9,22 @@
         <template v-if="record.ReceiveAble === '0'">暂无可接量</template>
         <template v-else-if="record.Limittype === '1'"
           >可接
-          <text style="font-weight: 600">{{ record.LeftWeight }}</text>
+          <text style="font-weight: 600; margin: 0 10rpx">{{
+            record.LeftWeight
+          }}</text>
           吨</template
         >
         <template v-else-if="record.Limittype === '2'"
           >可接
-          <text style="font-weight: 600">{{ record.Lefttimes }}</text>
+          <text style="font-weight: 600; margin: 0 10rpx">{{
+            record.Lefttimes
+          }}</text>
           车次</template
         >
         <template v-if="record.Realheight"
-          >，当前库高 {{ record.Realheight }} 米</template
+          >，当前库高
+          <text style="margin: 0 10rpx">{{ record.Realheight }}</text>
+          米</template
         >
       </view>
     </view>
@@ -184,7 +190,7 @@ const disabled = computed(() => {
 const emits = defineEmits(["confirm"]);
 const model = reactive({
   FullLoad: "",
-  Load: '',
+  Load: "",
   LoadType: "",
 });
 const rules = reactive({

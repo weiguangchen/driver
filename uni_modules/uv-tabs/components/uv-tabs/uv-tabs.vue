@@ -223,7 +223,7 @@
 					index
 				})
 				// 如果disabled状态，返回
-				if (item.disabled) return
+				if (item.disabled || this.loading) return
 				if(this.innerCurrent != index) {
 					this.$emit('change', {
 						...item,

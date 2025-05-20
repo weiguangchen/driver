@@ -195,42 +195,52 @@
       src="/static/images/empty/bill.png"
       width="176rpx"
       height="176rpx"
+      :customStyle="{ marginBottom: '28rpx' }"
       :duration="0"
     />
     <view class="text">请先登录</view>
   </view>
   <view class="bill-list" v-else>
     <view class="title-wrapper">
-      <view class="title"
+      <view v-if="assignList.filter((m) => m._isShow).length > 0" class="title"
         >当前存在 <text class="total">{{ assignCnt }}</text> 项运输任务</view
       >
+      <view v-else />
       <SelectCargo
         v-model="ownerId"
         :options="currentCarnoCargoOptions"
+        :disabled="loading"
         @change="changeCargo"
       />
     </view>
-    <template v-if="assignList.length > 0">
-      <Item v-for="(item, index) in assignList" :record="item" :key="item.Id" />
+    <template v-if="assignList.filter((m) => m._isShow).length > 0">
+      <Item
+        v-for="(item, index) in assignList.filter((m) => m._isShow)"
+        :record="item"
+        :key="item.Id"
+      />
       <uv-load-more
         :status="noMore ? 'nomore' : loading ? 'loading' : 'loadmore'"
-        :custom-style="{ marginTop: '28rpx' }"
       />
     </template>
-    <view style="padding-top: 42px" v-else>
+    <view style="padding-top: 92rpx" v-else>
       <my-empty
         v-if="loading"
         img="/static/images/empty/loading.gif"
         text="查询中"
       />
-      <my-empty v-else height="200px" text="没有可接单的运输任务" />
+      <my-empty
+        v-else
+        img="/static/images/empty/clock.png"
+        text="没有可接单的运输任务"
+      />
     </view>
   </view>
 
   <!-- 登录弹窗 -->
   <my-login-drawer ref="loginDrawer" @success="loginSuccess" />
   <!-- end -->
-  <my-tabbar />
+  <my-tabbar @change="tabbarChange" />
 </template>
 
 <script setup>
@@ -276,6 +286,13 @@ const appStore = useAppStore();
 const userStore = useUserStore();
 const locationStore = useLocationStore();
 const { carList, defaultCar } = storeToRefs(userStore);
+
+function tabbarChange(index) {
+  console.log("tabbarChange", index);
+  if (index === 1) {
+    uni.$emit("waybill:reload");
+  }
+}
 
 const isInit = ref(false);
 onLoad(async () => {
@@ -354,9 +371,7 @@ async function getProcess() {
 }
 // 查看运单
 function toTask() {
-  appStore.setWaybillQuery({
-    status: "10",
-  });
+  uni.$emit("waybill:reload");
   uni.switchTab({
     url: "/pages/waybill/waybill",
   });
@@ -541,10 +556,8 @@ watch(
 );
 async function changeCargo(item) {
   try {
-    uni.showLoading();
     await fetchData(true);
   } finally {
-    uni.hideLoading();
   }
 }
 
@@ -580,16 +593,16 @@ const handleMap = {
 };
 // 从前端缓存中隐藏数据
 function hideItem(record) {
-  total.value--;
-  list.value.map((item) => {
+  // assignCnt.value--;
+  assignList.value = assignList.value.map((item) => {
     if (item.Id === record.Id) {
       item._isShow = false;
     }
+    return item;
   });
 }
 // 监听事件
 onLoad(() => {
-  fetchData(true);
   for (let key in handleMap) {
     uni.$on(`index:${key}`, handleMap[key]);
   }
@@ -783,6 +796,7 @@ page {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 24rpx;
+    height: 48rpx;
 
     .title {
       flex: none;
@@ -793,7 +807,7 @@ page {
       margin-right: 10rpx;
 
       .total {
-        margin: 0 2rpx;
+        margin: 0 16rpx;
         color: var(--main-color);
       }
     }
