@@ -165,8 +165,33 @@ export function UnloadConfirm(data) {
   return request.post("/api/permission/WechatApi/UnloadConfirm", data);
 }
 /**
+ * 司机卸货判断距离
+ */
+export function UnloadDistanceChk(data) {
+  return request.post("/api/permission/WechatApi/UnloadDistanceChk", data);
+}
+/**
  * 校验二维码
  */
 export function ScanQR(data) {
   return request.post("/api/permission/WechatApi/ScanQR", data);
 }
+/**
+ * 数据统计列表
+ */
+export function GetDriverTotalSupply(data) {
+  return request.post("/api/permission/WechatApi/GetDriverTotalSupply", data);
+}
+/**
+ * 数据统计列表
+ */
+export function GetDriverCarListBySupply(data) {
+  return request.post(
+    "/api/permission/WechatApi/GetDriverCarListBySupply",
+    data
+  );
+}
+/**
+ * 数据统计列表
+ */
+export const UploadImg = `${process.env.BASE_URL}/api/permission/WechatApi/UploadImg`;

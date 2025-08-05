@@ -96,6 +96,13 @@
         "navigationBarTitleText": "",
         "navigationStyle": "custom"
       }
+    },
+    {
+    	"path" : "pages/unload/unload",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : "填写卸货说明"
+    	}
     }
   ],
   //配置导航栏

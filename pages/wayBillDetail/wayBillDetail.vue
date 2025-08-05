@@ -427,6 +427,7 @@
     </view>
     <view class="btns" v-if="['7'].includes(info.Weightedstatus)">
       <uv-button
+        :loading="loading"
         text="确认卸货"
         color=" linear-gradient( 270deg, #31CE57 0%, #07B130 100%)"
         :custom-style="{
@@ -443,7 +444,7 @@
   <!-- 追踪 -->
   <!-- <StepDrawer ref="stepModal"/> -->
   <my-confirm ref="modal" />
-  <UnloadModal ref="unload" @success="onSuccess" />
+  <!-- <UnloadModal ref="unload" @success="onSuccess" /> -->
 </template>
 
 <script setup>
@@ -459,6 +460,7 @@ import {
   DisableOnwayEnt,
   ArrivedConfirm,
   UnloadConfirm,
+  UnloadDistanceChk,
 } from "@/api/index.js";
 import { getToken } from "@/utils/token.js";
 import { getLocationInfo } from "@/utils/authorize.js";
@@ -646,10 +648,62 @@ function takePhone2() {
   });
 }
 // 确认卸货
-const unload = ref();
+// const unload = ref();
+// async function confirmUnload() {
+//   unload.value.open(info.value);
+// }
+const loading = ref(false);
 async function confirmUnload() {
-  unload.value.open(info.value);
+  loading.value = true;
+  let location = {};
+  try {
+    location = await getLocationInfo();
+  } catch {
+    modal.value.confirm({
+      title: "定位失败",
+      content: "请开启相关定位权限",
+      showCancelButton: false,
+      confirmBgColor: "var(--main-color)",
+    });
+    loading.value = false;
+    return;
+  }
+  console.log("location", location);
+  try {
+    const result = await UnloadDistanceChk({
+      onwayId: info.value.Id,
+      userId: getToken().userInfo.Id,
+      uType: "driver",
+      supplyId: info.value.SupplyId,
+      logitude: location.longitude,
+      latitude: location.latitude,
+    });
+
+    uni.navigateTo({
+      url: "/pages/unload/unload",
+      success: function (res) {
+        // 通过eventChannel向被打开页面传送数据
+        res.eventChannel.emit("unloadConfirmData", {
+          data: result,
+          record: info.value,
+        });
+      },
+      events: {
+        unloadFinish() {
+          getData();
+        },
+      },
+    });
+  } catch (err) {
+    uni.showToast({
+      title: err.data,
+      icon: "none",
+    });
+  } finally {
+    loading.value = false;
+  }
 }
+
 function onSuccess() {
   uni.$emit(`waybill:confirmUnload`, info.value);
   getData();

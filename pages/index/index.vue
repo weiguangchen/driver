@@ -419,11 +419,6 @@ function navigate(type) {
       handleScan();
       break;
     case "数据统计":
-      uni.showToast({
-        title: "敬请期待",
-        icon: "none",
-      });
-      return;
       uni.navigateTo({
         url: "/pages/statistics/statistics",
       });

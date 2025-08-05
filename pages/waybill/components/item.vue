@@ -258,13 +258,18 @@
 
   <my-confirm ref="modal" />
 
-  <UnloadModal ref="unload" @success="onSuccess" />
+  <!-- <UnloadModal ref="unload" @success="onSuccess" /> -->
 </template>
 
 <script setup>
 import { computed, ref, watch } from "vue";
 import dayjs from "dayjs";
-import { DisableOnwayEnt, ArrivedConfirm, UnloadConfirm } from "@/api/index.js";
+import {
+  DisableOnwayEnt,
+  ArrivedConfirm,
+  UnloadConfirm,
+  UnloadDistanceChk,
+} from "@/api/index.js";
 import { getToken } from "@/utils/token.js";
 import { useLocationStore } from "@/stores/location.js";
 import { getLocationInfo } from "@/utils/authorize.js";
@@ -393,9 +398,48 @@ async function confirmArrive() {
   }
 }
 // 确认卸货
-const unload = ref();
+// const unload = ref();
 async function confirmUnload() {
-  unload.value.open(props.record);
+  let location = {};
+  try {
+    location = await getLocationInfo();
+  } catch {
+    modal.value.confirm({
+      title: "定位失败",
+      content: "请开启相关定位权限",
+      showCancelButton: false,
+      confirmBgColor: "var(--main-color)",
+    });
+    return;
+  }
+  console.log("location", location);
+  // unload.value.open(props.record);
+  try {
+    const result = await UnloadDistanceChk({
+      onwayId: props.record.Id,
+      userId: getToken().userInfo.Id,
+      uType: "driver",
+      supplyId: props.record.SupplyId,
+      logitude: location.longitude,
+      latitude: location.latitude,
+    });
+
+    uni.navigateTo({
+      url: "/pages/unload/unload",
+      success: function (res) {
+        // 通过eventChannel向被打开页面传送数据
+        res.eventChannel.emit("unloadConfirmData", {
+          data: result,
+          record: props.record,
+        });
+      },
+    });
+  } catch (err) {
+    uni.showToast({
+      title: err.data,
+      icon: "none",
+    });
+  }
 }
 function onSuccess() {
   uni.$emit(`waybill:confirmUnload`, props.record);
