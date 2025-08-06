@@ -157,7 +157,7 @@ function visibleChange(res) {
 }
 
 const minDate = computed(() => {
-  return dayjs().subtract(1, "year").valueOf();
+  return dayjs().subtract(1, "year").add(1, "day").valueOf();
 });
 
 const filter = ref();

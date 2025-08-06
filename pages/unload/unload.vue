@@ -39,6 +39,7 @@
             :maxCount="1"
             :previewFullImage="true"
             name="img1"
+            capture="camera"
             @afterRead="afterRead"
             @delete="deletePic"
           >
@@ -73,6 +74,7 @@
             :previewFullImage="true"
             multiple
             :sizeType="['compressed']"
+            capture="camera"
             @afterRead="afterRead"
             @delete="deletePic"
           >
@@ -216,7 +218,8 @@ async function afterRead(e) {
       Object.assign(item, {
         status: "",
         message: "",
-        url: result,
+        // url: result,
+        path: result,
       })
     );
     fileListLen++;
@@ -248,10 +251,11 @@ async function submit() {
     uType: "driver",
     memo: model.memo,
     supplyId: record.value.SupplyId,
-    imgChk: model.img1.map((item) => item.url),
-    imgNoChk: model.img2.map((item) => item.url),
+    imgChkPath: model.img1.map((item) => item.path).join(","),
+    imgUnChkPath: model.img2.map((item) => item.path).join(","),
   };
   console.log("params", params);
+  // return;
   try {
     await UnloadConfirm(params);
     uni.$emit(`waybill:confirmUnload`, record.value);

@@ -245,6 +245,7 @@
         v-if="['7'].includes(record.WeightedStatus)"
       >
         <uv-button
+          :loading="unloadLoading"
           shape="circle"
           text="确认卸货"
           color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
@@ -399,7 +400,9 @@ async function confirmArrive() {
 }
 // 确认卸货
 // const unload = ref();
+const unloadLoading = ref(false);
 async function confirmUnload() {
+  unloadLoading.value = true;
   let location = {};
   try {
     location = await getLocationInfo();
@@ -410,6 +413,7 @@ async function confirmUnload() {
       showCancelButton: false,
       confirmBgColor: "var(--main-color)",
     });
+    unloadLoading.value = false;
     return;
   }
   console.log("location", location);
@@ -439,10 +443,9 @@ async function confirmUnload() {
       title: err.data,
       icon: "none",
     });
+  } finally {
+    unloadLoading.value = false;
   }
-}
-function onSuccess() {
-  uni.$emit(`waybill:confirmUnload`, props.record);
 }
 </script>
 

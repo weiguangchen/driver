@@ -226,7 +226,7 @@ const handleMap = {
     updateItem(record);
   },
   confirmUnload: (record) => {
-    console.log("confirmUnload", record);
+    console.log("confirmUnload", record, status.value);
     if (status.value === "") {
       updateItem(record);
     } else {
@@ -243,6 +243,7 @@ function hideItem(record) {
     }
     return item;
   });
+  console.log("hideItem", record, list.value);
 }
 // 更新前端缓存列表中数据
 async function updateItem(record) {

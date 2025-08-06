@@ -5,6 +5,7 @@ export default function useList({
   params = {},
   totalField = "cnt",
   listField = "list",
+  callback = null,
 }) {
   // 当第一次请求时保存全部缓存数据
   const list = ref([]);
@@ -69,6 +70,7 @@ export default function useList({
       }
       total.value = res[totalField] || 0;
       // console.log(total.value, noMore.value);
+      callback?.(res);
 
       if (!noMore.value) {
         pageIndex.value++;
