@@ -15,8 +15,8 @@
             border="none"
             height="252rpx"
             :placeholder="
-              textUnlPrompt
-                ? `在此处填写卸货说明，&#10;${textUnlPrompt}`
+              texUnlPrompt
+                ? `在此处填写卸货说明，&#10;${texUnlPrompt}`
                 : '在此处填写卸货说明'
             "
             :customStyle="{
@@ -64,13 +64,13 @@
           <text>{{
             needUnlVerpho == "1" ? "凭证及其他照片" : "卸货照片"
           }}</text>
-          <text class="tip">（最多 4 张）</text>
+          <text class="tip">（最多 1 张）</text>
         </view>
         <uv-form-item label="" prop="img2">
           <uv-upload
             name="img2"
             :fileList="model.img2"
-            :maxCount="4"
+            :maxCount="1"
             :previewFullImage="true"
             multiple
             :sizeType="['compressed']"
@@ -111,6 +111,9 @@
       >
     </uv-form>
   </view>
+
+  <!-- 结果 -->
+  <my-result-drawer ref="resultModal" />
 </template>
 
 <script setup>
@@ -120,7 +123,7 @@ import { UnloadConfirm, UploadImg } from "@/api/index.js";
 import { getToken } from "@/utils/token.js";
 
 const needUnlVerpho = ref("");
-const textUnlPrompt = ref("");
+const texUnlPrompt = ref("");
 const needUnlPho = ref("");
 const record = ref({});
 let eventChannel = null;
@@ -131,12 +134,12 @@ onLoad(() => {
   eventChannel.on("unloadConfirmData", function (res) {
     console.log("unloadConfirmData", res);
     needUnlVerpho.value = res.data.needUnlVerpho;
-    textUnlPrompt.value = res.data.textUnlPrompt;
+    texUnlPrompt.value = res.data.texUnlPrompt;
     needUnlPho.value = res.data.needUnlPho;
     record.value = res.record;
   });
 });
-
+const resultModal = ref();
 const form = ref(null);
 const model = reactive({
   memo: "",
@@ -260,7 +263,23 @@ async function submit() {
     await UnloadConfirm(params);
     uni.$emit(`waybill:confirmUnload`, record.value);
     eventChannel.emit("unloadFinish");
-    uni.navigateBack();
+    resultModal.value.open({
+      type: "success",
+      title: "确认卸货完成",
+      info: "感谢使用石来运转司机端",
+      showCancel: false,
+      confirmText: "好的",
+      confirmCallBack: () => {
+        uni.switchTab({
+          url: "/pages/waybill/waybill",
+          success: () => {
+            uni.$emit("waybill:reload", {
+              status: "8",
+            });
+          },
+        });
+      },
+    });
   } catch (err) {
     uni.showToast({
       title: err.data,

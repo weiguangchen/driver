@@ -154,8 +154,8 @@ const filter = ref();
 const isFilter = ref(false);
 const isFiltering = ref(false);
 async function changeFilter(data, flag) {
-  console.log("changeFilter", data, flag);
   if (!flag) return;
+  console.log("changeFilter", data, flag);
   isFiltering.value = true;
   isFilter.value = data.isFilter;
   params.value = data.params;
@@ -165,6 +165,7 @@ async function changeFilter(data, flag) {
 const keyWord = ref("");
 const isKeyWord = ref(false);
 async function handleSearch() {
+  console.log("handleSearch", keyWord.value);
   isFiltering.value = true;
   isKeyWord.value = !!keyWord.value;
   await fetchData(true);
@@ -196,7 +197,7 @@ onShow(() => {
 });
 
 const tabHack = ref(true);
-async function handleShow() {
+async function handleShow(data = {}) {
   if (!getToken()) return;
   tabHack.value = false;
   await nextTick();
@@ -206,8 +207,11 @@ async function handleShow() {
   isKeyWord.value = false;
   keyWord.value = "";
   params.value = {};
-  status.value = "10";
-  current.value = 1;
+  status.value = data.status || "10";
+  current.value = data.status
+    ? tabs.value?.findIndex((m) => m.value === data.status)
+    : 1;
+
   fetchData(true);
 }
 

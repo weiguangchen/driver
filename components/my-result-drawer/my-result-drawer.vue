@@ -38,7 +38,7 @@
           </view>
         </view>
         <view class="result-drawer-footer">
-          <view class="result-drawer-footer-btn">
+          <view class="result-drawer-footer-btn" v-if="popupConfig.showCancel">
             <uv-button
               :text="popupConfig.cancelText"
               @click="cancel"
@@ -51,7 +51,11 @@
               :custom-text-style="{ fontSize: '30rpx' }"
             />
           </view>
-          <view class="result-drawer-footer-btn" style="margin-left: 24rpx">
+          <view
+            class="result-drawer-footer-btn"
+            v-if="popupConfig.showConfirm"
+            :style="{ marginLeft: popupConfig.showCancel ? '24rpx' : '0' }"
+          >
             <uv-button
               :text="popupConfig.confirmText"
               color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%)"
@@ -77,12 +81,14 @@ const popupConfig = ref({
   type: "success",
   title: "接单成功",
   info: "可在「当前任务」中查看装运进度",
+  showCancel: true,
   cancelText: "返回首页",
   cancelCallBack: () => {
     uni.switchTab({
       url: "/pages/index/index",
     });
   },
+  showConfirm: true,
   confirmText: "查看当前任务",
   confirmCallBack: () => {
     uni.switchTab({
@@ -93,7 +99,7 @@ const popupConfig = ref({
 
 function open(config) {
   popupConfig.value = Object.assign({}, popupConfig.value, config);
-  console.log('popupConfig',popupConfig.value);
+  console.log("popupConfig", popupConfig.value);
   popup.value.open();
 }
 
