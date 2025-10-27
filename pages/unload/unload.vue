@@ -181,13 +181,18 @@ const rules = reactive({
   ],
 });
 
-function uploadFilePromise(url) {
+function uploadFilePromise(url,e) {
   console.log("uploadFilePromise url", url);
   return new Promise((resolve, reject) => {
     uni.uploadFile({
-      url: UploadImg, // 仅为示例，非真实的接口地址
+      url: `${UploadImg}/${record.value.SupplyId}/${record.value.OnwayNo}/${e.name == "img1" ? "Y" : "N"}`, // 仅为示例，非真实的接口地址
       filePath: url,
       name: "file",
+      // formData: {
+      //   supplyCode: record.value.SupplyId,
+      //   onwayCode: record.value.OnwayNo,
+      //   chkCarno: needUnlVerpho.value == "1" ? "Y" : "N",
+      // },
       success: (res) => {
         const img = JSON.parse(res?.data)?.data?.[0] ?? "";
         console.log("uploadFilePromise res", img);
@@ -213,7 +218,7 @@ async function afterRead(e) {
     });
   });
   for (let i = 0; i < lists.length; i++) {
-    const result = await uploadFilePromise(lists[i].url);
+    const result = await uploadFilePromise(lists[i].url,e);
     let item = model[e.name][fileListLen];
     model[e.name].splice(
       fileListLen,
@@ -256,6 +261,7 @@ async function submit() {
     supplyId: record.value.SupplyId,
     imgChkPath: model.img1.map((item) => item.path).join(","),
     imgUnChkPath: model.img2.map((item) => item.path).join(","),
+	carno: record.value.Carno
   };
   console.log("params", params);
   // return;

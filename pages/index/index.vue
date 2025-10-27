@@ -306,7 +306,6 @@ onLoad(async () => {
   console.log("onload handle");
   try {
     await getLocationInfo();
-    console.log("locationStore", locationStore);
   } finally {
     await userStore.getCarList();
     await getCurrentCarnoCargoOptions();

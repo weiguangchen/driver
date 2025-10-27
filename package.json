@@ -23,18 +23,18 @@
         "title": "司机端:测试环境",
         "env": {
           "UNI_PLATFORM": "mp-weixin",
-          "BASE_URL": "https://www.wwwxapp.cn:28065",
+          "BASE_URL": "https://www.wwwxapp.cn:28063",
           "TOKEN_KEY": "test-driver-token"
         }
       },
-	  "mp-weixin-test:wanning": {
-	    "title": "万宁司机端:测试环境",
-	    "env": {
-	      "UNI_PLATFORM": "mp-weixin",
-	      "BASE_URL": "https://www.wnlsjc.com:8026",
-	      "TOKEN_KEY": "test-driver-token:wanning"
-	    }
-	  },
+      "mp-weixin-test:wanning": {
+        "title": "万宁司机端:测试环境",
+        "env": {
+          "UNI_PLATFORM": "mp-weixin",
+          "BASE_URL": "https://www.wnlsjc.com:8029",
+          "TOKEN_KEY": "test-driver-token:wanning"
+        }
+      },
       "mp-weixin-prod": {
         "title": "司机端:生产环境",
         "env": {
@@ -43,14 +43,14 @@
           "TOKEN_KEY": "driver-token"
         }
       },
-	  "mp-weixin-prod:wanning": {
-	    "title": "万宁司机端:生产环境",
-	    "env": {
-	      "UNI_PLATFORM": "mp-weixin",
-	      "BASE_URL": "https://www.wnlsjc.com:8023",
-	      "TOKEN_KEY": "driver-token:wanning"
-	    }
-	  }
+      "mp-weixin-prod:wanning": {
+        "title": "万宁司机端:生产环境",
+        "env": {
+          "UNI_PLATFORM": "mp-weixin",
+          "BASE_URL": "https://www.wnlsjc.com:8023",
+          "TOKEN_KEY": "driver-token:wanning"
+        }
+      }
     }
   },
   "dependencies": {

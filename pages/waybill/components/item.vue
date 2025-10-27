@@ -402,6 +402,15 @@ async function confirmArrive() {
 // const unload = ref();
 const unloadLoading = ref(false);
 async function confirmUnload() {
+  const deviceInfo = wx.getDeviceInfo();
+  console.log("deviceInfo", deviceInfo);
+  if (deviceInfo.platform === "windows" || deviceInfo.platform === "mac") {
+    uni.showToast({
+      title: "请在手机端操作",
+      icon: "none",
+    });
+    return;
+  }
   unloadLoading.value = true;
   let location = {};
   try {
