@@ -5,8 +5,12 @@
     :style="[customStyle]"
   >
     <view class="inner">
-      <view class="left">{{ left }}</view>
-      <view class="right">{{ right }}</view>
+      <view class="left">
+        {{ left }}
+      </view>
+      <view class="right">
+        {{ right }}
+      </view>
     </view>
   </view>
 </template>
@@ -54,11 +58,9 @@ watchEffect(() => {
   width: fit-content;
   display: flex;
   padding: 4rpx;
-  height: 68rpx;
   border-radius: 12rpx;
   color: var(--title-color);
   font-weight: bold;
-  font-size: 38rpx;
 
   .inner {
     font-family: misans;
@@ -67,6 +69,7 @@ watchEffect(() => {
     border-radius: 10rpx;
     overflow: hidden;
     border: 2rpx solid var(--title-color);
+    font-size: 0;
 
     .left {
       padding: 0 10rpx;
@@ -123,13 +126,31 @@ watchEffect(() => {
     background: linear-gradient(180deg, #f8f8f8 0%, #00ec7b 100%);
   }
 
+  &.mode_1 {
+    height: 68rpx;
+
+    .left,
+    .right {
+      font-size: 38rpx;
+      line-height: 1;
+      padding-top: 6rpx;
+    }
+  }
   &.mode_2 {
-    font-size: 32rpx;
     height: 56rpx;
+
+    .left,
+    .right {
+      font-size: 32rpx;
+    }
   }
   &.mode_3 {
-    font-size: 26rpx;
     height: 52rpx;
+
+    .left,
+    .right {
+      font-size: 26rpx;
+    }
   }
 }
 </style>

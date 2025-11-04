@@ -90,7 +90,7 @@ function select(item) {
   .my-dropdown-item {
     .name {
       flex: 1;
-      margin: 0 24rpx;
+      // margin: 0 24rpx;
     }
   }
 }

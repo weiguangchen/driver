@@ -1,41 +1,43 @@
-page,view {
-	box-sizing: border-box;
-	font-family: Avenir, misans !important;
-	/* 主色 */
-	--main-color: #31CE57;
-	--light-main: #E7F9E9;
-	--dark-main: #02B72E;
-	--deep-main: #00751C;
-	/* 警告色 */
-	--red-color: #F15948;
-	--light-red: #FFF0EE;
-	/* 灰度 */
-	--title-color: #1A1B1C;
-	--content-color: #4E5356;
-	--sub-color: #73838E;
-	--intr-color: #A0AFBA;
-	--divider: #E3E9EF;
-	--page-bg: #F2F4F7;
+page,
+view {
+  box-sizing: border-box;
+  font-family: Avenir, misans !important;
+  /* 主色 */
+  --main-color: #31ce57;
+  --light-main: #e7f9e9;
+  --dark-main: #02b72e;
+  --deep-main: #00751c;
+  /* 警告色 */
+  --red-color: #f15948;
+  --light-red: #fff0ee;
+  /* 灰度 */
+  --title-color: #1a1b1c;
+  --content-color: #4e5356;
+  --sub-color: #73838e;
+  --intr-color: #a0afba;
+  --divider: #e3e9ef;
+  --page-bg: #f2f4f7;
 }
 
 page {
-	background-color: var(--page-bg);
+  background-color: var(--page-bg);
 }
 
 .page-bg {
-	position: absolute;
-	left: 0;
-	top: 0;
-	z-index: -1;
-	height: 500rpx;
-	width: 100%;
-	background: linear-gradient(to bottom, transparent 168px, #F2F4F7), linear-gradient(270deg, #31CE57 0%, #07B130 100%);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  height: 500rpx;
+  width: 100%;
+  background: linear-gradient(to bottom, transparent 168px, #f2f4f7),
+    linear-gradient(270deg, #31ce57 0%, #07b130 100%);
 }
 
 .my-flex {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* 边框 */
@@ -43,65 +45,65 @@ page {
 .my-border-top,
 .my-border-left,
 .my-border-right {
-	border-color: #e3e9ef !important;
+  border-color: #e3e9ef !important;
 }
 .my-border-bottom {
-	border-bottom-width: 1rpx !important;
-	border-bottom-style: solid;
+  border-bottom-width: 1rpx !important;
+  border-bottom-style: solid;
 }
 .my-border-top {
-	border-top-width: 1px !important;
-	border-top-style: solid;
+  border-top-width: 1px !important;
+  border-top-style: solid;
 }
 .my-border-left {
-	border-left-width: 1px !important;
-	border-left-style: solid;
+  border-left-width: 1px !important;
+  border-left-style: solid;
 }
 .my-border-right {
-	border-right-width: 1px !important;
-	border-right-style: solid;
+  border-right-width: 1px !important;
+  border-right-style: solid;
 }
 .page-footer {
-	position: fixed;
-	left: 0;
-	bottom: 0;
-	width: 100%;
-	z-index: 2000;
-	background-color: #fff;
-	padding: 16rpx 24rpx calc(var(--safe-area-inset-bottom) + 24rpx);
-	.btns {
-		display: flex;
-		.left {
-			flex:none;
-			width: 262rpx;
-			margin-right: 20rpx;
-		}
-		.right {
-			flex:1;
-		}
-	}
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 2000;
+  background-color: #fff;
+  padding: 16rpx 24rpx calc(var(--safe-area-inset-bottom) + 24rpx);
+  .btns {
+    display: flex;
+    .left {
+      flex: none;
+      width: 262rpx;
+      margin-right: 20rpx;
+    }
+    .right {
+      flex: 1;
+    }
+  }
 }
 
 // 抽屉选项样式
 .my-dropdown-items {
-	padding: 24rpx;
-	.my-dropdown-item {
-		display: flex;
-		align-items: center;
-		padding: 32rpx;
-		line-height: 48rpx;
-		font-size: 28rpx;
-		color: var(--title-color);
-		border-radius: 16rpx;
-		background-color: #FFFFFF;
+  padding: 24rpx;
+  .my-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 32rpx;
+    line-height: 48rpx;
+    font-size: 28rpx;
+    color: var(--title-color);
+    border-radius: 16rpx;
+    background-color: #ffffff;
 
-		&:not(:last-child) {
-			margin-bottom: 16rpx;
-		}
+    &:not(:last-child) {
+      margin-bottom: 16rpx;
+    }
 
-		&.active {
-			color: var(--main-color);
-			font-weight: 600;
-		}
-	}
+    &.active {
+      color: var(--main-color);
+      font-weight: 600;
+    }
+  }
 }

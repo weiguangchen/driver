@@ -1,31 +1,12 @@
 <template>
   <view
-    class="material"
+    class="select-material"
     :class="{ 'uv-border-bottom': borderBottom, 'has-border': borderBottom }"
   >
     <view class="left">
       <view class="name">{{ record.MaterialName }}</view>
       <view class="info">
-        <template v-if="record.ReceiveAble === '0'">暂无可接量</template>
-        <template v-else-if="record.Limittype === '1'"
-          >可接
-          <text style="font-weight: 600; margin: 0 10rpx">{{
-            record.LeftWeight
-          }}</text>
-          吨</template
-        >
-        <template v-else-if="record.Limittype === '2'"
-          >可接
-          <text style="font-weight: 600; margin: 0 10rpx">{{
-            record.Lefttimes
-          }}</text>
-          车次</template
-        >
-        <template v-if="record.Realheight"
-          >，当前库高
-          <text style="margin: 0 10rpx">{{ record.Realheight }}</text>
-          米</template
-        >
+        <rich-text :nodes="record.DetailTxt" />
       </view>
     </view>
     <view class="right">
@@ -39,9 +20,17 @@
               : 'linear-gradient( 270deg, #31CE57 0%, #07B130 100%)'
           "
           :text="disabled ? '不可接' : '接单'"
-          :custom-style="{ height: '68rpx', width: '168rpx' }"
+          :custom-style="{
+            height: '68rpx',
+            width: '168rpx',
+          }"
           :custom-text-style="{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             fontSize: '26rpx',
+            fontWeight: 'bold',
+            height: '100%',
           }"
           @click="openDrawer"
         ></uv-button>
@@ -58,7 +47,7 @@
     asyncClose
     @confirm="confirm"
   >
-    <view class="form-wrapper">
+    <view class="select-material-form-wrapper">
       <uv-form labelPosition="left" :model="model" :rules="rules" ref="form">
         <uv-form-item
           prop="FullLoad"
@@ -104,7 +93,7 @@
                     : ""
                   : ""
               }}
-              吨</view
+              {{ record.Unit }}</view
             >
           </template>
           <view
@@ -113,6 +102,7 @@
             <my-number-box
               v-model="model.Load"
               decimal-length="2"
+              :unit="record.Unit"
               :min="
                 bill.ConfigEnt
                   ? bill.ConfigEnt.fullLoadMin
@@ -120,7 +110,7 @@
                     : 0
                   : 0
               "
-              :min-limit-msg="(min) => `重量最少为${min}吨`"
+              :min-limit-msg="(min) => `重量最少为${min}${record.Unit}`"
               :max="
                 bill.ConfigEnt
                   ? bill.ConfigEnt.fullLoadMax
@@ -128,7 +118,7 @@
                     : undefined
                   : undefined
               "
-              :max-limit-msg="(max) => `重量最多为${max}吨`"
+              :max-limit-msg="(max) => `重量最多为${max}${record.Unit}`"
             />
           </view>
         </uv-form-item>
@@ -147,7 +137,8 @@
         </uv-form-item>
       </uv-form>
       <view class="tip"
-        >本次预估装运物料 {{ Suttle }} 吨，结算请以实际装运为准</view
+        >本次预估装运物料 {{ Suttle }}
+        {{ record.Unit }}，结算请以实际装运为准</view
       >
     </view>
   </my-drawer>
@@ -251,7 +242,7 @@ async function confirm() {
       Customer: props.bill.OwnerEnt.Id,
       DriverId: tokenData?.userInfo?.Id,
       Material: props.record.Material,
-      MatName: props.record.MaterialName,
+      MaterialName: props.record.MaterialName,
       FullLoad: model.FullLoad,
       Load: model.Load,
       LoadType: model.LoadType,
@@ -275,8 +266,8 @@ async function confirm() {
 }
 </script>
 
-<style lang="scss" scoped>
-.material {
+<style lang="scss">
+.select-material {
   padding: 0 4rpx;
   display: flex;
   align-items: center;
@@ -294,6 +285,10 @@ async function confirm() {
     .info {
       font-size: 26rpx;
       color: var(--content-color);
+      .num {
+        font-weight: 600;
+        margin: 0 10rpx;
+      }
     }
   }
 
@@ -306,7 +301,7 @@ async function confirm() {
   }
 }
 
-.form-wrapper {
+.select-material-form-wrapper {
   padding: 0 32rpx;
 
   .main-title {

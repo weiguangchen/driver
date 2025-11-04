@@ -1,8 +1,8 @@
 <template>
   <uv-navbar bgColor="rgba(255,255,255,0)" @leftClick="leftClick"></uv-navbar>
-  <view class="placeholder" :style="{ height: placeholderHeight }"></view>
-  <view class="page-bg" />
   <template v-if="info.Id">
+    <view class="placeholder" :style="{ height: placeholderHeight }"></view>
+    <view class="page-bg" />
     <!-- 状态 -->
     <!-- @click="openStepModal" -->
     <view class="status-wrapper">
@@ -11,46 +11,7 @@
         <!-- <uv-icon name="arrow-right" size="32rpx" color="#FFFFFF" :custom-style="{ marginLeft: '8rpx' }" bold/> -->
       </view>
       <view class="status-tip">
-        <view class="">
-          <template
-            v-if="
-              (!info.StartTime && !info.EndTime) ||
-              (info.StartTime &&
-                dayjs().isAfter(info.StartTime) &&
-                !info.EndTime)
-            "
-          ></template>
-          <template
-            v-else-if="
-              !info.EndTime &&
-              info.StartTime &&
-              dayjs().isBefore(info.StartTime)
-            "
-          >
-            并于 {{ formatDateTime(info.StartTime) }} 后入厂装货
-          </template>
-          <template
-            v-else-if="
-              info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)
-            "
-          >
-            并于 {{ formatDateTime(info.StartTime) }} 至
-            {{ formatDateTime(info.EndTime) }} 入厂装货
-          </template>
-          <template
-            v-else-if="
-              (info.StartTime &&
-                dayjs().isAfter(info.StartTime) &&
-                info.EndTime &&
-                dayjs().isBefore(info.EndTime)) ||
-              (!info.StartTime &&
-                info.EndTime &&
-                dayjs().isBefore(info.EndTime))
-            "
-          >
-            并于 {{ formatDateTime(info.EndTime) }} 前入厂装货
-          </template>
-        </view>
+        <rich-text :nodes="info.StatusRemark" />
       </view>
     </view>
     <!-- end -->
@@ -196,10 +157,21 @@
       <view class="content">{{ info.Memo }}</view>
     </view>
     <!-- 派单时间 -->
-    <view class="item">
-      <view class="label">货主派单时间</view>
-      <view class="value">{{ info.CreatorTime }}</view>
+    <view class="item-list">
+      <view class="item uv-border-bottom">
+        <view class="label">货主派车时间</view>
+        <view class="value">{{ info.CreatorTime }}</view>
+      </view>
+      <view class="item uv-border-bottom">
+        <view class="label">停止接单时间</view>
+        <view class="value">{{ info.EndTime }}</view>
+      </view>
+      <view class="item">
+        <view class="label">派车单号</view>
+        <view class="value">{{ info.AssignCode }}</view>
+      </view>
     </view>
+
     <!-- <view class="order-info">
 		<view class="title">运单详情</view>
 		<view class="content">
@@ -226,7 +198,9 @@
 		</view>
 	</view> -->
   </template>
-
+  <view v-else style="height: 100vh">
+    <my-empty img="/static/images/empty/loading.gif" text="加载中" />
+  </view>
   <!-- 地图 -->
   <MapDrawer ref="mapModal" />
   <!-- 追踪 -->
@@ -245,7 +219,7 @@ import { GetReceiveAssignDetail, DriverMakeOnway } from "@/api/index.js";
 import dayjs from "dayjs";
 import { getStorage } from "@/utils/storage.js";
 import Big from "big.js";
-import { formatDateTime } from "@/utils";
+import { formatDateTime, deFormatPhone } from "@/utils";
 import { useAppStore } from "@/stores/app.js";
 const appStore = useAppStore();
 
@@ -378,6 +352,23 @@ function isOpenResultModal() {
         if (!info.value?.OwnerEnt?.LinkerMobile) return;
         uni.makePhoneCall({
           phoneNumber: info.value?.OwnerEnt?.LinkerMobile,
+        });
+      },
+    });
+  }
+
+  if (info.value.EntryAuthened === "4") {
+    resultModal.value.open({
+      type: "warning",
+      title: "当前车辆被占用",
+      info: `${info.value.OtherDriverNickName}（${deFormatPhone(
+        15022485790
+      )}）正在使用当前车辆`,
+      confirmText: "呼叫 TA",
+      confirmCallBack: () => {
+        if (!info.value?.OtherDriverMoile) return;
+        uni.makePhoneCall({
+          phoneNumber: info.value?.OtherDriverMoile,
         });
       },
     });
@@ -688,7 +679,7 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32rpx 28rpx;
+  padding: 32rpx;
   background: #ffffff;
   border-radius: 24rpx 24rpx 24rpx 24rpx;
   font-weight: 400;
@@ -699,6 +690,16 @@ page {
   }
   .value {
     color: #1a1b1c;
+  }
+}
+.item-list {
+  border-radius: 24rpx;
+  overflow: hidden;
+  padding: 0 28rpx;
+  background-color: #ffffff;
+  .item {
+    border-radius: 0;
+    padding: 32rpx 0;
   }
 }
 </style>

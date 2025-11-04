@@ -2,84 +2,7 @@
   <view class="bill" @click="toDetail">
     <view class="tag" :class="className">{{ statusText }}</view>
     <view class="status-text">
-      <template v-if="record.WeightedStatus === '0'">
-        <template
-          v-if="
-            (!record.StartTime && !record.EndTime) ||
-            (record.StartTime &&
-              dayjs().isAfter(record.StartTime) &&
-              !record.EndTime)
-          "
-          >请尽快到达装货厂家</template
-        >
-        <template
-          v-else-if="
-            !record.EndTime &&
-            record.StartTime &&
-            dayjs().isBefore(record.StartTime)
-          "
-        >
-          {{ formatDateTime(record.StartTime) }} 后可入厂装货
-        </template>
-        <template
-          v-else-if="
-            record.EndTime &&
-            record.StartTime &&
-            dayjs().isBefore(record.StartTime)
-          "
-        >
-          {{ formatDateTime(record.StartTime) }} 至
-          {{ formatDateTime(record.EndTime) }} 可入厂装货
-        </template>
-        <template
-          v-else-if="
-            (record.StartTime &&
-              dayjs().isAfter(record.StartTime) &&
-              record.EndTime &&
-              dayjs().isBefore(record.EndTime)) ||
-            (!record.StartTime &&
-              record.EndTime &&
-              dayjs().isBefore(record.EndTime))
-          "
-        >
-          {{ formatDateTime(record.EndTime) }} 前可入厂装货
-        </template>
-      </template>
-      <template v-if="record.WeightedStatus === '1'">
-        <template v-if="record.StatusCount && record.StatusCount > 1"
-          >当前共 {{ record.StatusCount }} 辆车等待入厂</template
-        >
-        <template v-else>即将入厂</template>
-      </template>
-      <template v-if="record.WeightedStatus === '2'">车辆已入厂</template>
-      <template v-if="record.WeightedStatus === '3'">
-        <template v-if="record.StatusCount && record.StatusCount > 1"
-          >当前共 {{ record.StatusCount }} 辆车等待装车</template
-        >
-        <template v-else>即将装车</template>
-      </template>
-      <template v-if="record.WeightedStatus === '4'">请进行物料装车</template>
-      <template v-if="record.WeightedStatus === '5'">正在装车</template>
-      <template v-if="record.WeightedStatus === '6'">装车完成</template>
-      <template v-if="record.WeightedStatus === '7'">等待完成卸货</template>
-      <template v-if="record.WeightedStatus === '8'"
-        >{{
-          record.UserType
-            ? record.UserType === "driver"
-              ? "司机"
-              : "货主"
-            : ""
-        }}已完成运单</template
-      >
-      <template v-if="record.WeightedStatus === '9'"
-        >{{
-          record.UserType
-            ? record.UserType === "driver"
-              ? "司机"
-              : "货主"
-            : ""
-        }}已取消运单</template
-      >
+      <rich-text :nodes="record.StatusRemark" />
     </view>
     <view class="own"
       >货主：
@@ -119,13 +42,15 @@
       </view>
     </view>
     <view class="car-info">
-      <my-plate
-        v-if="record.Carno"
-        :mode="3"
-        :plate="record.Carno"
-        :color="record.CarColor"
-      />
-      <view class="cate">{{
+      <view style="flex: none">
+        <my-plate
+          v-if="record.Carno"
+          :mode="3"
+          :plate="record.Carno"
+          :color="record.CarColor"
+        />
+      </view>
+      <view class="cate uv-line-1">{{
         record.MaterialName ? record.MaterialName : ""
       }}</view>
       <uv-line
@@ -134,125 +59,115 @@
         length="26rpx"
         margin="0 20rpx 0 20rpx"
       ></uv-line>
-      <view
-        v-if="
-          ['0', '1', '2', '3', '4', '5', '9'].includes(record.WeightedStatus)
-        "
-        class="unit"
-        >预装
-        <text style="font-weight: 500; margin: 0 10rpx">{{
-          record.EstimiteWeight
-        }}</text>
-        吨</view
-      >
-      <view v-if="['6', '7', '8'].includes(record.WeightedStatus)" class="unit"
-        >实装
-        <text style="font-weight: 500; margin: 0 10rpx">{{
-          record.WeightEnt ? record.WeightEnt.Suttle : ""
-        }}</text>
-        吨</view
-      >
+      <rich-text style="flex: none" :nodes="record.DetailTxt" />
     </view>
-    <view
-      class="footer"
-      :class="{
-        'my-border-top': ['0', '1', '2', '3', '4', '5', '6', '7'].includes(
-          record.WeightedStatus
-        ),
-      }"
-    >
-      <view
-        class="btn"
-        @click.stop
-        v-if="['0', '1'].includes(record.WeightedStatus)"
-      >
-        <uv-button
-          shape="circle"
-          text="取消运单"
-          color="var(--page-bg)"
-          :customTextStyle="{
-            color: 'var(--content-color)',
-            fontSize: '26rpx',
-          }"
-          :customStyle="{ height: '32px' }"
-          @click="cancelBill"
-        ></uv-button>
+    <view class="footer my-border-top">
+      <view class="date">
+        <text>{{ formatDateTime(record.Creatortime) }} 接单 </text>
+        <template v-if="['8', '9'].includes(record.WeightedStatus)"
+          >，{{ formatDateTime(record.LastModifyTime) }}
+          {{ record.WeightedStatus === "8" ? "完成" : "取消" }}</template
+        >
       </view>
-      <view
-        class="btn"
-        @click.stop
-        v-if="['0', '1', '7'].includes(record.WeightedStatus)"
-      >
-        <uv-button
-          shape="circle"
-          text="呼叫货主"
-          color="var(--page-bg)"
-          :customTextStyle="{
-            color: 'var(--content-color)',
-            fontSize: '26rpx',
-          }"
-          :customStyle="{ height: '32px' }"
-          @click="takeOwnerPhone"
-        ></uv-button>
-      </view>
-      <view
-        class="btn"
-        @click.stop
-        v-if="['2', '3', '4', '5', '6'].includes(record.WeightedStatus)"
-      >
-        <uv-button
-          shape="circle"
-          text="呼叫厂家"
-          color="var(--page-bg)"
-          :customTextStyle="{
-            color: 'var(--content-color)',
-            fontSize: '26rpx',
-          }"
-          :customStyle="{ height: '32px' }"
-          @click="takeSupPhone"
-        ></uv-button>
-      </view>
-      <view
-        class="btn"
-        @click.stop
-        v-if="['0'].includes(record.WeightedStatus)"
-      >
-        <uv-button
-          shape="circle"
-          text="确认到厂"
-          color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
-          :customTextStyle="{ fontSize: '26rpx' }"
-          :customStyle="{ height: '32px' }"
-          @click="confirmArrive"
-        />
-      </view>
-      <view
-        class="btn"
-        @click.stop
-        v-if="['4'].includes(record.WeightedStatus)"
-      >
-        <uv-button
-          shape="circle"
-          text="开始装车"
-          color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
-          :customTextStyle="{ fontSize: '26rpx' }"
-          :customStyle="{ height: '32px' }"
-        />
-      </view>
-      <view
-        class="btn"
-        @click.stop
-        v-if="['7'].includes(record.WeightedStatus)"
-      >
-        <uv-button
-          :loading="unloadLoading"
-          shape="circle"
-          text="确认卸货"
-          color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
-          :customTextStyle="{ fontSize: '26rpx' }"
-          :customStyle="{ height: '32px' }"
-          @click="confirmUnload"
-        />
+      <view class="btns">
+        <view
+          class="btn"
+          @click.stop
+          v-if="['0', '1'].includes(record.WeightedStatus)"
+        >
+          <uv-button
+            shape="circle"
+            text="取消运单"
+            color="var(--page-bg)"
+            :customTextStyle="{
+              color: 'var(--content-color)',
+              fontSize: '26rpx',
+            }"
+            :customStyle="{ height: '32px' }"
+            @click="cancelBill"
+          ></uv-button>
+        </view>
+        <view
+          class="btn"
+          @click.stop
+          v-if="
+            (record.WeightedStatus === '0' && record.NeedSignFac !== '1') ||
+            ['1', '7'].includes(record.WeightedStatus)
+          "
+        >
+          <uv-button
+            shape="circle"
+            text="呼叫货主"
+            color="var(--page-bg)"
+            :customTextStyle="{
+              color: 'var(--content-color)',
+              fontSize: '26rpx',
+            }"
+            :customStyle="{ height: '32px' }"
+            @click="takeOwnerPhone"
+          ></uv-button>
+        </view>
+        <view
+          class="btn"
+          @click.stop
+          v-if="['2', '3', '4', '5', '6'].includes(record.WeightedStatus)"
+        >
+          <uv-button
+            shape="circle"
+            text="呼叫厂家"
+            color="var(--page-bg)"
+            :customTextStyle="{
+              color: 'var(--content-color)',
+              fontSize: '26rpx',
+            }"
+            :customStyle="{ height: '32px' }"
+            @click="takeSupPhone"
+          ></uv-button>
+        </view>
+        <view
+          class="btn"
+          @click.stop
+          v-if="
+            ['0'].includes(record.WeightedStatus) && record.NeedSignFac === '1'
+          "
+        >
+          <uv-button
+            shape="circle"
+            text="确认到厂"
+            color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
+            :customTextStyle="{ fontSize: '26rpx' }"
+            :customStyle="{ height: '32px' }"
+            @click="confirmArrive"
+          />
+        </view>
+        <view
+          class="btn"
+          @click.stop
+          v-if="['4'].includes(record.WeightedStatus)"
+        >
+          <uv-button
+            shape="circle"
+            text="开始装车"
+            color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
+            :customTextStyle="{ fontSize: '26rpx' }"
+            :customStyle="{ height: '32px' }"
+          />
+        </view>
+        <view
+          class="btn"
+          @click.stop
+          v-if="['7'].includes(record.WeightedStatus)"
+        >
+          <uv-button
+            :loading="unloadLoading"
+            shape="circle"
+            text="确认卸货"
+            color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
+            :customTextStyle="{ fontSize: '26rpx' }"
+            :customStyle="{ height: '32px' }"
+            @click="confirmUnload"
+          />
+        </view>
       </view>
     </view>
   </view>
@@ -458,7 +373,7 @@ async function confirmUnload() {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .bill {
   position: relative;
   margin-bottom: 20rpx;
@@ -574,16 +489,31 @@ async function confirmUnload() {
     .cate {
       margin-left: 20rpx;
     }
+    .num {
+      font-weight: 500;
+      margin: 0 10rpx;
+    }
   }
 
   .footer {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-
-    .btn {
-      margin-left: 20rpx;
+    justify-content: space-between;
+    .date {
+      font-size: 26rpx;
+      color: #a0afba;
+      line-height: 36rpx;
     }
+    .btns {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      .btn {
+        margin-left: 20rpx;
+      }
+    }
+
     &.my-border-top {
       margin-top: 28rpx;
       padding-top: 24rpx;

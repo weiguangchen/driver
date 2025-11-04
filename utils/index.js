@@ -53,3 +53,9 @@ export function formatNumberToThousand(value) {
   // 使用正则表达式来插入逗号
   return numStr.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+// 手机号4到7位脱敏
+export function deFormatPhone(phoneNumber) {
+  if (!phoneNumber) return "";
+  return phoneNumber.toString().replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
+}

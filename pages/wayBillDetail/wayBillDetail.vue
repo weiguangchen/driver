@@ -1,443 +1,392 @@
 <template>
   <uv-navbar bgColor="rgba(255,255,255,0)" @leftClick="leftClick"></uv-navbar>
-  <view class="placeholder" :style="{ height: placeholderHeight }"></view>
-  <view class="page-bg" :class="{ 'no-auth': info.EntryAuthened === '0' }" />
-  <!-- 状态 -->
-  <!-- @click="openStepModal" -->
-  <view class="status-wrapper">
-    <view class="status-text">
-      <template v-if="info.Weightedstatus === '0'">等待前往装货厂家</template>
-      <template v-if="info.Weightedstatus === '1'">等待入厂</template>
-      <template v-if="info.Weightedstatus === '2'">车辆已入厂</template>
-      <template v-if="info.Weightedstatus === '3'">等待装车</template>
-      <template v-if="info.Weightedstatus === '4'">已进入仓库</template>
-      <template v-if="info.Weightedstatus === '5'">正在装车</template>
-      <template v-if="info.Weightedstatus === '6'">装车完成</template>
-      <template v-if="info.Weightedstatus === '7'">等待完成卸货</template>
-      <template v-if="info.Weightedstatus === '8'">运单已完成</template>
-      <template v-if="info.Weightedstatus === '9'">运单已取消</template>
-      <uv-icon
-        name="arrow-right"
-        size="32rpx"
-        color="#FFFFFF"
-        :custom-style="{ marginLeft: '8rpx' }"
-        bold
-      />
-    </view>
-    <view class="status-tip">
-      <template v-if="info.Weightedstatus === '0'">
-        <template
-          v-if="
-            (!info.StartTime && !info.EndTime) ||
-            (info.StartTime && dayjs().isAfter(info.StartTime) && !info.EndTime)
-          "
-          >请尽快到达装货厂家完成装货</template
-        >
-        <template
-          v-else-if="
-            !info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)
-          "
-        >
-          请于 {{ formatDateTime(info.StartTime) }} 后入厂装货
-        </template>
-        <template
-          v-else-if="
-            info.EndTime && info.StartTime && dayjs().isBefore(info.StartTime)
-          "
-        >
-          请于 {{ formatDateTime(info.StartTime) }} 至
-          {{ formatDateTime(info.EndTime) }} 入厂装货
-        </template>
-        <template
-          v-else-if="
-            (info.StartTime &&
-              dayjs().isAfter(info.StartTime) &&
-              info.EndTime &&
-              dayjs().isBefore(info.EndTime)) ||
-            (!info.StartTime && info.EndTime && dayjs().isBefore(info.EndTime))
-          "
-        >
-          请于 {{ formatDateTime(info.EndTime) }} 前入厂装货
-        </template>
-      </template>
-      <template v-if="info.Weightedstatus === '1'">{{
-        info.StatusCount && info.StatusCount > 1
-          ? `当前共 ${info.StatusCount} 辆车等待入厂`
-          : "即将入厂"
-      }}</template>
-      <template v-if="info.Weightedstatus === '2'">请遵守厂内规范</template>
-      <template v-if="info.Weightedstatus === '3'">{{
-        info.StatusCount && info.StatusCount > 1
-          ? `当前共 ${info.StatusCount} 辆车等待装车`
-          : "即将装车"
-      }}</template>
-      <template v-if="info.Weightedstatus === '4'">请进行物料装车</template>
-      <template v-if="info.Weightedstatus === '5'"
-        >请根据提示信息进行装车</template
-      >
-      <template v-if="info.Weightedstatus === '6'"
-        >请及时出厂并前往卸货地完成卸货</template
-      >
-      <template v-if="info.Weightedstatus === '7'"
-        >请前往卸货地完成卸货</template
-      >
-      <template v-if="info.Weightedstatus === '8'"
-        >{{
-          info.UserType ? (info.UserType === "driver" ? "司机" : "货主") : ""
-        }}已完成运单</template
-      >
-      <template v-if="info.Weightedstatus === '9'"
-        >{{
-          info.UserType ? (info.UserType === "driver" ? "司机" : "货主") : ""
-        }}已取消运单</template
-      >
-    </view>
-  </view>
-  <!-- end -->
-  <!-- 地址 -->
-  <view class="location-wrapper">
-    <view class="from-wrapper" @click="openMapModal(1)" v-if="info.SupEnt">
-      <view class="icon">装</view>
-      <view class="content-box my-border-bottom">
-        <view class="info" @click="selectAddress">
-          <view class="name uv-line-1">{{
-            info.SupEnt ? info.SupEnt.Name : ""
-          }}</view>
-          <view class="address uv-line-1"
-            >{{ info.SupEnt ? info.SupEnt.Province : ""
-            }}{{ info.SupEnt ? info.SupEnt.City : ""
-            }}{{ info.SupEnt ? info.SupEnt.District : ""
-            }}{{ info.SupEnt ? info.SupEnt.Address : "" }}</view
-          >
-        </view>
-        <uv-image
-          src="/static/images/arrow.png"
-          :duration="0"
-          width="24rpx"
-          height="24rpx"
+  <template v-if="info.Id">
+    <view class="placeholder" :style="{ height: placeholderHeight }"></view>
+    <view class="page-bg" :class="{ 'no-auth': info.EntryAuthened === '0' }" />
+    <!-- 状态 -->
+    <!-- @click="openStepModal" -->
+    <view class="status-wrapper">
+      <view class="status-text">
+        {{ info.StatusTxt }}
+        <uv-icon
+          name="arrow-right"
+          size="32rpx"
+          color="#FFFFFF"
+          :custom-style="{ marginLeft: '8rpx' }"
+          bold
         />
       </view>
-    </view>
-    <view class="to-wrapper" @click="openMapModal(2)" v-if="info.UnloadEnt">
-      <view class="icon">卸</view>
-      <view class="content-box">
-        <view class="info" @click="selectAddress">
-          <view class="name uv-line-1">{{
-            info.UnloadEnt ? info.UnloadEnt.PlaceName : ""
-          }}</view>
-          <view class="address uv-line-1"
-            >{{ info.UnloadEnt ? info.UnloadEnt.Province : ""
-            }}{{ info.UnloadEnt ? info.UnloadEnt.City : ""
-            }}{{ info.UnloadEnt ? info.UnloadEnt.District : ""
-            }}{{ info.UnloadEnt ? info.UnloadEnt.Address : "" }}</view
-          >
-        </view>
-        <uv-image
-          src="/static/images/arrow.png"
-          :duration="0"
-          width="24rpx"
-          height="24rpx"
-        />
+      <view class="status-tip">
+        <rich-text :nodes="info.StatusRemark" />
       </view>
     </view>
-  </view>
-  <!-- 物料 -->
-  <view class="material">
-    <view class="title">{{ info.MaterialName }}</view>
-    <view class="content">
-      <template
-        v-if="['0', '1', '2', '3', '4', '5', '9'].includes(info.Weightedstatus)"
-      >
-        预装 {{ info.EstimiteWeight }} 吨
-      </template>
-      <template v-else>
-        实装 {{ info.WeightEnt ? info.WeightEnt.Suttle : "" }} 吨
-      </template>
-      <template
-        v-if="['0', '1'].includes(info.Weightedstatus) && info.RealHeight"
-      >
-        ,当前库高 {{ info.RealHeight }} 米
-      </template>
+    <!-- end -->
+    <!-- 地址 -->
+    <view class="location-wrapper">
+      <view class="from-wrapper" @click="openMapModal(1)" v-if="info.SupEnt">
+        <view class="icon">装</view>
+        <view class="content-box my-border-bottom">
+          <view class="info" @click="selectAddress">
+            <view class="name uv-line-1">{{
+              info.SupEnt ? info.SupEnt.Name : ""
+            }}</view>
+            <view class="address uv-line-1"
+              >{{ info.SupEnt ? info.SupEnt.Province : ""
+              }}{{ info.SupEnt ? info.SupEnt.City : ""
+              }}{{ info.SupEnt ? info.SupEnt.District : ""
+              }}{{ info.SupEnt ? info.SupEnt.Address : "" }}</view
+            >
+          </view>
+          <uv-image
+            src="/static/images/arrow.png"
+            :duration="0"
+            width="24rpx"
+            height="24rpx"
+          />
+        </view>
+      </view>
+      <view class="to-wrapper" @click="openMapModal(2)" v-if="info.UnloadEnt">
+        <view class="icon">卸</view>
+        <view class="content-box">
+          <view class="info" @click="selectAddress">
+            <view class="name uv-line-1">{{
+              info.UnloadEnt ? info.UnloadEnt.PlaceName : ""
+            }}</view>
+            <view class="address uv-line-1"
+              >{{ info.UnloadEnt ? info.UnloadEnt.Province : ""
+              }}{{ info.UnloadEnt ? info.UnloadEnt.City : ""
+              }}{{ info.UnloadEnt ? info.UnloadEnt.District : ""
+              }}{{ info.UnloadEnt ? info.UnloadEnt.Address : "" }}</view
+            >
+          </view>
+          <uv-image
+            src="/static/images/arrow.png"
+            :duration="0"
+            width="24rpx"
+            height="24rpx"
+          />
+        </view>
+      </view>
     </view>
-  </view>
-  <!-- end -->
-  <!-- 磅单 -->
-  <view class="bangdan" v-if="info.BillNo">
-    <view class="left">
-      <view class="name">已生成磅单</view>
-      <view class="no">磅单号：{{ info.BillNo }}</view>
+    <!-- 物料 -->
+    <view class="material">
+      <view class="title">{{ info.MaterialName }}</view>
+      <view class="content">
+        <rich-text :nodes="info.DetailTxt" />
+      </view>
     </view>
-    <!-- <view class="right">
+    <!-- end -->
+    <!-- 磅单 -->
+    <view class="bangdan" v-if="info.BillNo">
+      <view class="left">
+        <view class="name">已生成磅单</view>
+        <view class="no">磅单号：{{ info.BillNo }}</view>
+      </view>
+      <!-- <view class="right">
 			<uv-button shape="circle" color="var(--page-bg)":custom-style="{ height: '68rpx',color:'var(--main-color)', fontWeight: 'bold' }">
 				查看磅单
 			</uv-button>
 		</view> -->
-  </view>
-  <!-- end -->
-  <!-- 公司 -->
-  <view class="mfrs" v-if="info.OwnerEnt">
-    <view class="left">
-      <view class="name">{{
-        info.OwnerEnt ? info.OwnerEnt.OwnerName : ""
-      }}</view>
-      <view class="person">
-        <text class="user">{{
-          info.OwnerEnt ? info.OwnerEnt.Linker : ""
-        }}</text>
-        <text class="phone">{{
-          info.OwnerEnt ? info.OwnerEnt.LinkerMobile : ""
-        }}</text>
+    </view>
+    <!-- end -->
+    <!-- 公司 -->
+    <view class="mfrs" v-if="info.OwnerEnt">
+      <view class="left">
+        <view class="name">{{
+          info.OwnerEnt ? info.OwnerEnt.OwnerName : ""
+        }}</view>
+        <view class="person">
+          <text class="user">{{
+            info.OwnerEnt ? info.OwnerEnt.Linker : ""
+          }}</text>
+          <text class="phone">{{
+            info.OwnerEnt ? info.OwnerEnt.LinkerMobile : ""
+          }}</text>
+        </view>
+      </view>
+      <view class="right" v-if="info.OwnerEnt && info.OwnerEnt.LinkerMobile">
+        <uv-button
+          shape="circle"
+          color="var(--page-bg)"
+          :custom-style="{
+            height: '68rpx',
+            color: 'var(--main-color)',
+            fontWeight: 'bold',
+          }"
+          @click="takePhone1"
+        >
+          呼叫货主
+        </uv-button>
       </view>
     </view>
-    <view class="right" v-if="info.OwnerEnt && info.OwnerEnt.LinkerMobile">
-      <uv-button
-        shape="circle"
-        color="var(--page-bg)"
-        :custom-style="{
-          height: '68rpx',
-          color: 'var(--main-color)',
-          fontWeight: 'bold',
+    <!-- end -->
+    <!-- 车 -->
+    <view class="bill-car">
+      <view class="info-wrapper my-border-bottom">
+        <view class="info">
+          <my-plate :mode="2" :plate="info.Carno" :color="info.CarColor" /><text
+            class="type"
+            >{{ info.CarType }}</text
+          >
+        </view>
+        <view class="person" v-if="info.DriverEnt">
+          <text class="user">{{
+            info.DriverEnt ? info.DriverEnt.NickName : ""
+          }}</text>
+          <text class="phone">{{
+            info.DriverEnt ? info.DriverEnt.Mobile : ""
+          }}</text>
+        </view>
+      </view>
+      <view
+        class="weight"
+        :class="{
+          'my-border-bottom': info.WeightEnt && info.WeightEnt.SecondWeight,
         }"
-        @click="takePhone1"
+        v-if="info.WeightEnt"
       >
-        呼叫货主
-      </uv-button>
-    </view>
-  </view>
-  <!-- end -->
-  <!-- 车 -->
-  <view class="bill-car">
-    <view class="info-wrapper my-border-bottom">
-      <view class="info">
-        <my-plate :mode="2" :plate="info.Carno" :color="info.CarColor" /><text
-          class="type"
-          >{{ info.CarType }}</text
+        <view class="label" v-if="info.WeightEnt"
+          >皮重
+          <text class="num">{{ info.WeightEnt.FirstWeight || "" }}</text>
+          吨</view
+        >
+        <view class="value" v-if="info.WeightEnt"
+          >计量于
+          {{
+            info.WeightEnt.FirstTime
+              ? dayjs(info.WeightEnt.FirstTime).format("MM-DD HH:mm")
+              : ""
+          }}</view
         >
       </view>
-      <view class="person" v-if="info.DriverEnt">
-        <text class="user">{{
-          info.DriverEnt ? info.DriverEnt.NickName : ""
-        }}</text>
-        <text class="phone">{{
-          info.DriverEnt ? info.DriverEnt.Mobile : ""
-        }}</text>
+      <view class="weight" v-if="info.WeightEnt">
+        <view class="label" v-if="info.WeightEnt"
+          >毛重
+          <text class="num">{{ info.WeightEnt.SecondWeight || "" }}</text>
+          吨</view
+        >
+        <view class="value" v-if="info.WeightEnt"
+          >测量于
+          {{
+            info.WeightEnt.SecondTime
+              ? dayjs(info.WeightEnt.SecondTime).format("MM-DD HH:mm")
+              : ""
+          }}</view
+        >
       </view>
     </view>
-    <view
-      class="weight my-border-bottom"
-      v-if="['4', '5', '6', '7', '8'].includes(info.Weightedstatus)"
-    >
-      <view class="label" v-if="info.WeightEnt"
-        >皮重 {{ info.WeightEnt.FirstWeight || "" }} 吨</view
+    <!-- end -->
+    <!-- 卸货说明 -->
+    <view class="remark" v-if="info.UnloadMemo">
+      <view class="title">卸货说明</view>
+      <view class="content">{{ info.UnloadMemo }}</view>
+    </view>
+    <!-- 运单详情 -->
+    <view class="remark" v-if="info.AssignMemo">
+      <view class="title">运单备注</view>
+      <view class="content">{{ info.AssignMemo }}</view>
+    </view>
+    <view class="order-info">
+      <view class="item uv-border-bottom">
+        <view class="label">派车单号</view>
+        <view class="value">{{ info.AssignCode }}</view>
+      </view>
+      <view class="item uv-border-bottom">
+        <view class="label">运单号</view>
+        <view class="value">{{ info.OnwayNo }}</view>
+      </view>
+      <view
+        class="item"
+        :class="{
+          'uv-border-bottom': ['8', '9'].includes(info.Weightedstatus),
+        }"
       >
-      <view class="value" v-if="info.WeightEnt"
-        >测量于
-        {{
-          info.WeightEnt.FirstTime
-            ? dayjs(info.WeightEnt.FirstTime).format("MM/DD HH:mm")
-            : ""
-        }}</view
-      >
+        <view class="label">接单时间</view>
+        <view class="value">{{ info.Creatortime }}</view>
+      </view>
+      <view class="item" v-if="['8'].includes(info.Weightedstatus)">
+        <view class="label">完成时间</view>
+        <view class="value">{{ info.LastModifyTime }}</view>
+      </view>
+      <view class="item" v-else-if="['9'].includes(info.Weightedstatus)">
+        <view class="label">取消时间</view>
+        <view class="value">{{ info.LastModifyTime }}</view>
+      </view>
     </view>
-    <view class="weight" v-if="['6', '7', '8'].includes(info.Weightedstatus)">
-      <view class="label" v-if="info.WeightEnt"
-        >毛重 {{ info.WeightEnt.SecondWeight || "" }} 吨</view
-      >
-      <view class="value" v-if="info.WeightEnt"
-        >测量于
-        {{
-          info.WeightEnt.SecondTime
-            ? dayjs(info.WeightEnt.SecondTime).format("MM/DD HH:mm")
-            : ""
-        }}</view
-      >
-    </view>
-  </view>
-  <!-- end -->
-  <!-- 卸货说明 -->
-  <view class="remark" v-if="info.UnloadMemo">
-    <view class="title">卸货说明</view>
-    <view class="content">{{ info.UnloadMemo }}</view>
-  </view>
-  <!-- 运单详情 -->
-  <view class="remark" v-if="info.AssignMemo">
-    <view class="title">运单备注</view>
-    <view class="content">{{ info.AssignMemo }}</view>
-  </view>
-  <view class="order-info">
-    <view class="title">运单详情</view>
-    <view class="item">
-      <view class="label">运单号</view>
-      <view class="value">{{ info.OnwayNo }}</view>
-    </view>
-    <view class="item">
-      <view class="label">接单时间</view>
-      <view class="value">{{ info.Creatortime }}</view>
-    </view>
-    <view class="item" v-if="['8'].includes(info.Weightedstatus)">
-      <view class="label">完成时间</view>
-      <view class="value">{{ info.LastModifyTime }}</view>
-    </view>
-    <view class="item" v-else-if="['9'].includes(info.Weightedstatus)">
-      <view class="label">取消时间</view>
-      <view class="value">{{ info.LastModifyTime }}</view>
-    </view>
-  </view>
-  <!-- end -->
+    <!-- end -->
 
-  <view
-    class="page-footer"
-    v-if="
-      ['0', '1', '2', '3', '4', '5', '6', '7'].includes(info.Weightedstatus)
-    "
-  >
-    <view class="btns" v-if="['0'].includes(info.Weightedstatus)">
-      <view class="left">
-        <uv-button
-          text="取消运单"
-          color="var(--page-bg)"
-          :custom-style="{
-            height: '96rpx',
-            borderRadius: '16rpx',
-            color: 'var(--sub-color)',
-          }"
-          @click="cancelBill"
-        ></uv-button>
+    <view
+      class="page-footer"
+      v-if="
+        ['0', '1', '2', '3', '4', '5', '6', '7'].includes(info.Weightedstatus)
+      "
+    >
+      <view class="btns" v-if="['0'].includes(info.Weightedstatus)">
+        <template v-if="info.NeedSignFac === '1'">
+          <view class="left">
+            <uv-button
+              text="取消运单"
+              color="var(--page-bg)"
+              :custom-style="{
+                height: '96rpx',
+                borderRadius: '16rpx',
+                color: 'var(--sub-color)',
+              }"
+              @click="cancelBill"
+            ></uv-button>
+          </view>
+          <view class="right">
+            <uv-button
+              text="已到达装货厂家"
+              color=" linear-gradient( 270deg, #31CE57 0%, #07B130 100%)"
+              :custom-style="{ height: '96rpx', borderRadius: '16rpx' }"
+              @click="confirmArrive"
+            ></uv-button>
+          </view>
+        </template>
+        <template v-else>
+          <uv-button
+            text="取消运单"
+            color="var(--page-bg)"
+            :custom-style="{
+              width: '100%',
+              height: '96rpx',
+              borderRadius: '16rpx',
+              color: 'var(--sub-color)',
+            }"
+            @click="cancelBill"
+          ></uv-button>
+        </template>
       </view>
-      <view class="right">
-        <uv-button
-          text="已到达装货厂家"
-          color=" linear-gradient( 270deg, #31CE57 0%, #07B130 100%)"
-          :custom-style="{ height: '96rpx', borderRadius: '16rpx' }"
-          @click="confirmArrive"
-        ></uv-button>
+      <view class="btns" v-if="['1'].includes(info.Weightedstatus)">
+        <view class="left">
+          <uv-button
+            text="取消运单"
+            color="var(--page-bg)"
+            :custom-style="{
+              height: '96rpx',
+              borderRadius: '16rpx',
+              color: 'var(--sub-color)',
+            }"
+            @click="cancelBill"
+          ></uv-button>
+        </view>
+        <view class="right">
+          <div style="font-size: 14px; color: #fff" v-if="isOver">即将入厂</div>
+          <div
+            v-else
+            style="
+              height: 96rpx;
+              flex: 1;
+              background-color: #b0becc;
+              border-radius: 16rpx;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #fff;
+              font-size: 14px;
+            "
+          >
+            预计
+            <uv-count-down
+              :time="time"
+              format="HH:mm:ss"
+              :customStyle="{ margin: '0 4px' }"
+            />
+            后可入厂
+          </div>
+        </view>
       </view>
-    </view>
-    <view class="btns" v-if="['1'].includes(info.Weightedstatus)">
-      <view class="left">
-        <uv-button
-          text="取消运单"
-          color="var(--page-bg)"
-          :custom-style="{
-            height: '96rpx',
-            borderRadius: '16rpx',
-            color: 'var(--sub-color)',
-          }"
-          @click="cancelBill"
-        ></uv-button>
-      </view>
-      <view class="right">
-        <div style="font-size: 14px; color: #fff" v-if="isOver">即将入厂</div>
-        <div
-          v-else
-          style="
-            height: 96rpx;
-            flex: 1;
-            background-color: #b0becc;
-            border-radius: 16rpx;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 14px;
-          "
-        >
-          预计
-          <uv-count-down
-            :time="time"
-            format="HH:mm:ss"
-            :customStyle="{ margin: '0 4px' }"
-          />
-          后可入厂
-        </div>
-      </view>
-    </view>
-    <view class="btns" v-if="['2', '5', '6'].includes(info.Weightedstatus)">
-      <uv-button
-        text="呼叫厂家"
-        color="var(--page-bg)"
-        :custom-style="{
-          height: '96rpx',
-          width: '100%',
-          borderRadius: '16rpx',
-          color: 'var(--sub-color)',
-        }"
-        @click="takePhone2"
-      ></uv-button>
-    </view>
-    <view class="btns" v-if="['3'].includes(info.Weightedstatus)">
-      <view class="left">
+      <view class="btns" v-if="['2', '5', '6'].includes(info.Weightedstatus)">
         <uv-button
           text="呼叫厂家"
           color="var(--page-bg)"
           :custom-style="{
             height: '96rpx',
+            width: '100%',
             borderRadius: '16rpx',
             color: 'var(--sub-color)',
           }"
           @click="takePhone2"
         ></uv-button>
       </view>
-      <view class="right">
-        <div style="font-size: 14px; color: #fff" v-if="isOver">即将装货</div>
-        <div
-          v-else
-          style="
-            height: 96rpx;
-            flex: 1;
-            background-color: #b0becc;
-            border-radius: 16rpx;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 14px;
-          "
-        >
-          预计
-          <uv-count-down
-            :time="time"
-            format="HH:mm:ss"
-            :customStyle="{ margin: '0 4px' }"
-          />
-          后可装货
-        </div>
+      <view class="btns" v-if="['3'].includes(info.Weightedstatus)">
+        <view class="left">
+          <uv-button
+            text="呼叫厂家"
+            color="var(--page-bg)"
+            :custom-style="{
+              height: '96rpx',
+              borderRadius: '16rpx',
+              color: 'var(--sub-color)',
+            }"
+            @click="takePhone2"
+          ></uv-button>
+        </view>
+        <view class="right">
+          <div style="font-size: 14px; color: #fff" v-if="isOver">即将装货</div>
+          <div
+            v-else
+            style="
+              height: 96rpx;
+              flex: 1;
+              background-color: #b0becc;
+              border-radius: 16rpx;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #fff;
+              font-size: 14px;
+            "
+          >
+            预计
+            <uv-count-down
+              :time="time"
+              format="HH:mm:ss"
+              :customStyle="{ margin: '0 4px' }"
+            />
+            后可装货
+          </div>
+        </view>
       </view>
-    </view>
-    <view class="btns" v-if="['4'].includes(info.Weightedstatus)">
-      <view class="left">
+      <view class="btns" v-if="['4'].includes(info.Weightedstatus)">
+        <view class="left">
+          <uv-button
+            text="呼叫厂家"
+            color="var(--page-bg)"
+            :custom-style="{
+              height: '96rpx',
+              borderRadius: '16rpx',
+              color: 'var(--sub-color)',
+            }"
+            @click="takePhone2"
+          ></uv-button>
+        </view>
+        <view class="right">
+          <uv-button
+            text="开始装车"
+            color=" linear-gradient( 270deg, #31CE57 0%, #07B130 100%)"
+            :custom-style="{ height: '96rpx', borderRadius: '16rpx' }"
+          ></uv-button>
+        </view>
+      </view>
+      <view class="btns" v-if="['7'].includes(info.Weightedstatus)">
         <uv-button
-          text="呼叫厂家"
-          color="var(--page-bg)"
+          :loading="loading"
+          text="确认卸货"
+          color=" linear-gradient( 270deg, #31CE57 0%, #07B130 100%)"
           :custom-style="{
             height: '96rpx',
+            width: '100%',
             borderRadius: '16rpx',
-            color: 'var(--sub-color)',
           }"
-          @click="takePhone2"
-        ></uv-button>
-      </view>
-      <view class="right">
-        <uv-button
-          text="开始装车"
-          color=" linear-gradient( 270deg, #31CE57 0%, #07B130 100%)"
-          :custom-style="{ height: '96rpx', borderRadius: '16rpx' }"
+          @click="confirmUnload"
         ></uv-button>
       </view>
     </view>
-    <view class="btns" v-if="['7'].includes(info.Weightedstatus)">
-      <uv-button
-        :loading="loading"
-        text="确认卸货"
-        color=" linear-gradient( 270deg, #31CE57 0%, #07B130 100%)"
-        :custom-style="{
-          height: '96rpx',
-          width: '100%',
-          borderRadius: '16rpx',
-        }"
-        @click="confirmUnload"
-      ></uv-button>
-    </view>
+  </template>
+  <view v-else style="height: 100vh">
+    <my-empty img="/static/images/empty/loading.gif" text="加载中" />
   </view>
   <!-- 地图 -->
   <MapDrawer ref="mapModal" />
@@ -712,7 +661,7 @@ function onSuccess() {
 
 <style lang="scss">
 page {
-  padding: 0 24rpx 140rpx;
+  padding: 0 24rpx 200rpx;
 }
 
 .page-bg {
@@ -823,12 +772,12 @@ page {
     font-weight: bold;
     font-size: 30rpx;
     color: var(--title-color);
+    margin-bottom: 16rpx;
   }
   .content {
     font-weight: 400;
     font-size: 26rpx;
     color: #73838e;
-    line-height: 48rpx;
   }
 }
 .bangdan {
@@ -836,11 +785,11 @@ page {
   align-items: center;
   justify-content: space-between;
   color: var(--title-color);
-  line-height: 48rpx;
 
   .name {
     font-weight: bold;
     font-size: 30rpx;
+    margin-bottom: 16rpx;
   }
 
   .no {
@@ -853,11 +802,11 @@ page {
   align-items: center;
   justify-content: space-between;
   color: var(--title-color);
-  line-height: 48rpx;
 
   .name {
     font-weight: bold;
     font-size: 30rpx;
+    margin-bottom: 16rpx;
   }
 
   .person {
@@ -896,14 +845,16 @@ page {
     }
   }
   .weight {
-    font-weight: bold;
     padding: 32rpx 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-size: 26rpx;
-    color: var(--content-color);
+    color: var(--sub-color);
     line-height: 48rpx;
+    .num {
+      font-weight: bold;
+    }
   }
 }
 .remark {
@@ -923,29 +874,15 @@ page {
   }
 }
 .order-info {
+  padding: 0 28rpx;
+  border-radius: 24rpx;
+  background-color: #ffffff;
   line-height: 40rpx;
-  .title {
-    font-weight: bold;
-    font-size: 30rpx;
-    color: var(--title-color);
-    margin-bottom: 16rpx;
-  }
   .item {
-    padding: 0;
+    padding: 32rpx 0;
     font-size: 26rpx;
     display: flex;
-    &:not(:last-child) {
-      margin-bottom: 16rpx;
-    }
-    .label {
-      min-width: 130rpx;
-      margin-right: 24rpx;
-      color: var(--sub-color);
-    }
-    .value {
-      flex: 1;
-      color: var(--title-color);
-    }
+    border-radius: 0;
   }
 }
 
@@ -958,7 +895,7 @@ page {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32rpx 28rpx;
+  padding: 32rpx;
   background: #ffffff;
   border-radius: 24rpx 24rpx 24rpx 24rpx;
   font-weight: 400;

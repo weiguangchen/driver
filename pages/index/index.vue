@@ -202,8 +202,8 @@
   </view>
   <view class="bill-list" v-else>
     <view class="title-wrapper">
-      <view v-if="assignList.filter((m) => m._isShow).length > 0" class="title"
-        >当前存在 <text class="total">{{ assignCnt }}</text> 项运输任务</view
+      <view v-if="list.filter((m) => m._isShow).length > 0" class="title"
+        >当前存在 <text class="total">{{ total }}</text> 项运输任务</view
       >
       <view v-else />
       <SelectCargo
@@ -213,14 +213,14 @@
         @change="changeCargo"
       />
     </view>
-    <template v-if="assignList.filter((m) => m._isShow).length > 0">
+    <template v-if="list.filter((m) => m._isShow).length > 0">
       <Item
-        v-for="(item, index) in assignList.filter((m) => m._isShow)"
+        v-for="(item, index) in list.filter((m) => m._isShow)"
         :record="item"
         :key="item.Id"
       />
       <uv-load-more
-        :status="noMore ? 'nomore' : loading ? 'loading' : 'loadmore'"
+        :status="!HasNextPage ? 'nomore' : loading ? 'loading' : 'loadmore'"
       />
     </template>
     <view style="padding-top: 92rpx" v-else>
@@ -232,7 +232,7 @@
       <my-empty
         v-else
         img="/static/images/empty/clock.png"
-        text="没有可接单的运输任务"
+        text="暂无可接任务"
       />
     </view>
   </view>
@@ -357,7 +357,7 @@ onPullDownRefresh(async () => {
     await userStore.getCarList();
     await getCurrentCarnoCargoOptions();
     await getProcess();
-    await fetchData(true);
+    await getList(true);
   } finally {
     uni.stopPullDownRefresh();
   }
@@ -539,7 +539,7 @@ watch(
         currentCarnoCargoOptions.value = [];
         await getCurrentCarnoCargoOptions();
       } catch {}
-      await fetchData(true);
+      await getList(true);
     } else {
       console.log("不需重新获取");
     }
@@ -550,32 +550,53 @@ watch(
 );
 async function changeCargo(item) {
   try {
-    await fetchData(true);
+    getList(true);
   } finally {
   }
 }
 
 // 首页运单
-const listParams = computed(() => ({
-  ownerId: ownerId.value,
-  latitude: locationStore.location ? locationStore.location.latitude : "",
-  longitude: locationStore.location ? locationStore.location.longitude : "",
-}));
-const {
-  list: assignList,
-  loading,
-  noMore,
-  total: assignCnt,
-  fetchData,
-} = useList({
-  api: GetReceiveAssignList,
-  totalField: "assignCnt",
-  listField: "assignList",
-  params: listParams,
-});
+const list = ref([]);
+const total = ref(0);
+const loading = ref(false);
+const HasNextPage = ref(true);
+const pageSize = 10;
+let lastCursor = "";
+
+async function getList(refresh = false) {
+  if (!refresh && !unref(HasNextPage)) {
+    return;
+  }
+  if (unref(loading)) {
+    return;
+  }
+  loading.value = true;
+  try {
+    const params = {
+      ownerId: unref(ownerId),
+      latitude: locationStore.location ? locationStore.location.latitude : "",
+      longitude: locationStore.location ? locationStore.location.longitude : "",
+      lastCursor: refresh ? "" : lastCursor,
+      pageSize,
+    };
+    const res = await GetReceiveAssignList(params);
+    const newList = res.assignList?.map((m) => ({
+      ...m,
+      _isShow: true,
+    }));
+    list.value = refresh ? newList : [...list.value, ...newList];
+    total.value = res.assignCnt;
+    HasNextPage.value = res.HasNextPage;
+    lastCursor = res.NextCursor;
+  } catch {
+  } finally {
+    loading.value = false;
+  }
+}
+
 //上拉加载
 onReachBottom(() => {
-  fetchData();
+  getList();
 });
 
 // 定义列表操作
@@ -588,7 +609,7 @@ const handleMap = {
 // 从前端缓存中隐藏数据
 function hideItem(record) {
   // assignCnt.value--;
-  assignList.value = assignList.value.map((item) => {
+  list.value = list.value.map((item) => {
     if (item.Id === record.Id) {
       item._isShow = false;
     }
@@ -731,7 +752,6 @@ page {
         font-weight: bold;
         font-size: 28rpx;
         color: var(--main-color);
-        line-height: 36rpx;
       }
     }
     .placeholder {
