@@ -19,7 +19,7 @@
               ? '#B0BECC'
               : 'linear-gradient( 270deg, #31CE57 0%, #07B130 100%)'
           "
-          :text="disabled ? '不可接' : '接单'"
+          :text="buttonText"
           :custom-style="{
             height: '68rpx',
             width: '168rpx',
@@ -151,7 +151,7 @@ export default {
 };
 </script>
 <script setup>
-import { computed, nextTick, reactive, ref, watchEffect } from "vue";
+import { computed, nextTick, reactive, ref, unref, watchEffect } from "vue";
 import { sleep } from "@/utils/index.js";
 import Big from "big.js";
 import { DriverMakeOnway } from "@/api/index.js";
@@ -176,6 +176,13 @@ const disabled = computed(() => {
     ["0", "2"].includes(props.bill.EntryAuthened) ||
     (props.bill.EntryAuthened === "1" && props.record.ReceiveAble === "0")
   );
+});
+
+// 按钮文字
+const buttonText = computed(() => {
+  if (unref(disabled)) return "不可接";
+  if (props.record.ReceiveAble === "1") return "可接";
+  if (props.record.ReceiveAble === "2") return "入场码";
 });
 
 const emits = defineEmits(["confirm"]);
@@ -224,6 +231,19 @@ const Suttle = computed(() => {
 const drawer = ref();
 
 function openDrawer() {
+  if (props.record.ReceiveAble === "2") {
+    uni.navigateTo({
+      url: `/pages/admissionCode/admissionCode`,
+      success: function (res) {
+        // 通过eventChannel向被打开页面传送数据
+        res.eventChannel.emit("admissionCodeData", {
+          mat: props.record,
+          info: props.bill,
+        });
+      },
+    });
+    return;
+  }
   drawer.value.popup.open();
 }
 function change(val) {

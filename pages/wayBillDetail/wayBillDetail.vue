@@ -68,6 +68,7 @@
         </view>
       </view>
     </view>
+    <!-- end -->
     <!-- 物料 -->
     <view class="material">
       <view class="title">{{ info.MaterialName }}</view>
@@ -122,12 +123,15 @@
     <!-- end -->
     <!-- 车 -->
     <view class="bill-car">
-      <view class="info-wrapper my-border-bottom">
+      <view
+        class="info-wrapper"
+        :class="{
+          'my-border-bottom': info.WeightEnt && info.WeightEnt.FirstWeight,
+        }"
+      >
         <view class="info">
-          <my-plate :mode="2" :plate="info.Carno" :color="info.CarColor" /><text
-            class="type"
-            >{{ info.CarType }}</text
-          >
+          <my-plate :mode="2" :plate="info.Carno" :color="info.CarColor" />
+          <text class="type">{{ info.CarType }}</text>
         </view>
         <view class="person" v-if="info.DriverEnt">
           <text class="user">{{

@@ -67,7 +67,8 @@
             "scope.userLocation" : {
                 "desc" : "便于司机更好的查看装/卸货地信息"
             }
-        }
+        },
+        "mergeVirtualHostAttributes" : true
     },
     "mp-alipay" : {
         "usingComponents" : true

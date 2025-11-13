@@ -16,50 +16,71 @@
     </view>
     <!-- end -->
     <!-- 地址 -->
-    <view class="location-wrapper">
-      <view class="from-wrapper" @click="openMapModal(1)" v-if="info.SupEnt">
-        <view class="icon">装</view>
-        <view class="content-box my-border-bottom">
-          <view class="info" @click="selectAddress">
-            <view class="name uv-line-1">{{
-              info.SupEnt ? info.SupEnt.Name : ""
-            }}</view>
-            <view class="address uv-line-1"
-              >{{ info.SupEnt ? info.SupEnt.City : ""
-              }}{{ info.SupEnt ? info.SupEnt.District : ""
-              }}{{ info.SupEnt ? info.SupEnt.Address : "" }}</view
-            >
+    <view class="location-container">
+      <view class="location-wrapper">
+        <view class="from-wrapper" @click="openMapModal(1)" v-if="info.SupEnt">
+          <view class="icon">装</view>
+          <view class="content-box my-border-bottom">
+            <view class="info" @click="selectAddress">
+              <view class="name uv-line-1">{{
+                info.SupEnt ? info.SupEnt.Name : ""
+              }}</view>
+              <view class="address uv-line-1"
+                >{{ info.SupEnt ? info.SupEnt.City : ""
+                }}{{ info.SupEnt ? info.SupEnt.District : ""
+                }}{{ info.SupEnt ? info.SupEnt.Address : "" }}</view
+              >
+            </view>
+            <uv-image
+              src="/static/images/arrow.png"
+              :duration="0"
+              width="24rpx"
+              height="24rpx"
+            />
           </view>
-          <uv-image
-            src="/static/images/arrow.png"
-            :duration="0"
-            width="24rpx"
-            height="24rpx"
-          />
+        </view>
+        <view class="to-wrapper" @click="openMapModal(2)" v-if="info.UnloadEnt">
+          <view class="icon">卸</view>
+          <view class="content-box">
+            <view class="info" @click="selectAddress">
+              <view class="name uv-line-1">{{
+                info.UnloadEnt ? info.UnloadEnt.PlaceName : ""
+              }}</view>
+              <view class="address uv-line-1"
+                >{{ info.UnloadEnt ? info.UnloadEnt.City : ""
+                }}{{ info.UnloadEnt ? info.UnloadEnt.District : ""
+                }}{{ info.UnloadEnt ? info.UnloadEnt.Address : "" }}</view
+              >
+            </view>
+            <uv-image
+              src="/static/images/arrow.png"
+              :duration="0"
+              width="24rpx"
+              height="24rpx"
+            />
+          </view>
         </view>
       </view>
-      <view class="to-wrapper" @click="openMapModal(2)" v-if="info.UnloadEnt">
-        <view class="icon">卸</view>
-        <view class="content-box">
-          <view class="info" @click="selectAddress">
-            <view class="name uv-line-1">{{
-              info.UnloadEnt ? info.UnloadEnt.PlaceName : ""
-            }}</view>
-            <view class="address uv-line-1"
-              >{{ info.UnloadEnt ? info.UnloadEnt.City : ""
-              }}{{ info.UnloadEnt ? info.UnloadEnt.District : ""
-              }}{{ info.UnloadEnt ? info.UnloadEnt.Address : "" }}</view
-            >
-          </view>
-          <uv-image
-            src="/static/images/arrow.png"
-            :duration="0"
-            width="24rpx"
-            height="24rpx"
-          />
-        </view>
+      <view class="no-wifi" v-if="info.PromptType == '1'">
+        <uv-icon
+          name="/static/images/billDetail/no_wifi.png"
+          width="36rpx"
+          height="36rpx"
+        />
+        <view class="uv-line-1" style="margin-left: 24rpx">{{
+          info.PromptContent
+        }}</view>
       </view>
     </view>
+    <!-- end -->
+    <!-- 通知 -->
+    <my-notice-bar
+      v-if="info.DriverAnnouncement"
+      marginBottom="20rpx"
+      :text="info.DriverAnnouncement"
+      @tap="handleNotice"
+    />
+    <!-- end -->
     <!-- 物料 -->
     <view class="materials" v-if="info.MatList && info.MatList.length > 0">
       <Material
@@ -124,7 +145,7 @@
     <!-- end -->
     <!-- 车 -->
     <view class="bill-car">
-      <view class="info-wrapper my-border-bottom" v-if="info.CarEnt">
+      <view class="info-wrapper" v-if="info.CarEnt">
         <view class="info">
           <my-plate
             :mode="2"
@@ -207,6 +228,8 @@
   <StepDrawer ref="stepModal" />
   <!-- 结果 -->
   <my-result-drawer ref="resultModal" />
+  <!-- 通知 -->
+  <NoticeModal ref="noticeModal" :text="info.DriverAnnouncement" />
 </template>
 
 <script setup>
@@ -221,12 +244,13 @@ import { getStorage } from "@/utils/storage.js";
 import Big from "big.js";
 import { formatDateTime, deFormatPhone } from "@/utils";
 import { useAppStore } from "@/stores/app.js";
+import NoticeModal from "./components/NoticeModal.vue";
 const appStore = useAppStore();
 
 const statusBarHeight = ref();
 const assignId = ref("");
 const supplyId = ref("");
-const resultModal = ref();
+
 onLoad((options) => {
   statusBarHeight.value = uni.getSystemInfoSync().statusBarHeight;
   assignId.value = options?.assignId ?? "";
@@ -304,12 +328,14 @@ async function getData() {
     console.log("info.value", info.value);
 
     isOpenResultModal();
+    isOpenNoticeModal();
   } catch {
   } finally {
   }
 }
 
 // 判断进入页面时是否弹窗
+const resultModal = ref();
 function isOpenResultModal() {
   if (info.value.EntryAuthened === "0") {
     resultModal.value.open({
@@ -356,13 +382,12 @@ function isOpenResultModal() {
       },
     });
   }
-
   if (info.value.EntryAuthened === "4") {
     resultModal.value.open({
       type: "warning",
       title: "当前车辆被占用",
       info: `${info.value.OtherDriverNickName}（${deFormatPhone(
-        15022485790
+        info.value.OtherDriverMoile
       )}）正在使用当前车辆`,
       confirmText: "呼叫 TA",
       confirmCallBack: () => {
@@ -373,6 +398,17 @@ function isOpenResultModal() {
       },
     });
   }
+}
+
+// 通知弹窗
+const noticeModal = ref();
+function isOpenNoticeModal() {
+  if (info.value.EntryAuthened === "1" && info.value.DriverAnnouncement) {
+    noticeModal.value.open();
+  }
+}
+function handleNotice() {
+  noticeModal.value.open();
 }
 
 const placeholderHeight = computed(() => `${statusBarHeight.value + 56}px`);
@@ -476,9 +512,29 @@ page {
   }
 }
 
-.location-wrapper {
-  padding: 0 24rpx;
+.location-container {
   margin: 0 0 20rpx;
+  overflow: hidden;
+  border-radius: 24rpx;
+  background-color: #ffffff;
+  border: 4rpx solid #ffffff;
+  .no-wifi {
+    position: relative;
+    margin-top: -10rpx;
+    height: 76rpx;
+    padding: 10rpx 24rpx 0;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 26rpx;
+    color: var(--red-color);
+    background-color: #fff0ee;
+  }
+}
+.location-wrapper {
+  position: relative;
+  z-index: 100;
+  padding: 0 24rpx;
   background: #ffffff;
   border-radius: 24rpx;
 

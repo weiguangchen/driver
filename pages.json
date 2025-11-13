@@ -103,6 +103,14 @@
     	{
     		"navigationBarTitleText" : "填写卸货说明"
     	}
+    },
+    {
+    	"path" : "pages/admissionCode/admissionCode",
+    	"style" : 
+    	{
+    		"navigationBarTitleText" : "车辆入厂码",
+			"backgroundColor": "#f2f4f7"
+    	}
     }
   ],
   //配置导航栏

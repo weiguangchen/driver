@@ -23,7 +23,7 @@
         "title": "司机端:测试环境",
         "env": {
           "UNI_PLATFORM": "mp-weixin",
-          "BASE_URL": "https://www.wwwxapp.cn:28063",
+          "BASE_URL": "https://www.wwwxapp.cn:28064",
           "TOKEN_KEY": "test-driver-token"
         }
       },
