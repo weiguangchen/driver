@@ -1,7 +1,6 @@
 page,
 view {
   box-sizing: border-box;
-  font-family: Avenir, misans !important;
   /* 主色 */
   --main-color: #31ce57;
   --light-main: #e7f9e9;
@@ -17,10 +16,16 @@ view {
   --intr-color: #a0afba;
   --divider: #e3e9ef;
   --page-bg: #f2f4f7;
+
+  // 安卓底部安全距离
+  --safe-bottom: 40rpx;
 }
 
 page {
   background-color: var(--page-bg);
+  font-family: misans400, -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-kerning: none;
 }
 
 .page-bg {
@@ -48,7 +53,7 @@ page {
   border-color: #e3e9ef !important;
 }
 .my-border-bottom {
-  border-bottom-width: 1rpx !important;
+  border-bottom-width: 1px !important;
   border-bottom-style: solid;
 }
 .my-border-top {
@@ -70,7 +75,7 @@ page {
   width: 100%;
   z-index: 2000;
   background-color: #fff;
-  padding: 16rpx 24rpx calc(var(--safe-area-inset-bottom) + 24rpx);
+  padding: 16rpx 24rpx max(var(--safe-area-inset-bottom), var(--safe-bottom));
   .btns {
     display: flex;
     .left {

@@ -11,17 +11,26 @@
       :overlayOpacity="overlayOpacity"
       :overlayStyle="overlayStyle"
       :closeOnClickOverlay="closeOnClickOverlay"
-      :closeable="closeable"
+      :closeable="false"
       :closeIconPos="closeIconPos"
       :round="round"
-      safeAreaInsetBottom
+      :safeAreaInsetBottom="false"
       @change="change"
       @close="close"
     >
       <view class="drawer-wrapper">
         <view class="title-wrapper" v-if="showTitle">
-          <slot name="title" v-if="$slots.title"></slot>
-          <template v-else>{{ title }}</template>
+          <view class="title">
+            <slot name="title" v-if="$slots.title"></slot>
+            <template v-else>{{ title }}</template>
+          </view>
+          <uv-icon
+            v-if="closeable"
+            name="/static/images/ui/closeable.png"
+            width="64rpx"
+            height="64rpx"
+            @click="handleClose"
+          />
         </view>
         <scroll-view
           scroll-y="true"
@@ -177,6 +186,10 @@ function closeLoading() {
   loading.value = false;
 }
 
+function handleClose() {
+  popup.value.close();
+}
+
 defineExpose({
   resize,
   popup,
@@ -186,10 +199,15 @@ defineExpose({
 
 <style lang="scss" scoped>
 .drawer-wrapper {
+  font-family: misans400, -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  font-kerning: none;
+  padding-bottom: max(var(--safe-area-inset-bottom), var(--safe-bottom));
   .title-wrapper {
     display: flex;
     align-items: center;
-    padding: 0 0 0 32rpx;
+    justify-content: space-between;
+    padding: 0 24rpx 0 32rpx;
     color: var(--title-color);
     font-size: 34rpx;
     font-weight: bold;

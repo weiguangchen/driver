@@ -63,7 +63,7 @@
           text="请登录"
           color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
           :custom-style="{ height: '72rpx', width: '268rpx' }"
-          :customTextStyle="{ fontSize: '28rpx' }"
+          :customTextStyle="{ fontSize: '28rpx', fontWeight: 'bold' }"
           @click="openLoginDrawer"
         />
       </view>
@@ -560,7 +560,7 @@ const list = ref([]);
 const total = ref(0);
 const loading = ref(false);
 const HasNextPage = ref(true);
-const pageSize = 10;
+const pageSize = 20;
 let lastCursor = "";
 
 async function getList(refresh = false) {
@@ -821,6 +821,8 @@ page {
       margin-right: 10rpx;
 
       .total {
+        font-family: misans500;
+        font-weight: normal;
         margin: 0 16rpx;
         color: var(--main-color);
       }

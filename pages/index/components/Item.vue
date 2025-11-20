@@ -48,7 +48,7 @@
       </view>
     </view>
     <view class="date">
-      <template v-if="record.StartTime">
+      <template v-if="record.StartTime && dayjs().isBefore(record.StartTime)">
         {{ formatDateTime(record.StartTime) }}
         后入厂，</template
       >
@@ -60,6 +60,7 @@
 
 <script setup>
 import { formatDateTime } from "@/utils";
+import dayjs from "dayjs";
 const props = defineProps({
   record: {
     default: () => {},

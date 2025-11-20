@@ -1,9 +1,11 @@
 <template>
   <uv-popup
     ref="popup"
-    :duration="0"
     :safeAreaInsetBottom="false"
     round="24rpx"
+    :customStyle="{
+      marginTop: '-25rpx',
+    }"
   >
     <view class="notice-modal">
       <view class="title">致来厂司机：</view>
@@ -23,6 +25,7 @@
           color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
           :customStyle="{
             height: '96rpx',
+            borderRadius: '16rpx',
           }"
           :customTextStyle="{
             fontWeight: 'bold',

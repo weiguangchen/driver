@@ -10,6 +10,7 @@
       :custom-style="{ minHeight: '100rpx' }"
       :closeOnClickOverlay="false"
       :z-index="100760"
+      :safeAreaInsetBottom="false"
       @confirm="confirm"
     >
       <view class="result-drawer-content">
@@ -48,7 +49,10 @@
                 borderRadius: '16rpx',
                 background: ' #F2F4F7',
               }"
-              :custom-text-style="{ fontSize: '30rpx' }"
+              :custom-text-style="{
+                fontSize: '30rpx',
+                fontFamily: 'misans500',
+              }"
             />
           </view>
           <view
@@ -63,7 +67,10 @@
                 height: '96rpx',
                 borderRadius: '16rpx',
               }"
-              :custom-text-style="{ fontSize: '30rpx' }"
+              :custom-text-style="{
+                fontSize: '30rpx',
+                fontFamily: 'misans500',
+              }"
               @click="confirm"
             />
           </view>
@@ -122,9 +129,12 @@ defineExpose({
   flex-direction: column;
   justify-content: space-between;
   position: relative;
-  height: 464rpx;
   text-align: center;
-  padding: 196rpx 24rpx 0;
+  padding: 196rpx 24rpx max(var(--safe-area-inset-bottom), var(--safe-bottom));
+
+  .result-drawer-content-wrapper {
+    padding-bottom: 64rpx;
+  }
   .result-drawer-content-img {
     position: absolute;
     top: -128rpx;
@@ -132,6 +142,9 @@ defineExpose({
     transform: translateX(-50%);
   }
   .result-drawer-content-title {
+    font-family: misans600, -apple-system, BlinkMacSystemFont, "PingFang SC",
+      "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    font-kerning: none;
     font-weight: 600;
     font-size: 38rpx;
     color: #1a1b1c;
@@ -139,17 +152,21 @@ defineExpose({
     margin-bottom: 4rpx;
   }
   .result-drawer-content-info {
+    font-family: misans400, -apple-system, BlinkMacSystemFont, "PingFang SC",
+      "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    font-kerning: none;
     font-weight: 400;
     font-size: 28rpx;
     color: #73838e;
     line-height: 48rpx;
   }
-}
-.result-drawer-footer {
-  display: flex;
-  justify-content: space-between;
-  .result-drawer-footer-btn {
-    flex: 1;
+
+  .result-drawer-footer {
+    display: flex;
+    justify-content: space-between;
+    .result-drawer-footer-btn {
+      flex: 1;
+    }
   }
 }
 </style>

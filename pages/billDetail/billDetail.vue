@@ -132,11 +132,11 @@
             width: '168rpx',
             height: '68rpx',
             color: 'var(--main-color)',
-            fontWeight: 'bold',
             padding: '10rpx 14rpx',
           }"
           :custom-text-style="{
             fontSize: '26rpx',
+            fontWeight: 'bold',
           }"
           @click="takePhone"
         />
@@ -179,11 +179,11 @@
     </view>
     <!-- 派单时间 -->
     <view class="item-list">
-      <view class="item uv-border-bottom">
+      <view class="item my-border-bottom">
         <view class="label">货主派车时间</view>
         <view class="value">{{ info.CreatorTime }}</view>
       </view>
-      <view class="item uv-border-bottom">
+      <view class="item my-border-bottom" v-if="info.EndTime">
         <view class="label">停止接单时间</view>
         <view class="value">{{ info.EndTime }}</view>
       </view>
@@ -487,7 +487,7 @@ function confirm() {
 
 <style lang="scss">
 page {
-  padding: 0 24rpx;
+  padding: 0 24rpx max(var(--safe-area-inset-bottom) + var(--safe-bottom));
 }
 
 .page-bg {
@@ -521,7 +521,7 @@ page {
   .no-wifi {
     position: relative;
     margin-top: -10rpx;
-    height: 76rpx;
+    height: 86rpx;
     padding: 10rpx 24rpx 0;
     display: flex;
     align-items: center;

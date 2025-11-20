@@ -1,12 +1,11 @@
 <template>
-  <view @click="showDrawer" class="cargo">
+  <view @click="showDrawer" class="cargo" v-if="text">
     <view class="uv-line-1">{{ text }}</view>
-    <uv-image
-      src="/static/images/all.png"
+    <uv-icon
+      name="/static/images/all.png"
       width="24rpx"
       height="24rpx"
       :custom-style="{ marginLeft: '4rpx', flex: 'none' }"
-      :duration="0"
     />
   </view>
 

@@ -29,8 +29,8 @@
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: '26rpx',
-            fontWeight: 'bold',
             height: '100%',
+            fontWeight: 'bold',
           }"
           @click="openDrawer"
         ></uv-button>
@@ -42,7 +42,7 @@
     title="设置预计装运量"
     ref="drawer"
     showConfirmButton
-    confirmText="确认接单"
+    :confirmText="`确认接单${bill.StatusRemark}`"
     bgColor="#FFFFFF"
     asyncClose
     @confirm="confirm"
@@ -52,7 +52,7 @@
         <uv-form-item
           prop="FullLoad"
           :customStyle="{ padding: '28rpx 0' }"
-          v-if="bill.ConfigEnt.fullLoad === '2'"
+          v-if="bill.ConfigEnt && bill.ConfigEnt.fullLoad === '2'"
         >
           <template #label>
             <view class="main-title">满载拉运</view>
@@ -181,8 +181,8 @@ const disabled = computed(() => {
 // 按钮文字
 const buttonText = computed(() => {
   if (unref(disabled)) return "不可接";
-  if (props.record.ReceiveAble === "1") return "可接";
-  if (props.record.ReceiveAble === "2") return "入场码";
+  if (props.record.ReceiveAble === "1") return "接单";
+  if (props.record.ReceiveAble === "2") return "入厂码";
 });
 
 const emits = defineEmits(["confirm"]);

@@ -63,13 +63,12 @@ watchEffect(() => {
   font-weight: bold;
 
   .inner {
-    font-family: misans;
+    font-family: misans500;
     flex: 1;
     display: flex;
     border-radius: 10rpx;
     overflow: hidden;
     border: 2rpx solid var(--title-color);
-    font-size: 0;
 
     .left {
       padding: 0 10rpx;
@@ -132,8 +131,6 @@ watchEffect(() => {
     .left,
     .right {
       font-size: 38rpx;
-      line-height: 1;
-      padding-top: 6rpx;
     }
   }
   &.mode_2 {
