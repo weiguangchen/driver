@@ -48,7 +48,7 @@ export default {
     // 没有更多的提示语
     nomoreText: {
       type: String,
-      default: "— 没有更多了 —",
+      default: "- 没有更多了 -",
     },
     // 在“没有更多”状态下，是否显示粗点
     isDot: {
