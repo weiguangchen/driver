@@ -1,7 +1,7 @@
 <template>
   <view
     class="select-material"
-    :class="{ 'uv-border-bottom': borderBottom, 'has-border': borderBottom }"
+    :class="{ 'my-border-bottom': borderBottom, 'has-border': borderBottom }"
   >
     <view class="left">
       <view class="name">{{ record.MaterialName }}</view>
@@ -42,10 +42,7 @@
     title="设置预计装运量"
     ref="drawer"
     showConfirmButton
-    :confirmText="`确认接单${bill.StatusRemark}`"
     bgColor="#FFFFFF"
-    asyncClose
-    @confirm="confirm"
   >
     <view class="select-material-form-wrapper">
       <uv-form labelPosition="left" :model="model" :rules="rules" ref="form">
@@ -141,6 +138,23 @@
         {{ record.Unit }}，结算请以实际装运为准</view
       >
     </view>
+
+    <template #footer>
+      <uv-button
+        color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
+        :loading="loading"
+        :custom-style="{
+          borderRadius: '16rpx',
+          height: '96rpx',
+          fontWeight: 'bold',
+          fontSize: '30rpx',
+        }"
+        @click="confirm"
+      >
+        确认接单
+        <rich-text :nodes="bill.StatusRemark" />
+      </uv-button>
+    </template>
   </my-drawer>
 </template>
 <script>
@@ -250,8 +264,10 @@ function change(val) {
   console.log("val", val);
 }
 
+const loading = ref(false);
 async function confirm() {
   await uni.hideKeyboard();
+  loading.value = true;
   await sleep(200);
   try {
     // console.log("model", model);
@@ -263,6 +279,8 @@ async function confirm() {
       DriverId: tokenData?.userInfo?.Id,
       Material: props.record.Material,
       MaterialName: props.record.MaterialName,
+      MaterialInternalName: props.record.MaterialInternalName,
+      Unit: props.record.Unit,
       FullLoad: model.FullLoad,
       Load: model.Load,
       LoadType: model.LoadType,
@@ -281,7 +299,8 @@ async function confirm() {
       title: err?.data,
       icon: "none",
     });
-    drawer.value.closeLoading();
+    loading.value = false;
+  } finally {
   }
 }
 </script>
@@ -307,7 +326,6 @@ async function confirm() {
       color: var(--content-color);
       .num {
         font-weight: 600;
-        margin: 0 10rpx;
       }
     }
   }

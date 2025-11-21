@@ -191,18 +191,18 @@
       <view class="content">{{ info.AssignMemo }}</view>
     </view>
     <view class="order-info">
-      <view class="item uv-border-bottom">
+      <view class="item my-border-bottom">
         <view class="label">派车单号</view>
         <view class="value">{{ info.AssignCode }}</view>
       </view>
-      <view class="item uv-border-bottom">
+      <view class="item my-border-bottom">
         <view class="label">运单号</view>
         <view class="value">{{ info.OnwayNo }}</view>
       </view>
       <view
         class="item"
         :class="{
-          'uv-border-bottom': ['8', '9'].includes(info.Weightedstatus),
+          'my-border-bottom': ['8', '9'].includes(info.Weightedstatus),
         }"
       >
         <view class="label">接单时间</view>

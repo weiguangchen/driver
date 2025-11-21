@@ -48,9 +48,8 @@
       </view>
     </view>
     <view class="date">
-      <template v-if="record.StartTime && dayjs().isBefore(record.StartTime)">
-        {{ formatDateTime(record.StartTime) }}
-        后入厂，</template
+      <template v-if="record.StartTime && dayjs().isBefore(record.StartTime)"
+        >需在 {{ formatDateTime(record.StartTime) }} 后入厂，</template
       >
       <text class="label">发布于</text>
       <text>{{ formatDateTime(record.CreatorTime) }}</text>

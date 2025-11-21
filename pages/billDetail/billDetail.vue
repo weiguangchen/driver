@@ -475,7 +475,6 @@ function confirm() {
     info: "可在「运单」中查看装运进度",
     confirmText: "查看运单",
     confirmCallBack: () => {
-      uni.$emit("index:confirm", info.value);
       uni.$emit("waybill:reload");
       uni.switchTab({
         url: "/pages/waybill/waybill",
@@ -509,6 +508,9 @@ page {
     font-size: 28rpx;
     color: #ffffff;
     line-height: 48rpx;
+    .num {
+      font-weight: 600;
+    }
   }
 }
 
