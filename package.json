@@ -39,7 +39,7 @@
         "title": "司机端:生产环境",
         "env": {
           "UNI_PLATFORM": "mp-weixin",
-          "BASE_URL": "https://www.wwwxapp.cn:28066",
+          "BASE_URL": "https://www.wwwxapp.cn:28063",
           "TOKEN_KEY": "driver-token"
         }
       },
@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "big.js": "^6.2.2",
-    "dayjs": "^1.11.11"
+    "dayjs": "^1.11.11",
+    "js-base64": "^3.7.8"
   }
 }

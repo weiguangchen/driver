@@ -1,3 +1,5 @@
+import { Base64 } from "js-base64";
+
 export function sleep(time = 2000) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -58,4 +60,8 @@ export function formatNumberToThousand(value) {
 export function deFormatPhone(phoneNumber) {
   if (!phoneNumber) return "";
   return phoneNumber.toString().replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
+}
+
+export function strToBase64(str) {
+  return Base64.encode(str);
 }

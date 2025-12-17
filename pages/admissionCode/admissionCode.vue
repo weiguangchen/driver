@@ -48,17 +48,20 @@
 <script setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { ref, unref, computed, getCurrentInstance } from "vue";
+import { strToBase64 } from "@/utils/index.js";
 
 const info = ref({});
 const mat = ref({});
 const qrcode = ref();
 const params = computed(() => {
-  const coCo = `${unref(info)?.CarEnt?.Carno ?? ""},${
-    unref(info)?.DriverEnt?.Mobile ?? ""
-  },${unref(info)?.OwnerId ?? ""},${unref(info)?.Orderid ?? ""},${
-    unref(info)?.Id ?? ""
-  },${unref(info)?.AssignCode ?? ""},${unref(mat)?.Id ?? ""},${
-    unref(mat)?.Material ?? ""
+  const coCo = `${
+    unref(info)?.CarEnt?.Carno ? strToBase64(unref(info)?.CarEnt?.Carno) : ""
+  },${unref(info)?.DriverEnt?.Mobile ?? ""},${unref(info)?.OwnerId ?? ""},${
+    unref(info)?.Orderid ?? ""
+  },${unref(info)?.Id ?? ""},${unref(info)?.AssignCode ?? ""},${
+    unref(mat)?.Id ?? ""
+  },${unref(mat)?.Material ?? ""},${unref(info)?.EndTime ?? ""},${
+    unref(info)?.UnloadPlaceId ?? ""
   }`;
   const p = {
     htQRType: "offAcc",
@@ -79,7 +82,7 @@ const options = ref({
   size: 263,
   useDynamicSize: false,
   errorCorrectLevel: 0,
-  typeNumber: 9,
+  typeNumber: 10,
 });
 </script>
 
