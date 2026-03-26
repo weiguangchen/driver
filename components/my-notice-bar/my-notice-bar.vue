@@ -19,7 +19,7 @@
           }"
           v-if="isScroll"
         />
-        <text class="notice-text">{{ text }}</text>
+        <view class="notice-text">{{ text }}</view>
       </view>
     </view>
     <uv-icon name="/static/images/arrow.png" width="24rpx" height="24rpx" />
@@ -126,13 +126,20 @@ onReady(() => {
     // }
 
     .notice-text-wrapper {
-      word-break: keep-all;
-      white-space: nowrap;
+      // word-break: keep-all;
+      // white-space: nowrap;
+      display: flex;
+      align-items: center;
       animation: my-loop-animation 10s linear infinite both;
       .placeholder {
         display: inline-block;
         width: 100%;
         height: 1px;
+      }
+      .notice-text {
+        display: inline-block;
+        word-break: keep-all;
+        white-space: nowrap;
       }
     }
   }

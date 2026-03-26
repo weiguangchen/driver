@@ -88,6 +88,7 @@ defineExpose({
     margin-bottom: 40rpx;
     overflow: hidden;
     .notice-text {
+      white-space: pre-wrap;
       font-weight: 400;
       font-size: 30rpx;
       color: var(--content-color);

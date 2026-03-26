@@ -48,14 +48,13 @@
 <script setup>
 import { onLoad } from "@dcloudio/uni-app";
 import { ref, unref, computed, getCurrentInstance } from "vue";
-import { strToBase64 } from "@/utils/index.js";
 
 const info = ref({});
 const mat = ref({});
 const qrcode = ref();
 const params = computed(() => {
   const coCo = `${
-    unref(info)?.CarEnt?.Carno ? strToBase64(unref(info)?.CarEnt?.Carno) : ""
+    unref(info)?.CarEnt?.Carno ? unref(info)?.CarEnt?.Carno : ""
   },${unref(info)?.DriverEnt?.Mobile ?? ""},${unref(info)?.OwnerId ?? ""},${
     unref(info)?.Orderid ?? ""
   },${unref(info)?.Id ?? ""},${unref(info)?.AssignCode ?? ""},${
