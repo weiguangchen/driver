@@ -16,7 +16,7 @@
     :style="{ opacity: ratio }"
     v-if="defaultCar"
   >
-    <uv-navbar fixed @leftClick="leftClick" :border="false">
+    <uv-navbar leftIcon="" fixed @leftClick="leftClick" :border="false">
       <template #left></template>
       <template #center>
         <view
