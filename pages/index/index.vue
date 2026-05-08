@@ -303,7 +303,6 @@ onLoad(async () => {
   if (!getToken()) {
     return;
   }
-  console.log("onload handle");
   try {
     await getLocationInfo();
   } finally {
@@ -318,13 +317,11 @@ onShow(async () => {
   console.log("onShow");
   appStore.switchTab(0);
   if (!isInit.value) {
-    console.log("onShow is not init");
     return;
   }
   if (!getToken()) {
     return;
   }
-  console.log("onshow handle");
   await userStore.getCarList();
   await getProcess();
 });
@@ -335,7 +332,6 @@ async function getScrollPos() {
   await nextTick();
   // let navbarInfo = await ctx.$uv.getRect(".car-info");
   let navbarInfo = await ctx.$uv.getRect(".index-navbar");
-  console.log("navbarInfo", navbarInfo);
   navbarHeight.value = navbarInfo.bottom;
 }
 onPageScroll((e) => {

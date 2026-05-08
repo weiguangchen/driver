@@ -59,10 +59,12 @@
         "requiredPrivateInfos" : [
             "getLocation",
             "onLocationChange",
+            "startLocationUpdate",
             "startLocationUpdateBackground",
             "chooseAddress",
             "chooseLocation"
         ],
+        "requiredBackgroundModes" : [ "location" ],
         "permission" : {
             "scope.userLocation" : {
                 "desc" : "便于司机更好的查看装/卸货地信息"

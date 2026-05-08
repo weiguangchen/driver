@@ -58,11 +58,11 @@ const authList = {
  * @return {Boolean} 是有拥有权限
  */
 export const getWxSetting = (key) => {
-  if (typeof key === "string" && !authList[key]) return Promise.reject();
+  if (typeof key !== "string") return Promise.reject();
   return new Promise((resolve, reject) => {
     uni.getSetting({
       success: async (res) => {
-        // console.log('res', res)
+        console.log('getWxSetting res', key, res)
         var result = res.authSetting;
         // 用户拒绝过
         if (result[`scope.${key}`] === false || !result[`scope.${key}`]) {
@@ -137,7 +137,7 @@ export const getLocationInfo = async () => {
   // }
   function _getAuth() {
     return new Promise((resolve, reject) => {
-      getWxSetting("userLocation")
+      getWxSetting("userLocationBackground")
         .then(() => resolve())
         .catch(() => {
           reject();

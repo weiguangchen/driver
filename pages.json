@@ -110,7 +110,13 @@
         "navigationBarTitleText": "车辆入厂码",
         "backgroundColor": "#f2f4f7"
       }
-    }
+	},
+	{
+		"path": "pages/locationTest/locationTest",
+		"style": {
+			"navigationBarTitleText": "定位测试"
+		}
+	}
   ],
   //配置导航栏
   "tabBar": {

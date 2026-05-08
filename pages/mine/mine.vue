@@ -156,6 +156,16 @@
         />
         <view class="name">设置</view>
       </view>
+	  <view class="menu" @click="navigate('定位测试')">
+	    <uv-image
+	      src="/static/images/mine/setting.png"
+	      width="56rpx"
+	      height="56rpx"
+	      :custom-style="{ marginBottom: '4rpx' }"
+	      :duration="0"
+	    />
+	    <view class="name">定位测试</view>
+	  </view>
     </view>
   </view>
   <!-- 登录弹窗 -->
@@ -236,6 +246,11 @@ function navigate(type) {
         url: "/pages/setting/setting",
       });
       break;
+	case "定位测试":
+	  uni.navigateTo({
+	    url: "/pages/locationTest/locationTest",
+	  });
+	  break;
   }
 }
 
