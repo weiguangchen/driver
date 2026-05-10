@@ -240,6 +240,10 @@
   <!-- 登录弹窗 -->
   <my-login-drawer ref="loginDrawer" @success="loginSuccess" />
   <!-- end -->
+  <!-- 引导开启定位授权弹窗 -->
+  <my-location-drawer ref="locationDrawer" />
+  <my-location-notice ref="locationNotice" />
+
   <my-tabbar @change="tabbarChange" />
 </template>
 
@@ -266,7 +270,8 @@ import { storeToRefs } from "pinia";
 import { useAppStore } from "@/stores/app.js";
 import { useUserStore } from "@/stores/user.js";
 import { useLocationStore } from "@/stores/location.js";
-import { getWxSetting, getLocationInfo } from "@/utils/authorize.js";
+import { getWxSetting, getLocationInfo, getBackgroundLocationAuth } from "@/utils/authorize.js";
+import { locationTracker } from "@/utils/locationTracker.js";
 import { getToken } from "@/utils/token.js";
 import {
   GetDriverWayCount,
@@ -295,42 +300,80 @@ function tabbarChange(index) {
 }
 
 const isInit = ref(false);
-onLoad(async () => {
-  console.log("onLoad");
-  if (isInit.value) {
-    return;
-  }
-  if (!getToken()) {
-    return;
-  }
-  try {
-    await getLocationInfo();
-  } finally {
-    await userStore.getCarList();
-    await getCurrentCarnoCargoOptions();
-    await getProcess();
-    getScrollPos();
-  }
-  isInit.value = true;
-});
-onShow(async () => {
-  console.log("onShow");
-  appStore.switchTab(0);
-  if (!isInit.value) {
-    return;
-  }
-  if (!getToken()) {
-    return;
-  }
-  await userStore.getCarList();
-  await getProcess();
-});
+// onLoad(async () => {
+//   console.log("onLoad");
+//   if (isInit.value) {
+//     return;
+//   }
+//   if (!getToken()) {
+//     return;
+//   }
+  
+//   try {
+//     // 获取司机定位开关设置
+//     const locationConfig = await locationStore.getLocationConfig();
+//     console.log('locationConfig', locationConfig);
+//     if(locationConfig.showModal) {
+//       unref(locationDrawer).open()
+//     }else{
+//       unref(locationDrawer).close()
+//     }
+//   } finally {
+//     // 获取用户车辆列表
+//     userStore.getCarList();
+//     // 获取当前进行中的运单数量
+//     getProcess();
+//   }
+//   getScrollPos();
+//   isInit.value = true;
+// });
+// onShow(async () => {
+//   console.log("onShow");
+//   appStore.switchTab(0);
+//   if (!isInit.value) {
+//     return;
+//   }
+//   if (!getToken()) {
+//     return;
+//   }
+//   userStore.getCarList();
+//   getProcess();
+// });
+
 // 顶部导航条逻辑
+onShow(async () => {
+  console.log("onLoad");
+  if (!getToken()) {
+    return;
+  }
+  
+  try {
+    // 获取司机定位开关设置
+    const locationConfig = await locationStore.getLocationConfig();
+    console.log('locationConfig', locationConfig);
+    if(locationConfig.showModal) {
+      unref(locationDrawer).open()
+      unref(locationNotice).open()
+    }else{
+      unref(locationDrawer).close()
+      unref(locationNotice).close()
+    }
+  } finally {
+    console.log('finally')
+    // 获取用户车辆列表
+    userStore.getCarList();
+    // 获取当前进行中的运单数量
+    getProcess();
+    // 启动定位追踪
+    locationTracker.start();
+  }
+  getScrollPos();
+});
+
 const scrollTop = ref(0);
 const navbarHeight = ref(1);
 async function getScrollPos() {
   await nextTick();
-  // let navbarInfo = await ctx.$uv.getRect(".car-info");
   let navbarInfo = await ctx.$uv.getRect(".index-navbar");
   navbarHeight.value = navbarInfo.bottom;
 }
@@ -540,9 +583,9 @@ watch(
       console.log("不需重新获取");
     }
   },
-  {
-    immediate: true,
-  }
+  // {
+  //   immediate: true,
+  // }
 );
 async function changeCargo(item) {
   try {
@@ -624,6 +667,11 @@ onUnload(() => {
     uni.$off(`index:${key}`, handleMap[key]);
   }
 });
+
+// 定位提示抽屉
+const locationDrawer = ref();
+// 定位提示弹窗
+const locationNotice = ref();
 </script>
 
 <style lang="scss">
