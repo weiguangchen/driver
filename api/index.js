@@ -195,3 +195,19 @@ export function GetDriverCarListBySupply(data) {
  * 数据统计列表
  */
 export const UploadImg = `${process.env.BASE_URL}/api/permission/WechatApi/UploadImg`;
+/**
+ * 获取司机定位开关设置
+ */
+export function GetLocationSwitch(data) {
+  return request.post(
+    "/api/permission/WechatApi/GetLocationSwitch",
+    data
+  );
+}
+/**
+ * 上传定位轨迹点
+ */
+export function UploadTrackPoint(data) {
+  return request.post("/api/Wechat/TrackPosition/UploadTrackPoint", data);
+}
+
