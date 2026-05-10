@@ -3,6 +3,7 @@ import {
 } from 'pinia';
 import { GetLocationSwitch } from '@/api/index';
 import { getWxSetting } from '@/utils/authorize';
+import { locationTracker } from '@/utils/locationTracker';
 
 export const useLocationStore = defineStore('location', {
 	state: () => {
@@ -40,6 +41,8 @@ export const useLocationStore = defineStore('location', {
 					this.locationConfig = {
 						...res,
 					};
+					// 配置加载完成后启动定位追踪
+					locationTracker.start();
 				});
 				const location = await uni.getLocation({
 					type: "gcj02",
