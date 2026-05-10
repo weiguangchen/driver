@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { setToken, removeToken } from "@/utils/token.js";
 import { loginByMobile, getCarList } from "@/api/index.js";
+import { locationTracker } from "@/utils/locationTracker.js";
 
 export const useUserStore = defineStore("user", {
   state: () => {
@@ -42,6 +43,7 @@ export const useUserStore = defineStore("user", {
       return userInfo;
     },
     logout() {
+      locationTracker.stop();
       removeToken();
       this.setUserInfo({});
       this.carList = [];
@@ -50,6 +52,7 @@ export const useUserStore = defineStore("user", {
       this.userInfo = payload;
     },
     async getCarList() {
+      this.carList = [];
       const res = await getCarList();
       console.log("carList", res);
       this.carList = res.carList;
