@@ -125,6 +125,7 @@ const locationTracker = {
 		}))
 
 		this._running = true
+		this._buffer = []
 		this._resetState()
 		this._registerCallbacks()
 		this._startGps()
