@@ -227,13 +227,21 @@
   <!-- 追踪 -->
   <StepDrawer ref="stepModal" />
   <!-- 结果 -->
-  <my-result-drawer ref="resultModal" />
+  <my-result-drawer ref="resultModal" >
+    <template #info>
+      <view class="info">
+        请全程开启定位，点击<text style="color:var(--dark-main);font-weight: 500;" @click="openResultLink">《定位权限设置指南》</text>了解更多
+      </view>
+    </template>
+  </my-result-drawer>
   <!-- 通知 -->
   <NoticeModal ref="noticeModal" :text="info.DriverAnnouncement" />
+  <!-- 引导开启定位授权弹窗 -->
+  <my-location-drawer ref="locationDrawer" />
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, unref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import Material from "./components/Material.vue";
 import MapDrawer from "./components/MapDrawer.vue";
@@ -469,10 +477,22 @@ function takePhone() {
   });
 }
 
-function confirm() {
+const confirmRes = ref({
+  LocationSwitch: '',
+  SuccessMsg: ''
+});
+function openResultLink() {
+  uni.navigateTo({
+    url: `/pages/webview/webview?src=${encodeURIComponent(unref(confirmRes).SuccessMsg)}`
+  })
+}
+function confirm(res) {
+  console.log('confirm res', res);
+  confirmRes.value = res;
   resultModal.value.open({
     title: "接单成功",
     info: "可在「运单」中查看装运进度",
+    customInfo: ['A', 'B'].includes(res.LocationSwitch),
     confirmText: "查看运单",
     confirmCallBack: () => {
       uni.$emit("waybill:reload");

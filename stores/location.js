@@ -24,85 +24,78 @@ export const useLocationStore = defineStore('location', {
 			},
 			// 是否正在追踪定位
 			isTracking: false,
+			// 是否有定位权限
+			userLocation: null,
+			// 后台定位权限
+			userLocationBackground: null,
 		};
 	},
 	actions: {
 		setLocation(payload) {
 			this.location = payload;
 		},
-		/**
-		 * 开启后台定位权限
-		 */
-		async getLocationConfig() {
-			// 如果有定位权限，直接获取定位配置，定位配置异步获取，优化用户体验
-			const setting = await uni.getSetting();
-			if(setting.authSetting['scope.userLocationBackground']) {
-				GetLocationSwitch().then(res => {
-					this.locationConfig = {
-						...res,
-					};
-					// 配置加载完成后启动定位追踪
-					locationTracker.start();
-				});
-				const location = await uni.getLocation({
-					type: "gcj02",
-					isHighAccuracy: true
-				});
-				this.location = location;
-				return Promise.resolve({
-					...this.locationConfig,
-					// 是否展示提示窗体
-					showModal: false,
-				});
-			}
+		async refreshLocationConfig() {
 			// 如果没有后台定位权限，获取定位配置，先获取定位配置
 			try {
-				uni.showLoading();
 				const res = await GetLocationSwitch();
 				this.locationConfig = {
 					...res,
 				};
-			}catch {
-				return Promise.reject({
-					type: 'getLocationConfigError',
-					message: '获取定位配置失败',
-				});
-			}finally {
-				uni.hideLoading();
-			}
-
-			if(this.locationConfig.LocationSwitch === 'C' || this.locationConfig.LocationSwitch === 'D') {
-				return Promise.resolve({
-					...this.locationConfig,
-					// 是否展示提示窗体
-					showModal: false,
-				});
-			}
-			// 获取当前定位权限
-			let hasLocationAuth = false;
+			}catch {}
+		},
+		async getLocation() {
 			try {
-				await getWxSetting('userLocationBackground');
-				const setting = await uni.getSetting();
-				hasLocationAuth = setting.authSetting['scope.userLocationBackground'];
-			}catch {
-				hasLocationAuth = false;
-			}
-			console.log('hasLocationAuth',hasLocationAuth);
-
-			if(hasLocationAuth) {
 				const location = await uni.getLocation({
 					type: "gcj02",
-					isHighAccuracy: true
+					isHighAccuracy: true,
 				});
 				this.location = location;
 				console.log('location', location);
+				return location;
+			}catch(err) {
+				console.log('getLocation err', err);
+				return null;
 			}
+		},
+		/**
+		 * 开启后台定位权限
+		 */
+		async getLocationConfig() {
+			this.refreshLocationConfig();
+			// 获取当前定位权限
+			let hasUserLocationBackground = null;
+			let hasUserLocation = null;
+			try {
+				await getWxSetting('userLocationBackground');
+				const setting = await uni.getSetting();
+				hasUserLocationBackground = !!setting.authSetting['scope.userLocationBackground'];
+				hasUserLocation = !!setting.authSetting['scope.userLocation'];
+			}catch {
+				hasUserLocationBackground = false;
+				hasUserLocation = false;
+			}
+			console.log('getLocationConfig hasUserLocationBackground',hasUserLocationBackground,'hasUserLocation',hasUserLocation);
+
+			if(hasUserLocation || hasUserLocationBackground) {
+				await this.getLocation();
+			}
+
+			this.userLocationBackground = hasUserLocationBackground;
+			this.userLocation = hasUserLocation;
 
 			return Promise.resolve({
 				...this.locationConfig,
-				// 是否展示提示窗体
-				showModal: !hasLocationAuth,
 			});
-		}
+		},
+		/**
+		 * 开启后台定位权限
+		 */
+		async getLocationAuth() {
+			// 如果有定位权限，直接获取定位配置，定位配置异步获取，优化用户体验
+			const setting = await uni.getSetting();
+			this.userLocationBackground = !!setting.authSetting['scope.userLocationBackground'];
+			this.userLocation = !!setting.authSetting['scope.userLocation'];
+			console.log('getLocationAuth', setting, this.userLocationBackground, this.userLocation);
+		},
 	},
 });

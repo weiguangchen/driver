@@ -52,9 +52,7 @@ export const useUserStore = defineStore("user", {
       this.userInfo = payload;
     },
     async getCarList() {
-      this.carList = [];
       const res = await getCarList();
-      console.log("carList", res);
       this.carList = res.carList;
       this.carConfig = {
         carsLimit: res?.carsLimit ?? 0,

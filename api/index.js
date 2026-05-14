@@ -211,3 +211,9 @@ export function UploadTrackPoint(data) {
   return request.post("/api/Wechat/TrackPosition/UploadTrackPoint", data);
 }
 
+/**
+ * 获取banner列表
+ */
+export function GetBannerList(data) {
+  return request.post("/api/Permission/WechatApi/GetBannerList", data);
+}

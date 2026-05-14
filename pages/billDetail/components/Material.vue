@@ -39,7 +39,7 @@
   </view>
 
   <my-drawer
-    title="设置预计装运量"
+    title="确认预装量"
     ref="drawer"
     showConfirmButton
     bgColor="#FFFFFF"
@@ -73,25 +73,14 @@
         >
           <template #label>
             <view class="main-title">预装总重（毛重）</view>
-            <view class="sub-title"
-              >限
-              {{
-                bill.ConfigEnt
-                  ? bill.ConfigEnt.fullLoadMin
-                    ? bill.ConfigEnt.fullLoadMin
-                    : 0
-                  : 0
-              }}
-              ~
-              {{
-                bill.ConfigEnt
-                  ? bill.ConfigEnt.fullLoadMax
-                    ? bill.ConfigEnt.fullLoadMax
-                    : ""
-                  : ""
-              }}
-              {{ record.Unit }}</view
-            >
+            <view class="sub-title">
+              <template v-if="fullLoadMin && fullLoadMax && fullLoadMin === fullLoadMax">
+                限 {{ fullLoadMax }} {{ record.Unit }}
+              </template>
+              <template v-else>
+                限 {{ fullLoadMin }} ~ {{ fullLoadMax ?? '' }} {{ record.Unit }}
+              </template>
+            </view>
           </template>
           <view
             style="display: flex; justify-content: center; padding-top: 32rpx"
@@ -100,21 +89,9 @@
               v-model="model.Load"
               decimal-length="2"
               :unit="record.Unit"
-              :min="
-                bill.ConfigEnt
-                  ? bill.ConfigEnt.fullLoadMin
-                    ? bill.ConfigEnt.fullLoadMin
-                    : 0
-                  : 0
-              "
+              :min="fullLoadMin"
               :min-limit-msg="(min) => `重量最少为${min}${record.Unit}`"
-              :max="
-                bill.ConfigEnt
-                  ? bill.ConfigEnt.fullLoadMax
-                    ? bill.ConfigEnt.fullLoadMax
-                    : undefined
-                  : undefined
-              "
+              :max="fullLoadMax"
               :max-limit-msg="(max) => `重量最多为${max}${record.Unit}`"
             />
           </view>
@@ -133,10 +110,9 @@
           </view>
         </uv-form-item>
       </uv-form>
-      <view class="tip"
-        >本次预估装运物料 {{ Suttle }}
-        {{ record.Unit }}，结算请以实际装运为准</view
-      >
+      <view class="tip">
+        本次预估装运<text style="color:var(--dark-main);font-weight: 500;">净重 {{ Suttle }} {{ record.Unit }}</text>，实际以计量过磅为准
+      </view>
     </view>
 
     <template #footer>
@@ -170,8 +146,18 @@ import { sleep } from "@/utils/index.js";
 import Big from "big.js";
 import { DriverMakeOnway } from "@/api/index.js";
 import { getToken } from "@/utils/token.js";
+import { getDeviceId } from "@/utils/device.js";
 import TypeSelect from "./TypeSelect.vue";
 import { setStorage } from "@/utils/storage.js";
+import { useAppStore } from "@/stores/app.js";
+import { useLocationStore } from "@/stores/location.js";
+import { storeToRefs } from "pinia";
+import { locationTracker } from "@/utils/locationTracker.js";
+
+const locationStore = useLocationStore();
+
+const appStore = useAppStore();
+const { deviceInfo, appBaseInfo } = storeToRefs(appStore);
 
 const props = defineProps({
   borderBottom: {
@@ -264,14 +250,19 @@ function change(val) {
   console.log("val", val);
 }
 
+const fullLoadMin = computed(() => props.bill?.ConfigEnt?.fullLoadMin || 0);
+const fullLoadMax = computed(() => props.bill?.ConfigEnt?.fullLoadMax || undefined);
+
 const loading = ref(false);
 async function confirm() {
-  await uni.hideKeyboard();
   loading.value = true;
+  const location = await locationStore.getLocation();
+  await uni.hideKeyboard();
   await sleep(200);
   try {
     // console.log("model", model);
     const tokenData = getToken();
+    const DeviceInfo = `${unref(deviceInfo)?.brand} · ${unref(deviceInfo)?.system} · ${unref(appBaseInfo)?.host?.env} ${unref(appBaseInfo)?.version}`;
     const params = {
       AssignId: props.bill.Id,
       SupplyId: props.bill?.SupEnt?.Id,
@@ -285,13 +276,26 @@ async function confirm() {
       Load: model.Load,
       LoadType: model.LoadType,
       Suttle: Suttle.value,
+      DeviceInfo,
+      DeviceCode: getDeviceId(),
+      AcceptLocation: {
+        location: location ? `${location.longitude},${location.latitude}` : "",
+        direction: locationTracker.currentBearing
+      }
     };
     setStorage("driverMakeOnway", {
       ...model,
       ConfigEnt: props?.bill?.ConfigEnt ?? {},
     });
-    await DriverMakeOnway(params);
-    emits("confirm");
+    const res = await DriverMakeOnway(params);
+    emits("confirm", res);
+    // 判断权限开始定位
+    await locationStore.refreshLocationConfig();
+    if (locationStore.userLocationBackground) {
+      locationTracker.start();
+    } else {
+      locationTracker.stop();
+    }
     drawer.value.popup.close();
   } catch (err) {
     console.log(err);

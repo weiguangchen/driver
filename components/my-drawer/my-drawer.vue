@@ -32,7 +32,9 @@
             @click="handleClose"
           />
         </view>
+        <slot v-if="customScrollView"></slot>
         <scroll-view
+          v-else
           scroll-y="true"
           class="scroll-view"
           :style="{ height: `${scrollHeight}px` }"
@@ -41,21 +43,43 @@
             <slot></slot>
           </view>
         </scroll-view>
-        <view class="modal-footer" v-if="showConfirmButton || $slots.footer">
-          <slot name="footer">
+        <view v-if="$slots.footer" class="modal-footer">
+          <slot name="footer" />
+        </view>
+        <view class="preset-modal-footer" v-else-if="showConfirmButton || showCancelButton">
+          <view class="btn" v-if="showCancelButton">
+            <uv-button
+              :text="cancelText"
+              :custom-style="{ 
+                  backgroundColor: 'var(--page-bg)', 
+                  borderRadius: '16rpx', 
+                  height: '96rpx',
+                  fontWeight: '500', 
+              }"
+              :custom-text-style="{ 
+                  color: 'var(--sub-color)',
+                  fontSize: '30rpx',
+              }" 
+              @click="handleCancel"
+            />
+          </view>
+          <view class="btn" v-if="showConfirmButton">
             <uv-button
               :text="confirmText"
               color="linear-gradient( 270deg, #31CE57 0%, #07B130 100%);"
-              @click="confirm"
               :loading="loading"
               :custom-style="{
                 borderRadius: '16rpx',
                 height: '96rpx',
-                fontWeight: 'bold',
+                fontWeight: '500',
                 fontSize: '30rpx',
               }"
+              :custom-text-style="{ 
+                  fontSize: '30rpx',
+              }" 
+              @click="confirm"
             />
-          </slot>
+          </view>
         </view>
       </view>
     </uv-popup>
@@ -126,6 +150,14 @@ const props = defineProps({
     type: String,
     default: "#F2F4F7",
   },
+  showCancelButton: {
+    type: Boolean,
+    default: false,
+  },
+  cancelText: {
+    default: "取消",
+    type: String,
+  },
   showConfirmButton: {
     type: Boolean,
     default: false,
@@ -138,8 +170,13 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // 是否自定义中间滚动部分
+  customScrollView: {
+    type: Boolean,
+    default: false,
+  },
 });
-const emits = defineEmits(["maskClick", "change", "confirm", "close"]);
+const emits = defineEmits(["maskClick", "change", "confirm", "close", "cancel"]);
 
 function maskClick() {
   emits("maskClick");
@@ -181,6 +218,9 @@ function confirm() {
   }
   emits("confirm");
 }
+function handleCancel() {
+  emits("cancel");
+}
 
 function closeLoading() {
   loading.value = false;
@@ -214,7 +254,16 @@ defineExpose({
     height: 112rpx;
   }
 
-  .scroll-view {
+  .scroll-view {}
+
+  .preset-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 22rpx;
+    padding: 24rpx;
+    .btn {
+      flex: 1;
+    }
   }
 
   .modal-footer {

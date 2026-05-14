@@ -180,13 +180,8 @@
   </view>
   <!-- end -->
   <!-- banner -->
-  <view class="banner" @click="follow">
-    <uv-image
-      width="100%"
-      height="100%"
-      :duration="0"
-      src="/static/images/mine/banner.png"
-    />
+  <view class="banner" v-if="bannerList.length > 0">
+    <my-banner-swiper :list="bannerList"/>
   </view>
   <!-- end -->
   <!-- 待接单运单 -->
@@ -281,6 +276,7 @@ import {
   GetDriverTakeTicketOwnerList,
   ScanQR,
   GetDriverOnwayCnt,
+  GetBannerList
 } from "@/api/index.js";
 import SelectCargo from "./components/SelectCargo.vue";
 import Item from "./components/Item.vue";
@@ -288,6 +284,8 @@ import useList from "@/hooks/useList.js";
 const { ctx } = getCurrentInstance();
 
 const appStore = useAppStore();
+const { osType } = storeToRefs(appStore);
+
 const userStore = useUserStore();
 const locationStore = useLocationStore();
 const { carList, defaultCar } = storeToRefs(userStore);
@@ -300,81 +298,47 @@ function tabbarChange(index) {
 }
 
 const isInit = ref(false);
-// onLoad(async () => {
-//   console.log("onLoad");
-//   if (isInit.value) {
-//     return;
-//   }
-//   if (!getToken()) {
-//     return;
-//   }
-  
-//   try {
-//     // 获取司机定位开关设置
-//     const locationConfig = await locationStore.getLocationConfig();
-//     console.log('locationConfig', locationConfig);
-//     if(locationConfig.showModal) {
-//       unref(locationDrawer).open()
-//     }else{
-//       unref(locationDrawer).close()
-//     }
-//   } finally {
-//     // 获取用户车辆列表
-//     userStore.getCarList();
-//     // 获取当前进行中的运单数量
-//     getProcess();
-//   }
-//   getScrollPos();
-//   isInit.value = true;
-// });
-// onShow(async () => {
-//   console.log("onShow");
-//   appStore.switchTab(0);
-//   if (!isInit.value) {
-//     return;
-//   }
-//   if (!getToken()) {
-//     return;
-//   }
-//   userStore.getCarList();
-//   getProcess();
-// });
-
-// 顶部导航条逻辑
-onShow(async () => {
+onLoad(async () => {
   console.log("onLoad");
+  if (isInit.value) {
+    return;
+  }
   if (!getToken()) {
     return;
   }
-  
+
   try {
     // 获取司机定位开关设置
-    const locationConfig = await locationStore.getLocationConfig();
-    console.log('locationConfig', locationConfig);
-    if(locationConfig.showModal) {
-      unref(locationDrawer).open()
-      unref(locationNotice).open()
-    }else{
-      unref(locationDrawer).close()
-      unref(locationNotice).close()
-    }
+    await locationStore.getLocationConfig();
   } finally {
-    console.log('finally')
     // 获取用户车辆列表
     userStore.getCarList();
     // 获取当前进行中的运单数量
     getProcess();
-    // 启动定位追踪
-    locationTracker.start();
   }
   getScrollPos();
+  isInit.value = true;
+});
+onShow(async () => {
+  console.log("onShow");
+  appStore.switchTab(0);
+  if (!isInit.value) {
+    return;
+  }
+  if (!getToken()) {
+    return;
+  }
+  userStore.getCarList();
+  getProcess();
 });
 
+// 顶部导航条逻辑
 const scrollTop = ref(0);
 const navbarHeight = ref(1);
 async function getScrollPos() {
   await nextTick();
   let navbarInfo = await ctx.$uv.getRect(".index-navbar");
+  // console.log('navbarInfo', navbarInfo);
   navbarHeight.value = navbarInfo.bottom;
 }
 onPageScroll((e) => {
@@ -426,26 +390,14 @@ function changeCar() {
     url: "/pages/carList/carList",
   });
 }
-// 操作指南
-function toGuide() {
-  const src = "https://mp.weixin.qq.com/s/6Hqb9mbfT_Te9Tu4cD26DQ";
-  // uni.navigateTo({
-  // 	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
-  // })
-  uni.openOfficialAccountArticle({
-    url: src,
-  });
-}
+
 // 关注公众号
 function follow() {
   const src =
     "https://mp.weixin.qq.com/s?__biz=MzkxOTcyODM5OA==&mid=2247483675&idx=1&sn=3f1378b5f85fe5ed6144eb9446f63a32&chksm=c19cf97af6eb706cee30883335ba2e11ab4ebd79c23dac68af13106c2b56e20eee02ddfe656c#rd";
-  // uni.navigateTo({
-  // 	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
-  // })
-  uni.openOfficialAccountArticle({
-    url: src,
-  });
+  uni.navigateTo({
+  	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+  })
 }
 function navigate(type) {
   if (!getToken()) {
@@ -536,6 +488,9 @@ function openLoginDrawer() {
 function loginSuccess() {
   uni.reLaunch({
     url: "/pages/index/index",
+    success: () => {
+      appStore.getBanner();
+    }
   });
 }
 // 切换货主
@@ -668,10 +623,19 @@ onUnload(() => {
   }
 });
 
-// 定位提示抽屉
-const locationDrawer = ref();
-// 定位提示弹窗
-const locationNotice = ref();
+
+// 首页banner
+const bannerList = computed(() => {
+  return appStore.bannerList?.find((m) => m.Position === 'driversy')?.List ?? [];
+});
+// 操作指南
+function toGuide() {
+  const src = appStore.bannerList?.find((m) => m.Position === 'driverManual')?.List?.[0]?.LinkUrl;
+  if (!src) return;
+  uni.navigateTo({
+  	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+  })
+}
 </script>
 
 <style lang="scss">
@@ -840,7 +804,8 @@ page {
 }
 
 .banner {
-  margin: 0 24rpx 24rpx;
+  // margin: 0 24rpx 24rpx;
+  margin: 0 0 24rpx;
   height: 192rpx;
   border-radius: 24rpx 24rpx 24rpx 24rpx;
 }

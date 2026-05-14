@@ -70,19 +70,16 @@ export const getWxSetting = (key) => {
           uni.authorize({
             scope: `scope.${key}`,
             success(res) {
+              console.log('authorize success', res)
               resolve();
             },
             fail(err) {
-              openSettingModal(key)
-                .then((res) => {
-                  resolve();
-                })
-                .catch(() => {
-                  reject();
-                });
+              console.log('authorize fail', err)
+              reject(err);
             },
           });
         } else {
+          console.log('getWxSetting success', key, res)
           resolve();
         }
       },
@@ -173,3 +170,15 @@ export const getLocationInfo = async () => {
     return Promise.reject();
   }
 };
+
+
+//获取用户后台定位权限
+export const getBackgroundLocationAuth = async () => {
+  try {
+    await getWxSetting("userLocationBackground");
+    console.log('getBackgroundLocationAuth success')
+  }catch(err) {
+    console.log('getBackgroundLocationAuth err', err)
+    return Promise.reject();
+  }
+}

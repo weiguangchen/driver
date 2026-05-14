@@ -6,6 +6,7 @@
     :customStyle="{
       marginTop: '-25rpx',
     }"
+    :z-index="1000"
   >
     <view class="notice-modal">
       <view class="title">致来厂司机：</view>

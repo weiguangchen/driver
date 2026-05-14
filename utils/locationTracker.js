@@ -8,6 +8,7 @@
 
 import { UploadTrackPoint } from '@/api/index.js'
 import { useLocationStore } from '@/stores/location.js'
+import dayjs from 'dayjs'
 
 // ==================== 常量 ====================
 const TAG = '[locationTracker]'
@@ -75,6 +76,7 @@ const locationTracker = {
 
 	// --- locationChange 回调引用 ---
 	_onLocationChangeFn: null,
+	_onLocationChangeErrorFn: null,
 
 	// ==================== 公共 API ====================
 
@@ -90,6 +92,14 @@ const locationTracker = {
 	 */
 	get bufferSize() {
 		return this._buffer.length
+	},
+
+	/**
+	 * 当前方位角（0~360，正北为 0，顺时针）
+	 * 未计算过时为 0
+	 */
+	get currentBearing() {
+		return this._lastBearing
 	},
 
 	/**
@@ -130,6 +140,7 @@ const locationTracker = {
 		this._registerCallbacks()
 		this._startGps()
 		this._startIntervalTimer()
+		this._startThresholdTimer()
 	},
 
 	/**
@@ -179,6 +190,10 @@ const locationTracker = {
 			self._onLocationChange(res)
 		}
 
+		this._onLocationChangeErrorFn = function(err) {
+			self._onLocationChangeError(err)
+		}
+
 		this._onAppHideFn = function() {
 			self._onAppHide()
 		}
@@ -188,6 +203,7 @@ const locationTracker = {
 		}
 
 		wx.onLocationChange(this._onLocationChangeFn)
+		wx.onLocationChangeError(this._onLocationChangeErrorFn)
 		wx.onAppHide(this._onAppHideFn)
 		wx.onAppShow(this._onAppShowFn)
 	},
@@ -199,6 +215,9 @@ const locationTracker = {
 		if (this._onLocationChangeFn) {
 			wx.offLocationChange(this._onLocationChangeFn)
 		}
+		if (this._onLocationChangeErrorFn) {
+			wx.offLocationChangeError(this._onLocationChangeErrorFn)
+		}
 		if (this._onAppHideFn) {
 			wx.offAppHide(this._onAppHideFn)
 		}
@@ -206,6 +225,7 @@ const locationTracker = {
 			wx.offAppShow(this._onAppShowFn)
 		}
 		this._onLocationChangeFn = null
+		this._onLocationChangeErrorFn = null
 		this._onAppHideFn = null
 		this._onAppShowFn = null
 	},
@@ -286,6 +306,20 @@ const locationTracker = {
 	},
 
 	/**
+	 * 定位错误回调 — 权限被收回时自动停止
+	 */
+	_onLocationChangeError(err) {
+		console.error(TAG, '定位错误', JSON.stringify(err))
+		if (err.errCode === 11) {
+			console.log(TAG, '定位权限已关闭，自动停止追踪')
+			this.stop()
+			const store = useLocationStore()
+			store.userLocation = false
+			store.userLocationBackground = false
+		}
+	},
+
+	/**
 	 * GPS 回调 — 采集点位核心逻辑
 	 */
 	_onLocationChange(res) {
@@ -334,6 +368,10 @@ const locationTracker = {
 			this._lastPos = { latitude: res.latitude, longitude: res.longitude }
 
 			console.log(TAG, '记录点位', JSON.stringify({
+				time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+				location: point.location,
+				speed: point.speed,
+				height: point.height,
 				distance: distance.toFixed(1) + 'm',
 				bearing: bearing.toFixed(1) + '°',
 				bufferSize: this._buffer.length,
@@ -341,9 +379,6 @@ const locationTracker = {
 
 			// 记录点位后，重置 IntervalTimer（T秒超时）
 			this._restartIntervalTimer()
-
-			// 重置 ThresholdTimer（W秒超时上传）
-			this._restartThresholdTimer()
 
 			// 检查是否达到批量上传数量
 			const batchCount = Number(config.BatchSendCount) || 0
@@ -384,7 +419,27 @@ const locationTracker = {
 	},
 
 	/**
-	 * 启动/重启 TimeoutThreshold 定时器（W秒后强制上传缓冲区）
+	 * 启动 TimeoutThreshold 定时器（W秒后强制上传缓冲区）
+	 */
+	_startThresholdTimer() {
+		this._clearThresholdTimer()
+
+		const config = getConfig()
+		const thresholdSeconds = Number(config.TimeoutThreshold) || 0
+		if (thresholdSeconds <= 0) return
+
+		const self = this
+		this._thresholdTimer = setTimeout(function() {
+			if (!self._running) return
+			console.log(TAG, 'TimeoutThreshold 超时', thresholdSeconds, '秒，强制上传')
+			if (self._buffer.length > 0) {
+				self._doUpload()
+			}
+		}, thresholdSeconds * 1000)
+	},
+
+	/**
+	 * 重启 TimeoutThreshold 定时器（上传成功后调用）
 	 */
 	_restartThresholdTimer() {
 		this._clearThresholdTimer()
@@ -433,7 +488,6 @@ const locationTracker = {
 
 		// 重置定时器
 		this._restartIntervalTimer()
-		this._restartThresholdTimer()
 
 		// 检查是否需要上传
 		const config = getConfig()
@@ -476,11 +530,22 @@ const locationTracker = {
 	/**
 	 * 执行上传
 	 */
-	_doUpload() {
+	async _doUpload() {
 		if (this._buffer.length === 0) return
+
+		// 上传前刷新配置，获取最新 OnwayList
+		const store = useLocationStore()
+		await store.refreshLocationConfig()
 
 		const config = getConfig()
 		const onwayList = config.OnwayList || []
+
+		// OnwayList 为空，停止追踪
+		if (onwayList.length === 0) {
+			console.log(TAG, 'OnwayList 为空，停止追踪')
+			this.stop()
+			return
+		}
 
 		// 从 buffer 取出待上传的点位
 		const points = this._buffer.splice(0)
@@ -507,10 +572,12 @@ const locationTracker = {
 		UploadTrackPoint(data).then(function() {
 			self._lastUploadTime = Date.now()
 			console.log(TAG, '上传成功', points.length, '个点位')
+			self._restartThresholdTimer()
 		}).catch(function(err) {
-			// 上传失败：把点位放回缓冲区头部，下次继续上传
+			// 上传失败：把点位放回缓冲区头部，停止追踪
 			self._buffer = points.concat(self._buffer)
 			console.error(TAG, '上传失败，缓冲区回滚', points.length, '个点位', JSON.stringify(err))
+			self.stop()
 		})
 	},
 }

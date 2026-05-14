@@ -34,7 +34,10 @@
           <view class="result-drawer-content-title">
             {{ popupConfig.title }}
           </view>
-          <view class="result-drawer-content-info">
+          <view class="result-drawer-content-info" v-if="popupConfig.customInfo">
+            <slot name="info"></slot>
+          </view>
+          <view class="result-drawer-content-info" v-else>
             {{ popupConfig.info }}
           </view>
         </view>
@@ -88,6 +91,7 @@ const popupConfig = ref({
   type: "success",
   title: "接单成功",
   info: "可在「当前任务」中查看装运进度",
+  customInfo: false,
   showCancel: true,
   cancelText: "返回首页",
   cancelCallBack: () => {

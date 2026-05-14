@@ -146,7 +146,8 @@
   "easycom": {
     "autoscan": true,
     "custom": {
-      "^my-(.*)": "@/components/my-$1/my-$1.vue"
+      // "^my-(.*)": "@/components/my-$1/my-$1.vue",
+      "^my-(.*)": "@/components/my-$1.vue"
     }
   }
 }

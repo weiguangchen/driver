@@ -1,18 +1,31 @@
 <script setup>
 import { getToken } from "@/utils/token.js";
 import { useUserStore } from "@/stores/user.js";
-import { onLaunch } from "@dcloudio/uni-app";
+import { useLocationStore } from "@/stores/location.js";
+import { useAppStore } from "@/stores/app.js";
+import { locationTracker } from "@/utils/locationTracker.js";
+import { onLaunch, onShow } from "@dcloudio/uni-app";
+import { getDeviceId } from "@/utils/device.js";
 
 const userStore = useUserStore();
+const locationStore = useLocationStore();
+const appStore = useAppStore();
 onLaunch(async () => {
   console.log("App Launch");
+  // 获取设备信息
+  appStore.getDeviceInfo();
+  // 获取设备唯一标识
+  const deviceId = getDeviceId();
+  console.log('设备唯一标识', deviceId);
+  // 获取banner
+  appStore.getBanner();
+  // 将本地存储的用户信息设置到用户状态
   userStore.setUserInfo(getToken() ? getToken()?.userInfo : {});
-
   // 微信更新
   const updateManager = wx.getUpdateManager();
   updateManager.onCheckForUpdate(function (res) {
     // 请求完新版本信息的回调
-    console.log("onCheckForUpdate", res);
+    // console.log("onCheckForUpdate", res);
   });
   updateManager.onUpdateReady(function () {
     console.log("onUpdateReady");
@@ -28,7 +41,7 @@ onLaunch(async () => {
     });
   });
   updateManager.onUpdateFailed(function () {
-    console.log("onUpdateFailed");
+    // console.log("onUpdateFailed");
     // 新版本下载失败
     wx.showModal({
       title: "更新提示",
@@ -36,7 +49,7 @@ onLaunch(async () => {
     });
   });
 });
-
+// 加载字体
 wx.loadFontFace({
   global: true,
   family: "misans400",
@@ -44,7 +57,7 @@ wx.loadFontFace({
   desc: {
     weight: "380",
   },
-  success: console.log,
+  // success: console.log,
 });
 
 wx.loadFontFace({
@@ -54,7 +67,7 @@ wx.loadFontFace({
   desc: {
     weight: "520",
   },
-  success: console.log,
+  // success: console.log,
 });
 
 wx.loadFontFace({
@@ -64,7 +77,21 @@ wx.loadFontFace({
   desc: {
     weight: "630",
   },
-  success: console.log,
+  // success: console.log,
+});
+
+onShow(async () => {
+  console.log('App Show');
+  if (!getToken()) {
+    return;
+  }
+  await locationStore.getLocationAuth();
+  await locationStore.refreshLocationConfig();
+  if (locationStore.userLocationBackground) {
+    locationTracker.start();
+  } else {
+    locationTracker.stop();
+  }
 });
 </script>
 

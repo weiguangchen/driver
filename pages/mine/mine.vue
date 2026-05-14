@@ -82,13 +82,8 @@
   </view>
   <!-- end -->
   <!-- banner -->
-  <view class="banner" @click="follow">
-    <uv-image
-      width="100%"
-      height="100%"
-      :duration="0"
-      src="/static/images/mine/banner.png"
-    />
+  <view class="banner" v-if="bannerList.length > 0">
+    <my-banner-swiper :list="bannerList"/>
   </view>
   <!-- end -->
   <!-- 常用功能 -->
@@ -136,7 +131,17 @@
         />
         <view class="name">操作指南</view>
       </view>
-      <button open-type="feedback" class="menu">
+      <button 
+        class="menu"
+        style="
+          border: none;
+          padding: 0;
+          color: var(--title-color);
+          font-size: 24rpx;
+          line-height: 40rpx;
+        "
+        open-type="feedback"
+      >
         <uv-image
           src="/static/images/mine/feedback.png"
           width="56rpx"
@@ -177,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance } from "vue";
+import { ref, getCurrentInstance, computed } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { useAppStore } from "@/stores/app.js";
 import QrcodeModal from "./components/qrcodeModal.vue";
@@ -317,24 +322,19 @@ function openQrcode() {
 }
 // 关注公众号
 function follow() {
-  const src =
-    "https://mp.weixin.qq.com/s?__biz=MzkxOTcyODM5OA==&mid=2247483675&idx=1&sn=3f1378b5f85fe5ed6144eb9446f63a32&chksm=c19cf97af6eb706cee30883335ba2e11ab4ebd79c23dac68af13106c2b56e20eee02ddfe656c#rd";
-  // uni.navigateTo({
-  // 	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
-  // })
-  uni.openOfficialAccountArticle({
-    url: src,
-  });
+  const src = appStore.bannerList?.find((m) => m.Position === 'driverFollowgzh')?.List?.[0]?.LinkUrl;
+  if (!src) return;
+  uni.navigateTo({
+  	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+  })
 }
 // 操作指南
 function toGuide() {
-  const src = "https://mp.weixin.qq.com/s/6Hqb9mbfT_Te9Tu4cD26DQ";
-  // uni.navigateTo({
-  // 	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
-  // })
-  uni.openOfficialAccountArticle({
-    url: src,
-  });
+  const src = appStore.bannerList?.find((m) => m.Position === 'driverManual')?.List?.[0]?.LinkUrl;
+  if (!src) return;
+  uni.navigateTo({
+  	url: `/pages/webview/webview?src=${encodeURIComponent(src)}`
+  })
 }
 // 登录
 const loginDrawer = ref();
@@ -346,6 +346,11 @@ function loginSuccess() {
     url: "/pages/mine/mine",
   });
 }
+
+// 首页banner
+const bannerList = computed(() => {
+  return appStore.bannerList?.find((m) => m.Position === 'driverwd')?.List ?? [];
+});
 </script>
 
 <style lang="scss">
