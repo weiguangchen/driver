@@ -161,16 +161,16 @@
         />
         <view class="name">设置</view>
       </view>
-	  <view class="menu" @click="navigate('定位测试')">
-	    <uv-image
-	      src="/static/images/mine/setting.png"
-	      width="56rpx"
-	      height="56rpx"
-	      :custom-style="{ marginBottom: '4rpx' }"
-	      :duration="0"
-	    />
-	    <view class="name">定位测试</view>
-	  </view>
+      <!-- <view class="menu" @click="navigate('定位测试')">
+        <uv-image
+          src="/static/images/mine/setting.png"
+          width="56rpx"
+          height="56rpx"
+          :custom-style="{ marginBottom: '4rpx' }"
+          :duration="0"
+        />
+        <view class="name">定位测试</view>
+      </view> -->
     </view>
   </view>
   <!-- 登录弹窗 -->
@@ -344,6 +344,9 @@ function openLoginDrawer() {
 function loginSuccess() {
   uni.reLaunch({
     url: "/pages/mine/mine",
+    success: () => {
+      appStore.getBanner();
+    }
   });
 }
 
@@ -509,8 +512,6 @@ page {
 }
 
 .banner {
-  height: 192rpx;
-  border-radius: 24rpx 24rpx 24rpx 24rpx;
   margin-bottom: 20rpx;
 }
 

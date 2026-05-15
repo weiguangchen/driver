@@ -57,7 +57,7 @@ function confirm() {
     display: flex;
     align-items: center;
     padding: 0 28rpx 0 16rpx;
-    background: #000000;
+    background: rgba(0, 0, 0, 0.8);
     border-radius: 16rpx;
     .content {
         flex: 1;

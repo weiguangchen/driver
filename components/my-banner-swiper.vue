@@ -1,16 +1,14 @@
 <template>
-    <view class="demo">
+    <view class="my-banner-swiper">
         <uv-swiper 
             :list="bannerList" 
             circular 
             :autoplay="autoplay" 
-            bgColor="transparent"
+            bgColor="var(--page-bg)"
             :height="height"
             radius="24rpx"
             :interval="5000"
             indicator
-            :previousMargin="12"
-            :nextMargin="12"
             @click="clickHandler"
         >
         </uv-swiper>
@@ -29,16 +27,14 @@ const props = defineProps({
     },
     autoplay: {
         type: Boolean,
-        default: false,
+        default: true,
     },
 });
 
 const height = ref(96);
 onReady(()=>{
-    ctx.$uv.getRect('.demo').then(res=>{
-        console.log('demo rect',res)
-        height.value = ((res.width - 24) * 5)/18;
-        console.log('demo height',height.value)
+    ctx.$uv.getRect('.my-banner-swiper').then(res=>{
+        height.value = (res.width* 5)/18;
     })
 })
 

@@ -804,10 +804,7 @@ page {
 }
 
 .banner {
-  // margin: 0 24rpx 24rpx;
-  margin: 0 0 24rpx;
-  height: 192rpx;
-  border-radius: 24rpx 24rpx 24rpx 24rpx;
+  margin: 0 24rpx 24rpx;
 }
 
 .bill-list {

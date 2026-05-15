@@ -95,7 +95,7 @@ defineExpose({
         padding: 48rpx 36rpx;
         text-align: center;
         .title {
-            font-size: 32rpx;
+            font-size: 38rpx;
             font-weight: bold;
             color: var(--title-color);
             line-height: 56rpx;

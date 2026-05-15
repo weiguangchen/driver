@@ -335,8 +335,8 @@ async function getData() {
     };
     console.log("info.value", info.value);
 
-    isOpenResultModal();
-    isOpenNoticeModal();
+    // isOpenResultModal();
+    // isOpenNoticeModal();
   } catch {
   } finally {
   }

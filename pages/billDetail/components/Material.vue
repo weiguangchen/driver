@@ -111,7 +111,7 @@
         </uv-form-item>
       </uv-form>
       <view class="tip">
-        本次预估装运<text style="color:var(--dark-main);font-weight: 500;">净重 {{ Suttle }} {{ record.Unit }}</text>，实际以计量过磅为准
+        本次预估装运<text style="color:var(--dark-main);font-family: misans400;font-weight: bold;">净重 {{ Suttle }} {{ record.Unit }}</text>，实际以计量过磅为准
       </view>
     </view>
 

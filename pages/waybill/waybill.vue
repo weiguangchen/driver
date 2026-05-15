@@ -108,6 +108,9 @@ function openLoginDrawer() {
 function loginSuccess() {
   uni.reLaunch({
     url: "/pages/waybill/waybill",
+    success: () => {
+      appStore.getBanner();
+    }
   });
 }
 // hack滚动穿透
